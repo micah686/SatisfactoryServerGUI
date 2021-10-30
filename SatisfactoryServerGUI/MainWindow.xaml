@@ -1,0 +1,29 @@
+﻿<controls:AdonisWindow x:Class="SatisfactoryServerGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SatisfactoryServerGUI"
+        xmlns:controls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="471" Width="700">
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock Text="StatusBar" />
+            </StatusBarItem>
+        </StatusBar>
+        <Grid>
+            <TabControl>
+                <TabItem Header="Server Controls">
+                    <local:ServerControls/>
+                </TabItem>
+                <TabItem Header="Server Details"/>
+                <TabItem Header="Server Folders"/>
+                <TabItem Header="Logs">
+                    <local:ConsoleLogs></local:ConsoleLogs>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</controls:AdonisWindow>
