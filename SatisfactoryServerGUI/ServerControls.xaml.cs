@@ -25,11 +25,18 @@ namespace SatisfactoryServerGUI
         private static Process _proc;
         private int _yCoord = 0;
         private bool _canUpdate;
+        private static Process _factoryServerProc;
+        private static Process _unrealEngineProc;
 
 
         public ServerControls()
         {
             InitializeComponent();
+
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.ServerPath))
+            {
+                RootPath = Properties.Settings.Default.ServerPath;
+            }
         }
 
 
@@ -63,6 +70,7 @@ namespace SatisfactoryServerGUI
             DownloadSteamCmd();
         }
 
+        #region Install/Update
         private void DownloadSteamCmd()
         {
             _canUpdate = false;
@@ -102,7 +110,7 @@ namespace SatisfactoryServerGUI
             _timer.Start();
         }
 
-        
+
         private void TimerOnElapsed(object sender, ElapsedEventArgs e)
         {
             GetConsoleOutput();
@@ -129,7 +137,7 @@ namespace SatisfactoryServerGUI
 
             if (sanitized.Length < 5)
             {
-                content = Native.ConsoleContentRead.GetContent(_proc.Id, 0, _yCoord +1, 80);
+                content = Native.ConsoleContentRead.GetContent(_proc.Id, 0, _yCoord + 1, 80);
                 sanitized = SanitizeString(content);
                 if (sanitized.Length < 5)
                 {
@@ -176,6 +184,84 @@ namespace SatisfactoryServerGUI
             return output;
         }
 
-        
+
+        #endregion
+
+
+
+        private void btnStartStop_Click(object sender, RoutedEventArgs e)
+        {
+            bool unrealStopped = (_unrealEngineProc == null || _unrealEngineProc.HasExited);
+            bool factoryEngineStopped = (_factoryServerProc == null || _factoryServerProc.HasExited);
+
+            if (unrealStopped && factoryEngineStopped)
+            {
+                btnUpdate.IsEnabled = false;
+                var exePath = Path.Combine(RootPath, @"satisfactorydedicatedserver\FactoryServer.exe");
+                if (File.Exists(exePath))
+                {
+                    string args = String.Empty;
+                    if (chkPort.IsChecked == true && !string.IsNullOrEmpty(txtPort.Text)) { args += $"-?listen -Port={txtPort.Text}"; }
+                    if (chkServerQueryPort.IsChecked == true && !string.IsNullOrEmpty(txtServerQueryPort.Text)) { args += $"-ServerQueryPort={txtServerQueryPort.Text} "; }
+                    if (chkBeaconPort.IsChecked == true && !string.IsNullOrEmpty(txtBeaconPort.Text)) { args += $"-BeaconPort={txtBeaconPort.Text} "; }
+                    if (chkNoSteam.IsChecked == true) { args += "-nosteam "; }
+                    args += "-log -unattended";
+
+
+
+                    Process p = new Process();
+                    p.StartInfo.FileName = exePath;
+                    p.StartInfo.Arguments = args;
+                    p.StartInfo.UseShellExecute = false;
+                    _factoryServerProc = p;
+                    _factoryServerProc.Start();
+
+                    _unrealEngineProc = Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault();
+
+                }
+                else
+                {
+                    MessageBox.Show("Couldn't find FactoryServer.exe");
+                    btnUpdate.IsEnabled = true;
+                }
+            }
+            else
+            {
+                var result = MessageBox.Show("The server is currently running.\n Are you sure you want to stop the Satisfactory server?", "Stop Server?", MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.Yes)
+                {
+                    _factoryServerProc.Close();
+                    _unrealEngineProc.Close();
+                    _unrealEngineProc.WaitForExit(Convert.ToInt32(TimeSpan.FromSeconds(10).TotalMilliseconds));
+                    if (!_factoryServerProc.HasExited)
+                    {
+                        _factoryServerProc.Kill(true);
+                    }
+
+                    btnUpdate.IsEnabled = true;
+
+                }
+            }
+        }
+
+        private void btnRestart_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void txtServerQueryPort_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            txtServerQueryPort.Text = new string(txtServerQueryPort.Text.Where(char.IsDigit).ToArray());
+        }
+
+        private void txtPort_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            txtPort.Text = new string(txtPort.Text.Where(char.IsDigit).ToArray());
+        }
+
+        private void txtBeaconPort_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            txtBeaconPort.Text = new string(txtBeaconPort.Text.Where(char.IsDigit).ToArray());
+        }
     }
 }
