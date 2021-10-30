@@ -19,10 +19,14 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
+    - name: Build 
+      shell: powershell
+      run: |
+        mkdir ${{ github.workspace }}/build
+        dir ${{ github.workspace }}
+        dotnet publish SatisfactoryServerGUI.sln --framework netcoreapp3.1 -c Release -o --output "${{ github.workspace }}/build"    
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
         name: SatisfactoryServerGUI
-        path:  "${{ github.workspace }}"
+        path:  "${{ github.workspace }}/build/"
