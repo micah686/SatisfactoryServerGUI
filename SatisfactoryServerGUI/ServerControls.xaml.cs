@@ -66,7 +66,7 @@ namespace SatisfactoryServerGUI
         private void DownloadSteamCmd()
         {
             _canUpdate = false;
-            btnUpdate.IsEnabled = _canUpdate;
+            SetEnableBtnState();
             var steamZip = System.IO.Path.Combine(RootPath, "steamcmd.zip");
             var steamExe = System.IO.Path.Combine(RootPath, "steamcmd.exe");
             if (!File.Exists(steamZip) && !File.Exists(steamExe))
@@ -114,22 +114,14 @@ namespace SatisfactoryServerGUI
             {
                 _timer.Stop();
                 _canUpdate = true;
-                Application.Current.Dispatcher.Invoke(
-                    () =>
-                    {
-                        btnUpdate.IsEnabled = _canUpdate;
-                    });
+                SetEnableBtnState();
             }
 
             var content = Native.ConsoleContentRead.GetContent(_proc.Id, 0, _yCoord, 80);
             if (content == null)
             {
                 _canUpdate = true;
-                Application.Current.Dispatcher.Invoke(
-                    () =>
-                    {
-                        btnUpdate.IsEnabled = _canUpdate;
-                    });
+                SetEnableBtnState();
                 return;
             }
             var sanitized = SanitizeString(content);
@@ -153,12 +145,19 @@ namespace SatisfactoryServerGUI
             {
                 _timer.Stop(); //reached end
                 _canUpdate = true;
-                Application.Current.Dispatcher.Invoke(
-                    () =>
-                    {
-                        btnUpdate.IsEnabled = _canUpdate;
-                    });
+                SetEnableBtnState();
             }
+        }
+
+        private void SetEnableBtnState()
+        {
+            Application.Current.Dispatcher.Invoke(
+                () =>
+                {
+                    btnUpdate.IsEnabled = _canUpdate;
+                    btnRestart.IsEnabled = _canUpdate;
+                    btnStartStop.IsEnabled = _canUpdate;
+                });
         }
 
         private string SanitizeString(string input)
