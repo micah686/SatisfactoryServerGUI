@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using MessageBox = AdonisUI.Controls.MessageBox;
+using MessageBoxButton = AdonisUI.Controls.MessageBoxButton;
 
 namespace SatisfactoryServerGUI
 {
@@ -14,23 +17,27 @@ namespace SatisfactoryServerGUI
     /// </summary>
     public partial class ConsoleLogs : UserControl
     {
-        private readonly Queue<string> _satisfactoryLogQueue = new Queue<string>();
-        private readonly Queue<string> _steamLogQueue = new Queue<string>();
+        private readonly Queue<string> _logQueue = new Queue<string>();
         private Timer _timer;
         private bool _synced;
-        private LogChoice _logChoice;
-        public int MaxLines { get; set; } = 1000;
-        public static ConsoleLogs Instance { get; private set; } = null;
+        private LogChoice _logChoice = LogChoice.None;
+        private string _factoryLogPath = "";
+        private string _steamLogPath = "";
+        private static FileSystemWatcher _factoryWatcher;
+        private static FileSystemWatcher _steamWatcher;
 
 
         public ConsoleLogs()
         {
             InitializeComponent();
-            Instance ??= this;
             AddLogFilters();
-            _timer = new Timer(delegate { Refresh(); }, this, 1000, 1000);
-            
-           
+            //_timer = new Timer(delegate { Refresh(); }, this, 1000, 1000);
+
+            var rootPath = Properties.Settings.Default.ServerPath;
+            if (string.IsNullOrEmpty(rootPath)) { return; }
+            _factoryLogPath = Path.Combine(rootPath, @"satisfactorydedicatedserver\FactoryGame\Saved\Logs\FactoryGame.log");
+            _steamLogPath = Path.Combine(rootPath, "steamCMD.log");
+            StartWatchers();
         }
 
         private void LogChoiceCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -39,151 +46,140 @@ namespace SatisfactoryServerGUI
             var value = comboboxItem.Content.ToString();
             if (GridLogSatisfactory == null) return;
 
+            var rootPath = Properties.Settings.Default.ServerPath;
+            if (string.IsNullOrEmpty(rootPath)) { return; }
             if (value == "SatisfactoryServer")
             {
                 GridLogSatisfactory.Visibility = Visibility.Visible;
                 GridLogSteam.Visibility = Visibility.Hidden;
                 _logChoice = LogChoice.Satisfactory;
+                UpdateFactoryLog();
             }
             else if (value == "SteamCMD")
             {
                 GridLogSatisfactory.Visibility = Visibility.Hidden;
                 GridLogSteam.Visibility = Visibility.Visible;
                 _logChoice = LogChoice.SteamCmd;
+                UpdateSteamLog();
             }
+        }
+
+        private void ComboFilterLog_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateSteamLog();
         }
 
         private void AddLogFilters()
         {
             ComboFilterLog.ItemsSource = Enum.GetValues(typeof(FactoryLogPrefix));
+            ComboFilterLog.SelectedIndex = 0;
         }
 
 
-        #region LoggingFramework
-        private void Refresh()
+        private void StartWatchers()
         {
-            if (_logChoice == LogChoice.Satisfactory)
+            if (!File.Exists(_factoryLogPath) || !File.Exists(_steamLogPath))
             {
-                lock (_satisfactoryLogQueue)
-                {
-                    if (!_synced)
-                    {
-
-                        Dispatcher.Invoke(() =>
-                        {
-                            LogSatisfactory.Text = FilterLogs();
-                            LogSatisfactory.ScrollToEnd();
-                        });
-                        _synced = true;
-                    }
-                }
+                MessageBox.Show("Failed to start log watcher.\n Couldn't find the Satisfactory or SteamCMD log paths.", "Failed to Read Logs");
+                return;
             }
-            else//Steam
-            {
-                lock (_steamLogQueue)
-                {
-                    if (!_synced)
-                    {
-                        var sb = new StringBuilder();
-                        foreach (var line in _steamLogQueue)
-                        {
-                            sb.AppendLine(line);
-                        }
+            
+            _factoryWatcher = new FileSystemWatcher();
+            _factoryWatcher.Path = Path.GetDirectoryName(_factoryLogPath);
+            _factoryWatcher.Filter = Path.GetFileName(_factoryLogPath);
+            _factoryWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Size; //more options
+            _factoryWatcher.Changed += FactoryWatcherOnChanged;
+            _factoryWatcher.EnableRaisingEvents = true;
 
-                        Dispatcher.Invoke(() =>
-                        {
-                            LogSteam.Text = sb.ToString();
-                            LogSteam.ScrollToEnd();
-                        });
-                        _synced = true;
-                    }
-                }
-            }
+            _steamWatcher = new FileSystemWatcher();
+            _steamWatcher.Path = Path.GetDirectoryName(_steamLogPath);
+            _steamWatcher.Filter = Path.GetFileName(_steamLogPath);
+            _steamWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Size; //more options
+            _steamWatcher.Changed += SteamWatcherOnChanged;
+            _steamWatcher.EnableRaisingEvents = true;
         }
 
-        public void Log(string str, LogChoice choice)
+        private void SteamWatcherOnChanged(object sender, FileSystemEventArgs e)
         {
-            if (choice == LogChoice.Satisfactory)
+            UpdateSteamLog();
+        }
+
+        private void FactoryWatcherOnChanged(object sender, FileSystemEventArgs e)
+        {
+            UpdateFactoryLog();
+        }
+
+
+        private void UpdateFactoryLog()
+        {
+            if (_logChoice != LogChoice.Satisfactory) return;
+            if (!File.Exists(_factoryLogPath)) return;
+            var logData = "";
+            using (StreamReader reader = new StreamReader(new FileStream(_factoryLogPath,
+                FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
             {
-                lock (_satisfactoryLogQueue)
-                {
-                    _satisfactoryLogQueue.Enqueue(str);
-                    while (_satisfactoryLogQueue.Count > MaxLines)
-                    {
-                        _satisfactoryLogQueue.Dequeue();
-                    }
-                    _synced = false;
-                }
+                logData = reader.ReadToEnd();
+                logData = FilterFactoryLogs(logData);
+            }
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                LogSatisfactory.Text = logData;
+                if (chkScrollEnd.IsChecked == true) { LogSatisfactory.ScrollToEnd(); }
+            });
+        }
+
+        private void UpdateSteamLog()
+        {
+            if (_logChoice != LogChoice.SteamCmd) return;
+            if (!File.Exists(_steamLogPath)) return;
+            var logData = "";
+            using (StreamReader reader = new StreamReader(new FileStream(_steamLogPath,
+                FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+            {
+                logData = reader.ReadToEnd();
+            }
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                LogSteam.Text = logData;
+                if (chkScrollEnd.IsChecked == true) { LogSteam.ScrollToEnd(); }
+            });
+        }
+
+        private string FilterFactoryLogs(string logData)
+        {
+            FactoryLogPrefix factoryFilter = FactoryLogPrefix.All;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                factoryFilter = (FactoryLogPrefix)ComboFilterLog.SelectedItem;
+            });
+            string filteredLogs = "";
+            if (factoryFilter == FactoryLogPrefix.All)
+            {
+                filteredLogs = logData;
             }
             else
             {
-                lock (_steamLogQueue)
+                var lines = logData.Split(Environment.NewLine);
+                var filterString = factoryFilter.ToString();
+                foreach (var line in lines)
                 {
-                    _steamLogQueue.Enqueue(str);
-                    while (_steamLogQueue.Count > MaxLines)
+                    if (line.Contains(filterString))
                     {
-                        _steamLogQueue.Dequeue();
-                    }
-                    _synced = false;
-                }
-            }
-        }
-
-        public void Clear()
-        {
-            if (_logChoice == LogChoice.Satisfactory)
-            {
-                lock (_satisfactoryLogQueue)
-                {
-                    _satisfactoryLogQueue.Clear();
-                    _synced = false;
-                }
-            }
-            else
-            {
-                lock (_steamLogQueue)
-                {
-                    _steamLogQueue.Clear();
-                    _synced = false;
-                }
-            }
-        }
-
-
-        private string FilterLogs()
-        {
-            var comboboxItem = (FactoryLogPrefix)ComboFilterLog.SelectedItem;
-            var value = comboboxItem.ToString();
-            if (value == "All")
-            {
-                var sb = new StringBuilder();
-                foreach (var line in _satisfactoryLogQueue)
-                {
-                    sb.AppendLine(line);
-                }
-                return sb.ToString();
-            }
-            else
-            {
-                var sb = new StringBuilder();
-                foreach (var line in _satisfactoryLogQueue)
-                {
-                    if (line.Contains(value))
-                    {
-                        sb.AppendLine(line);
+                        filteredLogs += $"{line}{Environment.NewLine}";
                     }
                 }
-                return sb.ToString();
+
+                filteredLogs = filteredLogs.Trim(Environment.NewLine.ToCharArray());
             }
+            return filteredLogs;
+
         }
-
-        #endregion
-
 
         public enum LogChoice
         {
             Satisfactory,
-            SteamCmd
+            SteamCmd,
+            None
         }
 
         public enum FactoryLogPrefix
@@ -210,6 +206,6 @@ namespace SatisfactoryServerGUI
             LogNiagara
         }
 
-
+        
     }
 }

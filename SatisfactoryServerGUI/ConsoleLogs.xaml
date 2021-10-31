@@ -17,27 +17,28 @@
                 <ComboBoxItem Content="SatisfactoryServer"/>
                 <ComboBoxItem Content="SteamCMD"/>
             </ComboBox>
+            <CheckBox x:Name="chkScrollEnd" Content="Scroll To End" HorizontalAlignment="Left" Margin="227,36,0,0" VerticalAlignment="Top"/>
         </Grid>
         <Grid Grid.Row="1">
-            <Grid x:Name="GridLogSatisfactory" Background="Red">
+            <Grid x:Name="GridLogSatisfactory">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
                     <TextBlock Text="Filter" Margin="10,5,0,0" HorizontalAlignment="Left"/>
-                    <ComboBox x:Name="ComboFilterLog" Margin="20,0,0,0" Width="150" IsReadOnly="True" SelectedIndex="0"></ComboBox>
+                    <ComboBox x:Name="ComboFilterLog" Margin="20,0,0,0" Width="150" IsReadOnly="True" SelectedIndex="0" SelectionChanged="ComboFilterLog_SelectionChanged"></ComboBox>
                 </StackPanel>
-                <TextBox Grid.Row="1" x:Name="LogSatisfactory" FontFamily="Consolas" FontSize="12" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" TextWrapping="Wrap"/>
+                <TextBox Grid.Row="1" x:Name="LogSatisfactory" Margin="0,5,0,0" FontFamily="Consolas" FontSize="12" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"  TextWrapping="NoWrap"/>
             </Grid>
             <Grid x:Name="GridLogSteam" Background="GreenYellow">
                 <TextBox x:Name="LogSteam" FontFamily="Consolas" FontSize="12" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" TextWrapping="Wrap"/>
             </Grid>
 
-    </Grid>
-        
-        
-        
+        </Grid>
+
+
+
 
     </Grid>
 </UserControl>
