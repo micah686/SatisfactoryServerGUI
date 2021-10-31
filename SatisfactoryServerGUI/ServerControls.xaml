@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:SatisfactoryServerGUI"
              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
              mc:Ignorable="d" 
-             d:DesignWidth="454" d:DesignHeight="275">
+             d:DesignWidth="454" d:DesignHeight="350">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -27,6 +27,7 @@
 
 
             <CheckBox x:Name="chkNoSteam" Content="NoSteam" HorizontalAlignment="Left" Margin="10,163,0,0" VerticalAlignment="Top"/>
+            <CheckBox x:Name="chkNoGUI" Content="No Visible Server Console" HorizontalAlignment="Left" Margin="10,190,0,0" VerticalAlignment="Top"/>
 
 
             <TextBlock HorizontalAlignment="Left" Margin="41,10,0,0" Text="Controls are subject to change as dedicated server controls mature" TextWrapping="Wrap" VerticalAlignment="Top"/>

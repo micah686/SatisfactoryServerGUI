@@ -11,8 +11,15 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 using Path = System.IO.Path;
+using Timer = System.Timers.Timer;
+using AdonisUI.Controls;
+using MessageBox = AdonisUI.Controls.MessageBox;
+using MessageBoxResult = AdonisUI.Controls.MessageBoxResult;
+using MessageBoxButton = AdonisUI.Controls.MessageBoxButton;
 
 namespace SatisfactoryServerGUI
 {
@@ -25,8 +32,6 @@ namespace SatisfactoryServerGUI
         private static Process _proc;
         private int _yCoord = 0;
         private bool _canUpdate;
-        private static Process _factoryServerProc;
-        private static Process _unrealEngineProc;
 
 
         public ServerControls()
@@ -118,6 +123,7 @@ namespace SatisfactoryServerGUI
 
         private void GetConsoleOutput()
         {
+            var steamCmdLog = Path.Combine(RootPath, "steamCMD.log");
             if (_proc.HasExited == true)
             {
                 _timer.Stop();
@@ -145,12 +151,17 @@ namespace SatisfactoryServerGUI
                 }
             }
 
-            Debug.WriteLine($"content: {sanitized}");
-            ConsoleLogs.Instance.Log($"content: {sanitized}", ConsoleLogs.LogChoice.SteamCmd);
+            var humanDate = DateTime.Now.ToString("dd MMM yyyy HH:mm:ss tt");
+            var output = $"{humanDate} {sanitized} \n";
+
+            File.AppendAllText(steamCmdLog,output);
+            //Debug.WriteLine($"content: {sanitized}");
+            //ConsoleLogs.Instance.Log($"content: {sanitized}", ConsoleLogs.LogChoice.SteamCmd);
             _yCoord += 1;
 
             if (sanitized.StartsWith("Steam>", false, CultureInfo.InvariantCulture))
             {
+                File.AppendAllText(steamCmdLog, $"{humanDate} Finished!\n");
                 _timer.Stop(); //reached end
                 _canUpdate = true;
                 SetEnableBtnState();
@@ -191,62 +202,140 @@ namespace SatisfactoryServerGUI
 
         private void btnStartStop_Click(object sender, RoutedEventArgs e)
         {
-            bool unrealStopped = (_unrealEngineProc == null || _unrealEngineProc.HasExited);
-            bool factoryEngineStopped = (_factoryServerProc == null || _factoryServerProc.HasExited);
+            var factoryServer = Process.GetProcessesByName("FactoryServer").FirstOrDefault();
+            var unrealEngine = Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault();
+            
+            bool factoryEngineStopped = factoryServer == null || factoryServer.HasExited;
+            bool unrealStopped = unrealEngine == null || unrealEngine.HasExited;
+            
 
             if (unrealStopped && factoryEngineStopped)
             {
-                btnUpdate.IsEnabled = false;
+                _canUpdate = false;
+                SetEnableBtnState();
                 var exePath = Path.Combine(RootPath, @"satisfactorydedicatedserver\FactoryServer.exe");
                 if (File.Exists(exePath))
                 {
-                    string args = String.Empty;
-                    if (chkPort.IsChecked == true && !string.IsNullOrEmpty(txtPort.Text)) { args += $"-?listen -Port={txtPort.Text}"; }
-                    if (chkServerQueryPort.IsChecked == true && !string.IsNullOrEmpty(txtServerQueryPort.Text)) { args += $"-ServerQueryPort={txtServerQueryPort.Text} "; }
-                    if (chkBeaconPort.IsChecked == true && !string.IsNullOrEmpty(txtBeaconPort.Text)) { args += $"-BeaconPort={txtBeaconPort.Text} "; }
-                    if (chkNoSteam.IsChecked == true) { args += "-nosteam "; }
-                    args += "-log -unattended";
-
-
-
+                    
                     Process p = new Process();
                     p.StartInfo.FileName = exePath;
-                    p.StartInfo.Arguments = args;
+                    p.StartInfo.Arguments = GetArgumentsForConsole();
                     p.StartInfo.UseShellExecute = false;
-                    _factoryServerProc = p;
-                    _factoryServerProc.Start();
+                    p.Start();
 
-                    _unrealEngineProc = Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault();
-
+                    
                 }
                 else
                 {
                     MessageBox.Show("Couldn't find FactoryServer.exe");
-                    btnUpdate.IsEnabled = true;
+                    _canUpdate = true;
+                    SetEnableBtnState();
                 }
             }
             else
             {
                 var result = MessageBox.Show("The server is currently running.\n Are you sure you want to stop the Satisfactory server?", "Stop Server?", MessageBoxButton.YesNo);
-                if (result == MessageBoxResult.Yes)
+                if (result != MessageBoxResult.Yes) return;
+                Process.GetProcessesByName("FactoryServer").FirstOrDefault()?.CloseMainWindow();
+                Process.GetProcessesByName("FactoryServer").FirstOrDefault()?.Close();
+                Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault()?.CloseMainWindow();
+                Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault()?.Close();
+
+                Dispatcher.InvokeAsync(delegate
                 {
-                    _factoryServerProc.Close();
-                    _unrealEngineProc.Close();
-                    _unrealEngineProc.WaitForExit(Convert.ToInt32(TimeSpan.FromSeconds(10).TotalMilliseconds));
-                    if (!_factoryServerProc.HasExited)
+                    int count = 20;
+
+                    while (count >0)
                     {
-                        _factoryServerProc.Kill(true);
+                        var factory = Process.GetProcessesByName("FactoryServer").FirstOrDefault();
+                        var unreal = Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault();
+                        bool factoryExited= factory == null || factory.HasExited;
+                        bool unrealExited = unreal == null || unreal.HasExited;
+                        if (factoryExited && unrealExited)
+                        {
+                            break;
+                        }
+                        Thread.Sleep(TimeSpan.FromMilliseconds(250));
+                        count--;
                     }
+                    Process.GetProcessesByName("FactoryServer").FirstOrDefault()?.Kill(true);
+                    Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault()?.Kill(true);
 
-                    btnUpdate.IsEnabled = true;
+                });
 
-                }
+                _canUpdate = true;
+                SetEnableBtnState();
             }
         }
 
         private void btnRestart_Click(object sender, RoutedEventArgs e)
         {
+            var result = MessageBox.Show("Are you sure you want to restart the Satisfactory server?", "Restart Server?", MessageBoxButton.YesNo);
+            if (result != MessageBoxResult.Yes)return;
+            _canUpdate = false;
+            SetEnableBtnState();
+            Process.GetProcessesByName("FactoryServer").FirstOrDefault()?.CloseMainWindow();
+            Process.GetProcessesByName("FactoryServer").FirstOrDefault()?.Close();
+            Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault()?.CloseMainWindow();
+            Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault()?.Close();
 
+            Dispatcher.InvokeAsync(delegate
+            {
+                int count = 20;
+
+
+                while (count > 0)
+                {
+                    var factory = Process.GetProcessesByName("FactoryServer").FirstOrDefault();
+                    var unreal = Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault();
+                    bool factoryExited = factory == null || factory.HasExited;
+                    bool unrealExited = unreal == null || unreal.HasExited;
+                    if (factoryExited && unrealExited)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Thread.Sleep(TimeSpan.FromMilliseconds(250));
+                        count--;
+                    }
+                }
+                Process.GetProcessesByName("FactoryServer").FirstOrDefault()?.Kill(true);
+                Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault()?.Kill(true);
+
+            });
+
+            var exePath = Path.Combine(RootPath, @"satisfactorydedicatedserver\FactoryServer.exe");
+            if (File.Exists(exePath))
+            {
+                
+                Process p = new Process();
+                p.StartInfo.FileName = exePath;
+                p.StartInfo.Arguments = GetArgumentsForConsole();
+                p.StartInfo.UseShellExecute = false;
+                p.Start();
+
+
+            }
+            else
+            {
+                MessageBox.Show("Couldn't find FactoryServer.exe");
+                btnUpdate.IsEnabled = true;
+            }
+            _canUpdate = false;
+            SetEnableBtnState();
+        }
+
+        private string GetArgumentsForConsole()
+        {
+            string args = String.Empty;
+            if (chkPort.IsChecked == true && !string.IsNullOrEmpty(txtPort.Text)) { args += $"-?listen -Port={txtPort.Text}"; }
+            if (chkServerQueryPort.IsChecked == true && !string.IsNullOrEmpty(txtServerQueryPort.Text)) { args += $"-ServerQueryPort={txtServerQueryPort.Text} "; }
+            if (chkBeaconPort.IsChecked == true && !string.IsNullOrEmpty(txtBeaconPort.Text)) { args += $"-BeaconPort={txtBeaconPort.Text} "; }
+            if (chkNoSteam.IsChecked == true) { args += "-nosteam "; }
+            if (chkNoGUI.IsChecked == false) { args += "-log "; }
+            args += "-unattended";
+            return args;
         }
 
         private void txtServerQueryPort_TextChanged(object sender, TextChangedEventArgs e)
