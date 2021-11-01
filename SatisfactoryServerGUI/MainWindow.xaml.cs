@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using AdonisUI;
 using AdonisUI.Controls;
 using Ookii.Dialogs.Wpf;
+using MessageBox = AdonisUI.Controls.MessageBox;
 
 namespace SatisfactoryServerGUI
 {
@@ -38,6 +39,11 @@ namespace SatisfactoryServerGUI
                 var filepath = serverPathDialog.SelectedPath;
                 Properties.Settings.Default.ServerPath = filepath;
                 Properties.Settings.Default.Save();
+
+
+                MessageBox.Show("Server Path Set. Shutting down application.\n Please restart the application.");
+                System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+                Application.Current.Shutdown();
             }
 
             
