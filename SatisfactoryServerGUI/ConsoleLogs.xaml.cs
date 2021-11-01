@@ -66,7 +66,7 @@ namespace SatisfactoryServerGUI
 
         private void ComboFilterLog_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            UpdateSteamLog();
+            UpdateFactoryLog();
         }
 
         private void AddLogFilters()
