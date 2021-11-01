@@ -1,0 +1,18 @@
+﻿<UserControl x:Class="SatisfactoryServerGUI.ServerFolders"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SatisfactoryServerGUI"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <StackPanel Margin="20,20,0,0">
+            <Button x:Name="btnRootFolder" Content="Root Folder" HorizontalAlignment="Left" Width="120" Margin="0,20,0,0" Click="btnRootFolder_Click"/>
+            <Button x:Name="btnServerSaves" Content="Server Saves" HorizontalAlignment="Left" Width="120" Margin="0,20,0,0" Click="btnServerSaves_Click"/>
+            <Button x:Name="btnServerRoot" Content="Server Root" HorizontalAlignment="Left" Width="120" Margin="0,20,0,0" Click="btnServerRoot_Click"/>
+            <Button x:Name="btnServerLogs" Content="Satisfactory Logs" HorizontalAlignment="Left" Width="120" Margin="0,20,0,0" Click="btnServerLogs_Click"/>
+
+        </StackPanel>
+    </Grid>
+</UserControl>

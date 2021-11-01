@@ -64,7 +64,7 @@ namespace SatisfactoryServerGUI
 
             if (checkPathResult == MessageBoxResult.No)
             {
-                var serverPathDialog = new VistaFolderBrowserDialog() { Description = "Choose server path", UseDescriptionForTitle = true, SelectedPath = startPath };
+                var serverPathDialog = new VistaFolderBrowserDialog() { Description = "Choose server path", UseDescriptionForTitle = true};
                 serverPathDialog.ShowDialog();
                 var filepath = serverPathDialog.SelectedPath;
                 Properties.Settings.Default.ServerPath = filepath;

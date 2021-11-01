@@ -19,7 +19,9 @@
                     <local:ServerControls/>
                 </TabItem>
                 <TabItem Header="Server Details"/>
-                <TabItem Header="Server Folders"/>
+                <TabItem Header="Server Folders">
+                    <local:ServerFolders/>
+                </TabItem>
                 <TabItem Header="Logs">
                     <local:ConsoleLogs></local:ConsoleLogs>
                 </TabItem>

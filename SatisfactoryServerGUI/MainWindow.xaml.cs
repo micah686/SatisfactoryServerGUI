@@ -29,11 +29,16 @@ namespace SatisfactoryServerGUI
             InitializeComponent();
             AdonisUI.ResourceLocator.SetColorScheme(Application.Current.Resources, ResourceLocator.DarkColorScheme);
 
-            var serverPathDialog = new VistaFolderBrowserDialog() { Description = "Choose server path", UseDescriptionForTitle = true, SelectedPath = @"C:\" };
-            serverPathDialog.ShowDialog();
-            var filepath = serverPathDialog.SelectedPath;
-            Properties.Settings.Default.ServerPath = filepath;
-            Properties.Settings.Default.Save();
+            if (string.IsNullOrEmpty(Properties.Settings.Default.ServerPath))
+            {
+                var serverPathDialog = new VistaFolderBrowserDialog() { Description = "Choose server path", UseDescriptionForTitle = true};
+                serverPathDialog.ShowDialog();
+                var filepath = serverPathDialog.SelectedPath;
+                Properties.Settings.Default.ServerPath = filepath;
+                Properties.Settings.Default.Save();
+            }
+
+            
         }
 
     }
