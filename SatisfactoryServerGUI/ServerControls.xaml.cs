@@ -9,11 +9,14 @@ using System.Windows.Controls;
 using Ookii.Dialogs.Wpf;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Path = System.IO.Path;
 using Timer = System.Timers.Timer;
 using AdonisUI.Controls;
@@ -71,7 +74,7 @@ namespace SatisfactoryServerGUI
                 Properties.Settings.Default.Save();
                 RootPath = filepath;
             }
-
+            
             DownloadSteamCmd();
         }
 
@@ -113,6 +116,8 @@ namespace SatisfactoryServerGUI
             _timer.Interval = TimeSpan.FromMilliseconds(250).TotalMilliseconds;
             _timer.Elapsed += TimerOnElapsed;
             _timer.Start();
+            MainWindow.Instance.txtStatusBar.Text = "Downloading";
+            MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Download.png");
         }
 
 
@@ -129,6 +134,12 @@ namespace SatisfactoryServerGUI
                 _timer.Stop();
                 _canUpdate = true;
                 SetEnableBtnState();
+                Application.Current.Dispatcher.Invoke(
+                    () =>
+                    {
+                        MainWindow.Instance.txtStatusBar.Text = "Stopped";
+                        MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Stop.png");
+                    });
             }
 
             var content = Native.ConsoleContentRead.GetContent(_proc.Id, 0, _yCoord, 80);
@@ -155,8 +166,6 @@ namespace SatisfactoryServerGUI
             var output = $"{humanDate} {sanitized} \n";
 
             File.AppendAllText(steamCmdLog,output);
-            //Debug.WriteLine($"content: {sanitized}");
-            //ConsoleLogs.Instance.Log($"content: {sanitized}", ConsoleLogs.LogChoice.SteamCmd);
             _yCoord += 1;
 
             if (sanitized.StartsWith("Steam>", false, CultureInfo.InvariantCulture))
@@ -165,7 +174,11 @@ namespace SatisfactoryServerGUI
                 _timer.Stop(); //reached end
                 _canUpdate = true;
                 SetEnableBtnState();
+
             }
+
+            
+            
         }
 
         private void SetEnableBtnState()
@@ -223,7 +236,10 @@ namespace SatisfactoryServerGUI
                     p.StartInfo.UseShellExecute = false;
                     p.Start();
 
-                    
+                    MainWindow.Instance.txtStatusBar.Text = "Running";
+                    MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Play.png");
+                    _canUpdate = true;
+                    SetEnableBtnState();
                 }
                 else
                 {
@@ -262,7 +278,8 @@ namespace SatisfactoryServerGUI
                     Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault()?.Kill(true);
 
                 });
-
+                MainWindow.Instance.txtStatusBar.Text = "Stopped";
+                MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Stop.png");
                 _canUpdate = true;
                 SetEnableBtnState();
             }
@@ -302,7 +319,8 @@ namespace SatisfactoryServerGUI
                 }
                 Process.GetProcessesByName("FactoryServer").FirstOrDefault()?.Kill(true);
                 Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault()?.Kill(true);
-
+                MainWindow.Instance.txtStatusBar.Text = "Stopped";
+                MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Stop.png");
             });
 
             var exePath = Path.Combine(RootPath, @"satisfactorydedicatedserver\FactoryServer.exe");
@@ -315,7 +333,8 @@ namespace SatisfactoryServerGUI
                 p.StartInfo.UseShellExecute = false;
                 p.Start();
 
-
+                MainWindow.Instance.txtStatusBar.Text = "Running";
+                MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Play.png");
             }
             else
             {
@@ -351,6 +370,20 @@ namespace SatisfactoryServerGUI
         private void txtBeaconPort_TextChanged(object sender, TextChangedEventArgs e)
         {
             txtBeaconPort.Text = new string(txtBeaconPort.Text.Where(char.IsDigit).ToArray());
+        }
+
+        public static BitmapImage LoadBitmapFromResource(string pathInApplication, Assembly assembly = null)
+        {
+            if (assembly == null)
+            {
+                assembly = Assembly.GetCallingAssembly();
+            }
+
+            if (pathInApplication[0] == '/')
+            {
+                pathInApplication = pathInApplication.Substring(1);
+            }
+            return new BitmapImage(new Uri(@"pack://application:,,,/" + assembly.GetName().Name + ";component/" + pathInApplication, UriKind.Absolute));
         }
     }
 }

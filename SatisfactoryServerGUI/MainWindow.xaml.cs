@@ -24,11 +24,13 @@ namespace SatisfactoryServerGUI
     /// </summary>
     public partial class MainWindow : AdonisWindow
     {
+        public static MainWindow Instance { get; private set; }
         public MainWindow()
         {
             InitializeComponent();
             AdonisUI.ResourceLocator.SetColorScheme(Application.Current.Resources, ResourceLocator.DarkColorScheme);
 
+            Instance = this;
             if (string.IsNullOrEmpty(Properties.Settings.Default.ServerPath))
             {
                 var serverPathDialog = new VistaFolderBrowserDialog() { Description = "Choose server path", UseDescriptionForTitle = true};

@@ -10,7 +10,11 @@
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
-                <TextBlock Text="StatusBar" />
+                <StackPanel Orientation="Horizontal">
+                    <Image x:Name="imgStatus" MaxHeight="24" MaxWidth="24" Source="resources/Stop.png" ></Image>
+                    <TextBlock x:Name="txtStatusBar" Margin="10,5,5,5" Text="Stopped"/>
+                </StackPanel>
+                
             </StatusBarItem>
         </StatusBar>
         <Grid>
@@ -18,7 +22,10 @@
                 <TabItem Header="Server Controls">
                     <local:ServerControls/>
                 </TabItem>
-                <TabItem Header="Server Details"/>
+                <TabItem Header="Server Details">
+                    Under Construction
+                </TabItem>
+                
                 <TabItem Header="Server Folders">
                     <local:ServerFolders/>
                 </TabItem>
