@@ -47,12 +47,7 @@ namespace SatisfactoryServerGUI
             }
         }
 
-
-        public String RootPath { get; private set; }
-
-
-
-
+        public string RootPath { get; private set; }
 
         private void btnUpdate_Click(object sender, RoutedEventArgs e)
         {
@@ -236,6 +231,8 @@ namespace SatisfactoryServerGUI
                     p.StartInfo.UseShellExecute = false;
                     p.Start();
 
+                    MainWindow.Instance.StartTime = DateTime.Now;
+                    MainWindow.Instance.UptimeTimer.Start();
                     MainWindow.Instance.txtStatusBar.Text = "Running";
                     MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Play.png");
                     _canUpdate = true;
@@ -282,6 +279,7 @@ namespace SatisfactoryServerGUI
                 MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Stop.png");
                 _canUpdate = true;
                 SetEnableBtnState();
+                MainWindow.Instance.UptimeTimer.Stop();
             }
         }
 
@@ -322,6 +320,8 @@ namespace SatisfactoryServerGUI
                 MainWindow.Instance.txtStatusBar.Text = "Stopped";
                 MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Stop.png");
             });
+            MainWindow.Instance.UptimeTimer.Stop();
+            MainWindow.Instance.StartTime = DateTime.MinValue;
 
             var exePath = Path.Combine(RootPath, @"satisfactorydedicatedserver\FactoryServer.exe");
             if (File.Exists(exePath))
@@ -332,6 +332,8 @@ namespace SatisfactoryServerGUI
                 p.StartInfo.Arguments = GetArgumentsForConsole();
                 p.StartInfo.UseShellExecute = false;
                 p.Start();
+                MainWindow.Instance.StartTime = DateTime.Now;
+                MainWindow.Instance.UptimeTimer.Start();
 
                 MainWindow.Instance.txtStatusBar.Text = "Running";
                 MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Play.png");

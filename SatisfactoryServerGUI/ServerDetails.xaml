@@ -13,13 +13,24 @@
         </Grid.RowDefinitions>
         <GroupBox Grid.Row="0" Header="Details" Margin="0,0,0,10">
             <Grid>
-                <TextBlock HorizontalAlignment="Left" Text="External IP Address" TextWrapping="Wrap"/>
-
+                <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" Text="External IP Address:" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBox x:Name="txtExternIP" HorizontalAlignment="Left" Margin="140,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsReadOnly="True" IsReadOnlyCaretVisible="True"/>
+                <TextBlock HorizontalAlignment="Left" Margin="10,60,0,0" Text="Internal IP Address:" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBox x:Name="txtInternIP" HorizontalAlignment="Left" Margin="140,60,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" IsReadOnly="True" IsReadOnlyCaretVisible="True"/>
             </Grid>
         </GroupBox>
 
         <GroupBox Grid.Row="1" Header="Stats" Margin="0,10,0,10">
+            <Grid>
+                <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" Text="Last World Save:" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBlock x:Name="txtLastSave" HorizontalAlignment="Left" Margin="100,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="388" />
+                <TextBlock HorizontalAlignment="Left" Margin="10,43,0,0" Text="Uptime:" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBlock x:Name="txtUptime" HorizontalAlignment="Left" Margin="56,43,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="718"/>
 
+
+
+            </Grid>
         </GroupBox>
-</Grid>
+
+    </Grid>
 </UserControl>

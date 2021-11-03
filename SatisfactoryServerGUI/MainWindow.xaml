@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SatisfactoryServerGUI"
         xmlns:controls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="471" Width="700" MinHeight="471" MinWidth="700" MaxHeight="471" MaxWidth="700" ResizeMode="CanMinimize">
+        Title="Satisfactory Server GUI" Height="471" Width="700" MinHeight="471" MinWidth="700" MaxHeight="471" MaxWidth="700" ResizeMode="CanMinimize" Loaded="AdonisWindow_Loaded">
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
@@ -23,7 +23,7 @@
                     <local:ServerControls/>
                 </TabItem>
                 <TabItem Header="Server Details">
-                    Under Construction
+                    <local:ServerDetails/>
                 </TabItem>
                 
                 <TabItem Header="Server Folders">

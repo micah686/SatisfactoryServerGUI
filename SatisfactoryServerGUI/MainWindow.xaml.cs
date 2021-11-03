@@ -1,22 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using AdonisUI;
 using AdonisUI.Controls;
 using Ookii.Dialogs.Wpf;
 using MessageBox = AdonisUI.Controls.MessageBox;
+using Timer = System.Timers.Timer;
 
 namespace SatisfactoryServerGUI
 {
@@ -26,29 +15,32 @@ namespace SatisfactoryServerGUI
     public partial class MainWindow : AdonisWindow
     {
         public static MainWindow Instance { get; private set; }
+        public Timer UptimeTimer = new Timer();
+        public DateTime StartTime;
         public MainWindow()
         {
             InitializeComponent();
+            Instance = this;
+        }
+
+        private void AdonisWindow_Loaded(object sender, RoutedEventArgs e)
+        {
             AdonisUI.ResourceLocator.SetColorScheme(Application.Current.Resources, ResourceLocator.DarkColorScheme);
 
-            Instance = this;
+
+
             if (string.IsNullOrEmpty(Properties.Settings.Default.ServerPath))
             {
-                var serverPathDialog = new VistaFolderBrowserDialog() { Description = "Choose server path", UseDescriptionForTitle = true};
+                MessageBox.Show("Please choose a path where you want the dedicated server to install to.", "");
+                var serverPathDialog = new VistaFolderBrowserDialog() { Description = "Choose server path", UseDescriptionForTitle = true };
                 serverPathDialog.ShowDialog();
                 var filepath = serverPathDialog.SelectedPath;
                 Properties.Settings.Default.ServerPath = filepath;
                 Properties.Settings.Default.Save();
 
-
-                MessageBox.Show("Server Path Set. Shutting down application.\n Please restart the application.");
-                System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
-                Application.Current.Shutdown();
+                MessageBox.Show($"Path set to:\n{Properties.Settings.Default.ServerPath}", "");
             }
-
-            
         }
-
     }
 
     public class VisibilityConverter : IValueConverter
