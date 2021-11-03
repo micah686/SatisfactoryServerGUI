@@ -17,9 +17,6 @@ namespace SatisfactoryServerGUI
     /// </summary>
     public partial class ConsoleLogs : UserControl
     {
-        private readonly Queue<string> _logQueue = new Queue<string>();
-        private Timer _timer;
-        private bool _synced;
         private LogChoice _logChoice = LogChoice.None;
         private string _factoryLogPath = "";
         private string _steamLogPath = "";
