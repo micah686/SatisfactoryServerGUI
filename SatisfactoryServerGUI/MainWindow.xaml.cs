@@ -21,15 +21,12 @@ namespace SatisfactoryServerGUI
         {
             InitializeComponent();
             Instance = this;
-        }
 
-        private void AdonisWindow_Loaded(object sender, RoutedEventArgs e)
-        {
             AdonisUI.ResourceLocator.SetColorScheme(Application.Current.Resources, ResourceLocator.DarkColorScheme);
 
 
 
-            if (string.IsNullOrEmpty(Properties.Settings.Default.ServerPath))
+             if (string.IsNullOrEmpty(Properties.Settings.Default.ServerPath))
             {
                 MessageBox.Show("Please choose a path where you want the dedicated server to install to.", "");
                 var serverPathDialog = new VistaFolderBrowserDialog() { Description = "Choose server path", UseDescriptionForTitle = true };

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SatisfactoryServerGUI"
              mc:Ignorable="d" 
-             d:DesignWidth="454" d:DesignHeight="275">
+             d:DesignWidth="454" d:DesignHeight="275" Loaded="UserControl_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="70"/>

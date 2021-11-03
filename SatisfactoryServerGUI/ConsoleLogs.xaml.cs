@@ -30,6 +30,12 @@ namespace SatisfactoryServerGUI
             AddLogFilters();
             //_timer = new Timer(delegate { Refresh(); }, this, 1000, 1000);
 
+            
+            
+        }
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
             var rootPath = Properties.Settings.Default.ServerPath;
             if (string.IsNullOrEmpty(rootPath)) { return; }
             _factoryLogPath = Path.Combine(rootPath, @"satisfactorydedicatedserver\FactoryGame\Saved\Logs\FactoryGame.log");
@@ -75,12 +81,13 @@ namespace SatisfactoryServerGUI
 
         private void StartWatchers()
         {
-            if (!File.Exists(_factoryLogPath) || !File.Exists(_steamLogPath))
+            if (!File.Exists(_factoryLogPath))
             {
-                MessageBox.Show("Failed to start log watcher.\n Couldn't find the Satisfactory or SteamCMD log paths.", "Failed to Read Logs");
-                return;
+                var parent = Directory.GetParent(_factoryLogPath);
+                Directory.CreateDirectory(parent.FullName);
+                File.Create(_factoryLogPath).Dispose();
             }
-            
+
             _factoryWatcher = new FileSystemWatcher();
             _factoryWatcher.Path = Path.GetDirectoryName(_factoryLogPath);
             _factoryWatcher.Filter = Path.GetFileName(_factoryLogPath);
@@ -88,12 +95,19 @@ namespace SatisfactoryServerGUI
             _factoryWatcher.Changed += FactoryWatcherOnChanged;
             _factoryWatcher.EnableRaisingEvents = true;
 
+            if (!File.Exists(_steamLogPath))
+            {
+                var parent = Directory.GetParent(_steamLogPath);
+                Directory.CreateDirectory(parent.FullName);
+                File.Create(_steamLogPath).Dispose();
+            }
             _steamWatcher = new FileSystemWatcher();
             _steamWatcher.Path = Path.GetDirectoryName(_steamLogPath);
             _steamWatcher.Filter = Path.GetFileName(_steamLogPath);
             _steamWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Size; //more options
             _steamWatcher.Changed += SteamWatcherOnChanged;
             _steamWatcher.EnableRaisingEvents = true;
+
         }
 
         private void SteamWatcherOnChanged(object sender, FileSystemEventArgs e)
