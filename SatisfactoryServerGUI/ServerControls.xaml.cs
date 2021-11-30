@@ -355,6 +355,7 @@ namespace SatisfactoryServerGUI
             if (chkBeaconPort.IsChecked == true && !string.IsNullOrEmpty(txtBeaconPort.Text)) { args += $"-BeaconPort={txtBeaconPort.Text} "; }
             if (chkNoSteam.IsChecked == true) { args += "-nosteam "; }
             if (chkNoGUI.IsChecked == false) { args += "-log "; }
+            args += $"-beta {cmbServerVersion.Text} ";
             args += "-unattended";
             return args;
         }

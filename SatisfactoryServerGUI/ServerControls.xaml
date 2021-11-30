@@ -13,6 +13,7 @@
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
+            <TextBlock HorizontalAlignment="Left" Margin="41,10,0,0" Text="Controls are subject to change as dedicated server controls mature" TextWrapping="Wrap" VerticalAlignment="Top"/>
             <TextBlock HorizontalAlignment="Left" Margin="10,51,0,0" Text="ServerQueryPort:" TextWrapping="Wrap" VerticalAlignment="Top"/>
             <TextBox x:Name="txtServerQueryPort" HorizontalAlignment="Left" Margin="107,49,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="5" IsEnabled="{Binding ElementName=chkServerQueryPort, Path=IsChecked}" TextChanged="txtServerQueryPort_TextChanged"/>
             <CheckBox x:Name="chkServerQueryPort" Content="Enabled" HorizontalAlignment="Left" Margin="169,51,0,0" VerticalAlignment="Top"/>
@@ -30,7 +31,12 @@
             <CheckBox x:Name="chkNoGUI" Content="No Visible Server Console" HorizontalAlignment="Left" Margin="10,190,0,0" VerticalAlignment="Top"/>
 
 
-            <TextBlock HorizontalAlignment="Left" Margin="41,10,0,0" Text="Controls are subject to change as dedicated server controls mature" TextWrapping="Wrap" VerticalAlignment="Top"/>
+            <TextBlock HorizontalAlignment="Left" Margin="9,220,0,0" TextWrapping="Wrap" Text="Server Version:" VerticalAlignment="Top"/>
+            <ComboBox x:Name="cmbServerVersion" HorizontalAlignment="Left" Margin="98,216,0,0" VerticalAlignment="Top" Width="120" SelectedIndex="0">
+                <ComboBoxItem>Public</ComboBoxItem>
+                <ComboBoxItem>Experimental</ComboBoxItem>
+            </ComboBox>
+
 
         </Grid>
 
