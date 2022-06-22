@@ -45,6 +45,7 @@ namespace SatisfactoryServerGUI
             {
                 RootPath = Properties.Settings.Default.ServerPath;
             }
+
         }
 
         public string RootPath { get; private set; }
@@ -69,8 +70,10 @@ namespace SatisfactoryServerGUI
                 Properties.Settings.Default.Save();
                 RootPath = filepath;
             }
-            
-            DownloadSteamCmd();
+
+            //DownloadSteamCmd();
+            var dh = new DownloadHelper();
+            dh.DownloadServerFiles(RootPath, Models.BetaVersion.Public);
         }
 
         #region Install/Update
@@ -186,6 +189,7 @@ namespace SatisfactoryServerGUI
                     btnStartStop.IsEnabled = _canUpdate;
                 });
         }
+
 
         private string SanitizeString(string input)
         {
