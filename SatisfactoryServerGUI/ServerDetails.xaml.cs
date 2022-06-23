@@ -36,13 +36,8 @@ namespace SatisfactoryServerGUI
 
             _savesFolder = System.IO.Path.Combine(appDataFolder, @"FactoryGame\Saved\SaveGames\server");
             StartWatchers();
-
-            if (MainWindow.Instance != null)
-            {
-                MainWindow.Instance.UptimeTimer.Interval = TimeSpan.FromMilliseconds(100).TotalMilliseconds;
-                MainWindow.Instance.UptimeTimer.Elapsed += UptimeTimerOnElapsed;
-                GetIps();
-            }
+            GetIps();
+            
         }
 
         
@@ -79,13 +74,13 @@ namespace SatisfactoryServerGUI
         {
             var now = DateTime.Now;
             var elapsed = DateTime.Now - MainWindow.Instance.StartTime;
+            if (elapsed.TotalSeconds < 1) return;
             var totalDays = elapsed.TotalDays;
             var totalYears = Math.Truncate(totalDays / 365);
             var totalMonths = Math.Truncate((totalDays % 365) / 30);
-            var remainingDays = Math.Truncate((totalDays % 365) % 30);
-            var ms = elapsed.Milliseconds.ToString().Substring(0, 3);
+            var remainingDays = Math.Truncate((totalDays % 365) % 30);            
 
-            var formatted = $"{totalYears} years, {totalMonths} months, {remainingDays} days, {elapsed.Hours} hours, {elapsed.Minutes} minutes, {elapsed.Seconds} seconds, {ms} ms";
+            var formatted = $"{totalYears} years, {totalMonths} months, {remainingDays} days, {elapsed.Hours} hours, {elapsed.Minutes} minutes, {elapsed.Seconds} seconds";
 
             
             Application.Current.Dispatcher.Invoke(() =>
@@ -122,6 +117,19 @@ namespace SatisfactoryServerGUI
             });
         }
 
-        
+        private void btnRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            GetIps();
+        }
+
+        private void Grid_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (MainWindow.Instance != null)
+            {
+                MainWindow.Instance.UptimeTimer.Interval = TimeSpan.FromMilliseconds(100).TotalMilliseconds;
+                MainWindow.Instance.UptimeTimer.Elapsed += UptimeTimerOnElapsed;
+
+            }
+        }
     }
 }

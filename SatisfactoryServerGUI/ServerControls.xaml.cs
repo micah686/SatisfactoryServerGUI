@@ -35,16 +35,17 @@ namespace SatisfactoryServerGUI
         private static Process _proc;
         private int _yCoord = 0;
         private bool _canUpdate;
-
+        internal static ServerControls Instance { get; private set; }
 
         public ServerControls()
         {
             InitializeComponent();
-
+            Instance = this;
             if (!string.IsNullOrEmpty(Properties.Settings.Default.ServerPath))
             {
                 RootPath = Properties.Settings.Default.ServerPath;
             }
+
         }
 
         public string RootPath { get; private set; }
@@ -69,142 +70,32 @@ namespace SatisfactoryServerGUI
                 Properties.Settings.Default.Save();
                 RootPath = filepath;
             }
-            
-            DownloadSteamCmd();
-        }
 
-        #region Install/Update
-        private void DownloadSteamCmd()
-        {
-            _canUpdate = false;
-            SetEnableBtnState();
-            var steamZip = System.IO.Path.Combine(RootPath, "steamcmd.zip");
-            var steamExe = System.IO.Path.Combine(RootPath, "steamcmd.exe");
-            if (!File.Exists(steamZip) && !File.Exists(steamExe))
-            {
-                var steamCmdUri = new Uri("http://media.steampowered.com/installer/steamcmd.zip");
-                var wc = new WebClient();
-                wc.DownloadFileCompleted += SteamCmdOnDownloadFileCompleted;
-                wc.DownloadFileAsync(steamCmdUri, System.IO.Path.Combine(RootPath, "steamcmd.zip"));
-            }
-            else
-            {
-                DownloadDedicatedServer();
-            }
-        }
-
-        private void SteamCmdOnDownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
-        {
-            var steamCmdZip = System.IO.Path.Combine(RootPath, "steamcmd.zip");
-            ZipFile.ExtractToDirectory(steamCmdZip, RootPath);
-            DownloadDedicatedServer();
-        }
-
-        private void DownloadDedicatedServer()
-        {
-            Process p = new Process();
-            p.StartInfo.FileName = System.IO.Path.Combine(RootPath, "steamcmd.exe");
-            p.StartInfo.Arguments = "+login anonymous +force_install_dir SatisfactoryDedicatedServer +app_update 1690800 validate +exit";
-            p.StartInfo.CreateNoWindow = true;
-            p.Start();
-            _proc = p;
-            _timer.Interval = TimeSpan.FromMilliseconds(250).TotalMilliseconds;
-            _timer.Elapsed += TimerOnElapsed;
-            _timer.Start();
-            MainWindow.Instance.txtStatusBar.Text = "Downloading";
-            MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Download.png");
+            var dh = new DownloadHelper();
+            dh.DownloadServerFiles(RootPath, Models.BetaVersion.Public);
         }
 
 
-        private void TimerOnElapsed(object sender, ElapsedEventArgs e)
-        {
-            GetConsoleOutput();
-        }
-
-        private void GetConsoleOutput()
-        {
-            var steamCmdLog = Path.Combine(RootPath, "steamCMD.log");
-            if (_proc.HasExited == true)
-            {
-                _timer.Stop();
-                _canUpdate = true;
-                SetEnableBtnState();
-                Application.Current.Dispatcher.Invoke(
-                    () =>
-                    {
-                        MainWindow.Instance.txtStatusBar.Text = "Stopped";
-                        MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Stop.png");
-                    });
-            }
-
-            var content = Native.ConsoleContentRead.GetContent(_proc.Id, 0, _yCoord, 80);
-            if (content == null)
-            {
-                _canUpdate = true;
-                SetEnableBtnState();
-                return;
-            }
-            var sanitized = SanitizeString(content);
-
-
-            if (sanitized.Length < 5)
-            {
-                content = Native.ConsoleContentRead.GetContent(_proc.Id, 0, _yCoord + 1, 80);
-                sanitized = SanitizeString(content);
-                if (sanitized.Length < 5)
-                {
-                    return;
-                }
-            }
-
-            var humanDate = DateTime.Now.ToString("dd MMM yyyy HH:mm:ss tt");
-            var output = $"{humanDate} {sanitized} \n";
-
-            File.AppendAllText(steamCmdLog,output);
-            _yCoord += 1;
-
-            if (sanitized.StartsWith("Steam>", false, CultureInfo.InvariantCulture))
-            {
-                File.AppendAllText(steamCmdLog, $"{humanDate} Finished!\n");
-                _timer.Stop(); //reached end
-                _canUpdate = true;
-                SetEnableBtnState();
-
-            }
-
-            
-            
-        }
-
-        private void SetEnableBtnState()
+        internal static void SetStatus(string statusText, string resourcePath)
         {
             Application.Current.Dispatcher.Invoke(
                 () =>
                 {
-                    btnUpdate.IsEnabled = _canUpdate;
-                    btnRestart.IsEnabled = _canUpdate;
-                    btnStartStop.IsEnabled = _canUpdate;
+                    MainWindow.Instance.txtStatusBar.Text = statusText;
+                    MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource(resourcePath);
                 });
         }
 
-        private string SanitizeString(string input)
+        internal static void SetBtnState(bool active)
         {
-            var alphanumeric = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-            var specialChars = @" []!@#$%^&*()-=_+,./\|<>?;':`~";
-            var validChars = $"{alphanumeric}{specialChars}";
-
-            var sb = new StringBuilder();
-            foreach (var c in input.Where(c => validChars.Contains(c)))
-            {
-                sb.Append(c);
-            }
-
-            var output = sb.ToString().TrimEnd();
-            return output;
+            Application.Current.Dispatcher.Invoke(
+                () =>
+                {
+                    ServerControls.Instance.btnUpdate.IsEnabled = active;
+                    ServerControls.Instance.btnRestart.IsEnabled = active;
+                    ServerControls.Instance.btnStartStop.IsEnabled = active;
+                });
         }
-
-
-        #endregion
 
 
 
@@ -219,8 +110,7 @@ namespace SatisfactoryServerGUI
 
             if (unrealStopped && factoryEngineStopped)
             {
-                _canUpdate = false;
-                SetEnableBtnState();
+                SetBtnState(false);
                 var exePath = Path.Combine(RootPath, @"satisfactorydedicatedserver\FactoryServer.exe");
                 if (File.Exists(exePath))
                 {
@@ -235,14 +125,12 @@ namespace SatisfactoryServerGUI
                     MainWindow.Instance.UptimeTimer.Start();
                     MainWindow.Instance.txtStatusBar.Text = "Running";
                     MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Play.png");
-                    _canUpdate = true;
-                    SetEnableBtnState();
+                    SetBtnState(true);
                 }
                 else
                 {
                     MessageBox.Show("Couldn't find FactoryServer.exe");
-                    _canUpdate = true;
-                    SetEnableBtnState();
+                    SetBtnState(true);
                 }
             }
             else
@@ -277,8 +165,7 @@ namespace SatisfactoryServerGUI
                 });
                 MainWindow.Instance.txtStatusBar.Text = "Stopped";
                 MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Stop.png");
-                _canUpdate = true;
-                SetEnableBtnState();
+                SetBtnState(true);
                 MainWindow.Instance.UptimeTimer.Stop();
             }
         }
@@ -287,8 +174,7 @@ namespace SatisfactoryServerGUI
         {
             var result = MessageBox.Show("Are you sure you want to restart the Satisfactory server?", "Restart Server?", MessageBoxButton.YesNo);
             if (result != MessageBoxResult.Yes)return;
-            _canUpdate = false;
-            SetEnableBtnState();
+            SetBtnState(false);
             Process.GetProcessesByName("FactoryServer").FirstOrDefault()?.CloseMainWindow();
             Process.GetProcessesByName("FactoryServer").FirstOrDefault()?.Close();
             Process.GetProcessesByName("UE4Server-Win64-Shipping").FirstOrDefault()?.CloseMainWindow();
@@ -343,13 +229,12 @@ namespace SatisfactoryServerGUI
                 MessageBox.Show("Couldn't find FactoryServer.exe");
                 btnUpdate.IsEnabled = true;
             }
-            _canUpdate = false;
-            SetEnableBtnState();
+            SetBtnState(false);
         }
 
         private string GetArgumentsForConsole()
         {
-            string args = String.Empty;
+            string args = string.Empty;
             if (chkPort.IsChecked == true && !string.IsNullOrEmpty(txtPort.Text)) { args += $"-?listen -Port={txtPort.Text}"; }
             if (chkServerQueryPort.IsChecked == true && !string.IsNullOrEmpty(txtServerQueryPort.Text)) { args += $"-ServerQueryPort={txtServerQueryPort.Text} "; }
             if (chkBeaconPort.IsChecked == true && !string.IsNullOrEmpty(txtBeaconPort.Text)) { args += $"-BeaconPort={txtBeaconPort.Text} "; }
