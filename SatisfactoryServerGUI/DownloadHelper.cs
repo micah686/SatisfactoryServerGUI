@@ -8,6 +8,7 @@ using System.Diagnostics;
 using Timer = System.Timers.Timer;
 using System.Linq;
 using System.Globalization;
+using System.Windows;
 
 namespace SatisfactoryServerGUI
 {
@@ -63,7 +64,7 @@ namespace SatisfactoryServerGUI
             _timer.Elapsed += TimerOnElapsed;
             _timer.Start();
             //set state to downloading
-
+            ServerControls.SetStatus("Downloading", "resources/Download.png");
 
         }
 
@@ -78,8 +79,8 @@ namespace SatisfactoryServerGUI
             if (_proc.HasExited)
             {
                 _timer.Stop();
-                //endLockout, enable buttons
-                //call update ui stopped
+                ServerControls.SetStatus("Stopped", "resources/Stop.png");
+                ServerControls.SetBtnState(true);
             }
             const int X_COORD = 0;
             const int CONTENT_LENGTH = 80;
@@ -88,7 +89,8 @@ namespace SatisfactoryServerGUI
             var content = Native.ConsoleContentRead.GetContent(_proc.Id, X_COORD, _yCoord, CONTENT_LENGTH);
             if(content == null)
             {
-                //endLockout, enable buttons
+                ServerControls.SetStatus("Stopped", "resources/Stop.png");
+                ServerControls.SetBtnState(true);
                 return;
             }
             var sanitized = SanitizeString(content);
@@ -108,7 +110,8 @@ namespace SatisfactoryServerGUI
             {
                 File.AppendAllText(steamCmdLog, $"{humanDate} Finished!\n");
                 _timer.Stop(); //reached end
-                //endLockout, enable buttons
+                ServerControls.SetStatus("Stopped", "resources/Stop.png");
+                ServerControls.SetBtnState(true);
             }
         }
 
