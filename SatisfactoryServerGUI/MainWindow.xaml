@@ -32,6 +32,9 @@
                 <TabItem Header="Logs">
                     <local:ConsoleLogs></local:ConsoleLogs>
                 </TabItem>
+                <TabItem Header="Settings">
+                    <local:ServerSettings/>
+                </TabItem>
             </TabControl>
         </Grid>
     </DockPanel>
