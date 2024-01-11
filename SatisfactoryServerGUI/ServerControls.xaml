@@ -14,21 +14,9 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <TextBlock HorizontalAlignment="Left" Margin="41,10,0,0" Text="Controls are subject to change as dedicated server controls mature" TextWrapping="Wrap" VerticalAlignment="Top"/>
-            <TextBlock HorizontalAlignment="Left" Margin="10,51,0,0" Text="ServerQueryPort:" TextWrapping="Wrap" VerticalAlignment="Top"/>
-            <TextBox x:Name="txtServerQueryPort" HorizontalAlignment="Left" Margin="107,49,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="5" IsEnabled="{Binding ElementName=chkServerQueryPort, Path=IsChecked}" TextChanged="txtServerQueryPort_TextChanged"/>
-            <CheckBox x:Name="chkServerQueryPort" Content="Enabled" HorizontalAlignment="Left" Margin="169,51,0,0" VerticalAlignment="Top"/>
 
-            <TextBlock HorizontalAlignment="Left" Margin="10,86,0,0" Text="Port:" TextWrapping="Wrap" VerticalAlignment="Top"/>
-            <TextBox x:Name="txtPort" HorizontalAlignment="Left" Margin="107,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="5" IsEnabled="{Binding ElementName=chkPort, Path=IsChecked}" TextChanged="txtPort_TextChanged"/>
-            <CheckBox x:Name="chkPort" Content="Enabled" HorizontalAlignment="Left" Margin="169,86,0,0" VerticalAlignment="Top"/>
-
-            <TextBlock HorizontalAlignment="Left" Margin="10,122,0,0" Text="BeaconPort:" TextWrapping="Wrap" VerticalAlignment="Top"/>
-            <TextBox x:Name="txtBeaconPort" HorizontalAlignment="Left" Margin="107,122,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="5" IsEnabled="{Binding ElementName=chkBeaconPort, Path=IsChecked}" TextChanged="txtBeaconPort_TextChanged"/>
-            <CheckBox x:Name="chkBeaconPort" Content="Enabled" HorizontalAlignment="Left" Margin="169,122,0,0" VerticalAlignment="Top"/>
-
-
-            <CheckBox x:Name="chkNoSteam" Content="NoSteam" HorizontalAlignment="Left" Margin="10,163,0,0" VerticalAlignment="Top"/>
-            <CheckBox x:Name="chkNoGUI" Content="No Visible Server Console" HorizontalAlignment="Left" Margin="10,190,0,0" VerticalAlignment="Top"/>
+            <CheckBox x:Name="chkNoSteam" Content="NoSteam" HorizontalAlignment="Left" Margin="10,40,0,0" VerticalAlignment="Top"/>
+            <CheckBox x:Name="chkNoGUI" Content="No Visible Server Console" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top"/>
 
 
             <TextBlock HorizontalAlignment="Left" Margin="9,220,0,0" TextWrapping="Wrap" Text="Server Version:" VerticalAlignment="Top"/>

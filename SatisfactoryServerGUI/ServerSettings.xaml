@@ -5,11 +5,64 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SatisfactoryServerGUI"
              mc:Ignorable="d" 
+             d:Background="BlanchedAlmond"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <StackPanel Orientation="Horizontal">
+        <Grid>
             <TextBlock HorizontalAlignment="Left" Margin="10,20,0,0" Text="ServerPath:" TextWrapping="Wrap" VerticalAlignment="Top"/>
-            <Button Content="Choose Folder" Height="25" Width="120" Margin="20,15,0,0" VerticalAlignment="Top" Click="Button_Click"/>
-        </StackPanel> 
+            <Button Content="Choose Folder" Height="25" Width="120" Margin="110,15,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="ServerPath_Click"/>
+            <Separator Margin="0,50,0,0" VerticalAlignment="Top"></Separator>
+        </Grid>
+        
+        
+        <Grid Margin="0,30,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
+                <TextBlock HorizontalAlignment="Left"  Text="ServerQueryPort:" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBox x:Name="txtServerQueryPort" HorizontalAlignment="Left" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="5" TextChanged="txtServerQueryPort_TextChanged"/>
+                <CheckBox x:Name="chkServerQueryPort" Content="Enabled" HorizontalAlignment="Left" Margin="20,3,0,0" VerticalAlignment="Top"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5">
+                <TextBlock HorizontalAlignment="Left"  Text="BeaconPort:" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBox x:Name="txtBeaconPort" HorizontalAlignment="Left" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="5" TextChanged="txtBeaconPort_TextChanged"/>
+                <CheckBox x:Name="chkBeaconPort" Content="Enabled" HorizontalAlignment="Left" Margin="20,3,0,0" VerticalAlignment="Top"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="5">
+                <TextBlock HorizontalAlignment="Left"  Text="Port:" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBox x:Name="txtPort" HorizontalAlignment="Left" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="5" TextChanged="txPort_TextChanged" />
+                <CheckBox x:Name="chkPort" Content="Enabled" HorizontalAlignment="Left" Margin="20,3,0,0" VerticalAlignment="Top"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="5">
+                <TextBlock HorizontalAlignment="Left"  Text="MultiHome:" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBox x:Name="txtMultiHome" HorizontalAlignment="Left" Margin="20,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="150" LostFocus="txtMultiHome_LostFocus"/>
+                <CheckBox x:Name="chkMultiHome" Content="Enabled" HorizontalAlignment="Left" Margin="20,3,0,0" VerticalAlignment="Top" Checked="chkMultiHome_Checked" Unchecked="chkMultiHome_Unchecked"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="5" Orientation="Horizontal" Margin="5">
+                <CheckBox x:Name="chkDisablePacketRouting" Content="Disable Packet Routing" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="6" Orientation="Horizontal" Margin="5">
+                <CheckBox x:Name="chkDisableSeasonal" Content="Disable Seasonal Events" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
+            </StackPanel>
+
+            <Button x:Name="btnUpdateSettings" Grid.Row="7" Content="Update" Height="25" Width="120" Margin="30,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnUpdateSettings_Click" />
+        </Grid>
+        
     </Grid>
 </UserControl>

@@ -158,10 +158,7 @@ namespace SatisfactoryServerGUI
 
         private string GetArgumentsForConsole()
         {
-            string args = string.Empty;
-            if (chkPort.IsChecked == true && !string.IsNullOrEmpty(txtPort.Text)) { args += $"-?listen -Port={txtPort.Text}"; }
-            if (chkServerQueryPort.IsChecked == true && !string.IsNullOrEmpty(txtServerQueryPort.Text)) { args += $"-ServerQueryPort={txtServerQueryPort.Text} "; }
-            if (chkBeaconPort.IsChecked == true && !string.IsNullOrEmpty(txtBeaconPort.Text)) { args += $"-BeaconPort={txtBeaconPort.Text} "; }
+            string args = ServerSettings.OptionsString;
             if (chkNoSteam.IsChecked == true) { args += "-nosteam "; }
             if (chkNoGUI.IsChecked == false) { args += "-log "; }
             args += $"-beta {cmbServerVersion.Text} ";
@@ -169,20 +166,7 @@ namespace SatisfactoryServerGUI
             return args;
         }
 
-        private void txtServerQueryPort_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            txtServerQueryPort.Text = new string(txtServerQueryPort.Text.Where(char.IsDigit).ToArray());
-        }
-
-        private void txtPort_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            txtPort.Text = new string(txtPort.Text.Where(char.IsDigit).ToArray());
-        }
-
-        private void txtBeaconPort_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            txtBeaconPort.Text = new string(txtBeaconPort.Text.Where(char.IsDigit).ToArray());
-        }
+        
 
         public static BitmapImage LoadBitmapFromResource(string pathInApplication, Assembly assembly = null)
         {
