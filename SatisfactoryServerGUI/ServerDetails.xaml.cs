@@ -75,7 +75,7 @@ namespace SatisfactoryServerGUI
         private void UptimeTimerOnElapsed(object sender, ElapsedEventArgs e)
         {
             var now = DateTime.Now;
-            var elapsed = DateTime.Now - MainWindow.Instance.StartTime;
+            var elapsed = DateTime.Now - MainWindow.StartTime;
             if (elapsed.TotalSeconds < 1) return;
             var totalDays = elapsed.TotalDays;
             var totalYears = Math.Truncate(totalDays / 365);

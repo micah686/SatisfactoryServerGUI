@@ -29,9 +29,12 @@ namespace SatisfactoryServerGUI
             InitializeComponent();
             AddLogFilters();
             //_timer = new Timer(delegate { Refresh(); }, this, 1000, 1000);
+            var rootPath = Properties.Settings.Default.ServerPath;
+            _factoryLogPath = Path.Combine(rootPath, @"satisfactorydedicatedserver\FactoryGame\Saved\Logs\FactoryGame.log");
+            if(File.Exists(_factoryLogPath))File.Delete(_factoryLogPath);
+            _steamLogPath = Path.Combine(rootPath, "steamCMD.log");
+            if(File.Exists(_steamLogPath))File.Delete(_steamLogPath);
 
-            
-            
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)

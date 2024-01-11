@@ -16,7 +16,7 @@ namespace SatisfactoryServerGUI
     {
         public static MainWindow Instance { get; private set; }
         public static Timer UptimeTimer = new Timer();
-        public DateTime StartTime;
+        public static DateTime StartTime = DateTime.Now;
         public MainWindow()
         {
             InitializeComponent();

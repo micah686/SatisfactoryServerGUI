@@ -123,7 +123,7 @@ namespace SatisfactoryServerGUI
 
             ServerStateHelper.StopServer();
             MainWindow.UptimeTimer.Stop();
-            MainWindow.Instance.StartTime = DateTime.MinValue;
+            MainWindow.StartTime = DateTime.Now;
 
             StartServer();            
         }
@@ -142,7 +142,8 @@ namespace SatisfactoryServerGUI
                 p.StartInfo.UseShellExecute = false;
                 p.Start();
 
-                MainWindow.Instance.StartTime = DateTime.Now;
+
+                MainWindow.StartTime = DateTime.Now;
                 MainWindow.UptimeTimer.Start();
                 MainWindow.Instance.txtStatusBar.Text = "Running";
                 MainWindow.Instance.imgStatus.Source = LoadBitmapFromResource("resources/Play.png");
@@ -154,14 +155,6 @@ namespace SatisfactoryServerGUI
                 SetBtnState(true);
             }
         }
-
-
-
-
-
-
-
-
 
         private string GetArgumentsForConsole()
         {
