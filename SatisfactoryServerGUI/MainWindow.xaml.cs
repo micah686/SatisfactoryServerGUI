@@ -15,7 +15,7 @@ namespace SatisfactoryServerGUI
     public partial class MainWindow : AdonisWindow
     {
         public static MainWindow Instance { get; private set; }
-        public Timer UptimeTimer = new Timer();
+        public static Timer UptimeTimer = new Timer();
         public DateTime StartTime;
         public MainWindow()
         {

@@ -7,7 +7,7 @@
              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
              mc:Ignorable="d" 
              d:DesignWidth="454" d:DesignHeight="350">
-    <Grid>
+    <Grid Loaded="Grid_Loaded">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="50"/>

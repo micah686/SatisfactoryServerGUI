@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:SatisfactoryServerGUI"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Loaded="Grid_Loaded">
+    <Grid GotFocus="Grid_GotFocus" LostFocus="Grid_LostFocus">
         <Grid.RowDefinitions>
             <RowDefinition Height="60*"/>
             <RowDefinition Height="40*"/>

@@ -1,22 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using MessageBox = AdonisUI.Controls.MessageBox;
-using Path = System.Windows.Shapes.Path;
 
 namespace SatisfactoryServerGUI
 {
@@ -33,14 +23,26 @@ namespace SatisfactoryServerGUI
             InitializeComponent();
 
             var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-            _savesFolder = System.IO.Path.Combine(appDataFolder, @"FactoryGame\Saved\SaveGames\server");
-            StartWatchers();
+            _savesFolder = Path.Combine(appDataFolder, @"FactoryGame\Saved\SaveGames\server");
             GetIps();
-            
+            MainWindow.UptimeTimer.Interval = TimeSpan.FromMilliseconds(100).TotalMilliseconds;
+            MainWindow.UptimeTimer.Elapsed += UptimeTimerOnElapsed;
         }
 
-        
+        private void Grid_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (ServerStateHelper.IsServerRunning())
+            {                
+                StartWatchers();
+            }
+        }
+
+        private void Grid_LostFocus(object sender, RoutedEventArgs e)
+        {
+            _saveWatcher.Dispose();
+        }
+
+
         private void GetIps()
         {
             try
@@ -104,7 +106,7 @@ namespace SatisfactoryServerGUI
             _saveWatcher.Changed += SaveWatcherOnChanged;
             _saveWatcher.EnableRaisingEvents = true;
 
-
+            
             
         }
 
@@ -121,15 +123,8 @@ namespace SatisfactoryServerGUI
         {
             GetIps();
         }
+        
 
-        private void Grid_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (MainWindow.Instance != null)
-            {
-                MainWindow.Instance.UptimeTimer.Interval = TimeSpan.FromMilliseconds(100).TotalMilliseconds;
-                MainWindow.Instance.UptimeTimer.Elapsed += UptimeTimerOnElapsed;
-
-            }
-        }
+        
     }
 }
