@@ -22,19 +22,22 @@ namespace SatisfactoryServerGUI
         private string _steamLogPath = "";
         private static FileSystemWatcher _factoryWatcher;
         private static FileSystemWatcher _steamWatcher;
-
+        private static bool _init = false;
 
         public ConsoleLogs()
         {
             InitializeComponent();
             AddLogFilters();
             //_timer = new Timer(delegate { Refresh(); }, this, 1000, 1000);
-            var rootPath = Properties.Settings.Default.ServerPath;
-            _factoryLogPath = Path.Combine(rootPath, @"satisfactorydedicatedserver\FactoryGame\Saved\Logs\FactoryGame.log");
-            if(File.Exists(_factoryLogPath))File.Delete(_factoryLogPath);
-            _steamLogPath = Path.Combine(rootPath, "steamCMD.log");
-            if(File.Exists(_steamLogPath))File.Delete(_steamLogPath);
-
+            if(_init == false)
+            {
+                var rootPath = Properties.Settings.Default.ServerPath;
+                _factoryLogPath = Path.Combine(rootPath, @"satisfactorydedicatedserver\FactoryGame\Saved\Logs\FactoryGame.log");
+                if (File.Exists(_factoryLogPath)) File.Delete(_factoryLogPath);
+                _steamLogPath = Path.Combine(rootPath, "steamCMD.log");
+                if (File.Exists(_steamLogPath)) File.Delete(_steamLogPath);
+                _init = true;
+            }            
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)

@@ -97,7 +97,7 @@ namespace SatisfactoryServerGUI
         {
             if (!Directory.Exists(_savesFolder))
             {
-                MessageBox.Show("Failed to start log watcher.\n Couldn't find the Satisfactory Saves folder", "Failed to read Save folder");
+                MessageBox.Show("Failed to start World Save Monitor.\n Couldn't find the Satisfactory Server Saves folder", "Failed to read Save folder");
                 return;
             }
 
