@@ -1,9 +1,9 @@
 # SatisfactoryServerGUI
 GUI for managing Satisfactory Dedicated servers
 
-You will need .Net Core 3.1 Runtime if you don't already have it installed:  
+You will need .Net Core 8 Desktop Runtime if you don't already have it installed:  
 
-![.Net Core 3.1](https://dotnet.microsoft.com/download/dotnet/3.1/runtime)
+![.Net Core 8 Desktop](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-8.0.1-windows-x64-installer)
 
 Main Window  
 ![alt text](https://raw.githubusercontent.com/micah686/SatisfactoryServerGUI/master/images/ServerControls.PNG)
