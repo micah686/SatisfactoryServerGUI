@@ -1,5 +1,6 @@
 # SatisfactoryServerGUI
 GUI for managing Satisfactory Dedicated servers
+[Note] No updates will be made until 1.0 drops.
 
 You will need .Net Core 8 Desktop Runtime if you don't already have it installed:  
 
