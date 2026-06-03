@@ -1,0 +1,90 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SatisfactoryServerGUI.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="450"
+             x:Class="SatisfactoryServerGUI.Views.ServerSettingsView"
+             x:DataType="vm:ServerSettingsViewModel">
+
+  <Grid Margin="16" RowDefinitions="*,Auto">
+    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="16">
+        <!-- Connection Settings -->
+        <Border Background="{DynamicResource SystemControlBackgroundListLowBrush}" CornerRadius="4" Padding="16">
+          <StackPanel Spacing="12">
+            <TextBlock Text="API Connection" FontWeight="SemiBold" FontSize="14"/>
+
+            <Grid ColumnDefinitions="140,*">
+              <TextBlock Grid.Column="0" Text="Server IP:" VerticalAlignment="Center"/>
+              <TextBox Grid.Column="1" Text="{Binding ServerIp}"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="140,*">
+              <TextBlock Grid.Column="0" Text="API Port:" VerticalAlignment="Center"/>
+              <NumericUpDown Grid.Column="1" Value="{Binding ServerApiPort}" Minimum="1" Maximum="65535"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="140,*">
+              <TextBlock Grid.Column="0" Text="Auth Token:" VerticalAlignment="Center"/>
+              <TextBox Grid.Column="1" Text="{Binding AuthToken}" PasswordChar="*" Watermark="Optional - leave empty for unauthenticated"/>
+            </Grid>
+
+            <CheckBox Content="Trust self-signed certificates" IsChecked="{Binding TrustSelfSignedCerts}"/>
+          </StackPanel>
+        </Border>
+
+        <!-- Server Path -->
+        <Border Background="{DynamicResource SystemControlBackgroundListLowBrush}" CornerRadius="4" Padding="16">
+          <StackPanel Spacing="12">
+            <TextBlock Text="Server Installation" FontWeight="SemiBold" FontSize="14"/>
+
+            <Grid ColumnDefinitions="140,*,Auto">
+              <TextBlock Grid.Column="0" Text="Server Path:" VerticalAlignment="Center"/>
+              <TextBox Grid.Column="1" Text="{Binding ServerPath}" IsReadOnly="True"/>
+              <Button Grid.Column="2" Content="Browse..." Command="{Binding ChooseServerPathCommand}" Margin="8,0,0,0"/>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- Launch Arguments -->
+        <Border Background="{DynamicResource SystemControlBackgroundListLowBrush}" CornerRadius="4" Padding="16">
+          <StackPanel Spacing="12">
+            <TextBlock Text="Launch Arguments" FontWeight="SemiBold" FontSize="14"/>
+
+            <Grid ColumnDefinitions="Auto,120,Auto">
+              <CheckBox Grid.Column="0" Content="Server Query Port:" IsChecked="{Binding IsServerQueryPortEnabled}" VerticalAlignment="Center" Width="140"/>
+              <NumericUpDown Grid.Column="1" Value="{Binding ServerQueryPort}" IsEnabled="{Binding IsServerQueryPortEnabled}" Margin="8,0" Minimum="0" Maximum="65535"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="Auto,120,Auto">
+              <CheckBox Grid.Column="0" Content="Beacon Port:" IsChecked="{Binding IsBeaconPortEnabled}" VerticalAlignment="Center" Width="140"/>
+              <NumericUpDown Grid.Column="1" Value="{Binding BeaconPort}" IsEnabled="{Binding IsBeaconPortEnabled}" Margin="8,0" Minimum="0" Maximum="65535"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="Auto,120,Auto">
+              <CheckBox Grid.Column="0" Content="Port:" IsChecked="{Binding IsPortEnabled}" VerticalAlignment="Center" Width="140"/>
+              <NumericUpDown Grid.Column="1" Value="{Binding Port}" IsEnabled="{Binding IsPortEnabled}" Margin="8,0" Minimum="0" Maximum="65535"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="Auto,160,Auto">
+              <CheckBox Grid.Column="0" Content="MultiHome:" IsChecked="{Binding IsMultiHomeEnabled}" VerticalAlignment="Center" Width="140"/>
+              <TextBox Grid.Column="1" Text="{Binding MultiHome}" IsEnabled="{Binding IsMultiHomeEnabled}" Margin="8,0"
+                       Watermark="127.0.0.1"/>
+            </Grid>
+
+            <CheckBox Content="Disable Packet Routing" IsChecked="{Binding DisablePacketRouting}"
+                      IsEnabled="{Binding !IsMultiHomeEnabled}"/>
+            <CheckBox Content="Disable Seasonal Events" IsChecked="{Binding DisableSeasonalEvents}"/>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Save Button -->
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" Margin="0,16,0,0">
+      <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" Opacity="0.8"/>
+      <Button Content="Save Settings" Command="{Binding SaveSettingsCommand}" Padding="16,8"/>
+    </StackPanel>
+  </Grid>
+</UserControl>

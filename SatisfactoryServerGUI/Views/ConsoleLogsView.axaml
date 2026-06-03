@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SatisfactoryServerGUI.ViewModels"
+             xmlns:models="using:SatisfactoryServerGUI.Models"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="450"
+             x:Class="SatisfactoryServerGUI.Views.ConsoleLogsView"
+             x:DataType="vm:ConsoleLogsViewModel">
+
+  <Grid Margin="16" RowDefinitions="Auto,*">
+    <!-- Toolbar -->
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,12">
+      <TextBlock Text="Log Source:" VerticalAlignment="Center"/>
+      <ComboBox ItemsSource="{Binding LogChoices}" SelectedItem="{Binding SelectedLog}" Width="160"/>
+
+      <TextBlock Text="Filter:" VerticalAlignment="Center" Margin="16,0,0,0"
+                 IsVisible="{Binding ShowSatisfactoryLog}"/>
+      <ComboBox ItemsSource="{Binding LogFilters}" SelectedItem="{Binding SelectedFilter}"
+                Width="160" IsVisible="{Binding ShowSatisfactoryLog}"/>
+
+      <CheckBox Content="Auto Scroll" IsChecked="{Binding AutoScroll}" VerticalAlignment="Center"/>
+    </StackPanel>
+
+    <!-- Log Content -->
+    <Border Grid.Row="1" Background="#0d0d0d" CornerRadius="4">
+      <Panel>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                      IsVisible="{Binding ShowSatisfactoryLog}">
+          <TextBox Text="{Binding SatisfactoryLogText}"
+                   IsReadOnly="True"
+                   FontFamily="Consolas, Monospace"
+                   FontSize="12"
+                   Foreground="#d4d4d4"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   TextWrapping="NoWrap"
+                   AcceptsReturn="True"
+                   Padding="12"/>
+        </ScrollViewer>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                      IsVisible="{Binding ShowSteamCmdLog}">
+          <TextBox Text="{Binding SteamCmdLogText}"
+                   IsReadOnly="True"
+                   FontFamily="Consolas, Monospace"
+                   FontSize="12"
+                   Foreground="#d4d4d4"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   TextWrapping="NoWrap"
+                   AcceptsReturn="True"
+                   Padding="12"/>
+        </ScrollViewer>
+      </Panel>
+    </Border>
+  </Grid>
+</UserControl>

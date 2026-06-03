@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SatisfactoryServerGUI.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="450"
+             x:Class="SatisfactoryServerGUI.Views.ServerFoldersView"
+             x:DataType="vm:ServerFoldersViewModel">
+
+  <Grid Margin="16" RowDefinitions="Auto,*">
+    <TextBlock Grid.Row="0" Text="Server Installation Path:" Opacity="0.7" Margin="0,0,0,8"/>
+    <TextBox Grid.Row="0" Text="{Binding ServerPath}" IsReadOnly="True" Margin="0,20,0,16"/>
+
+    <StackPanel Grid.Row="1" Spacing="12" MaxWidth="300" HorizontalAlignment="Left">
+      <Border Background="{DynamicResource SystemControlBackgroundListLowBrush}" CornerRadius="4" Padding="16">
+        <StackPanel Spacing="12">
+          <TextBlock Text="Quick Folder Access" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8"/>
+
+          <Button Content="Open Root Folder" HorizontalAlignment="Stretch"
+                  Command="{Binding OpenRootFolderCommand}"/>
+          <Button Content="Open Server Root" HorizontalAlignment="Stretch"
+                  Command="{Binding OpenServerRootCommand}"/>
+          <Button Content="Open Server Saves" HorizontalAlignment="Stretch"
+                  Command="{Binding OpenServerSavesCommand}"/>
+          <Button Content="Open Server Logs" HorizontalAlignment="Stretch"
+                  Command="{Binding OpenServerLogsCommand}"/>
+        </StackPanel>
+      </Border>
+
+      <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap"
+                 IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                 Opacity="0.8"/>
+    </StackPanel>
+  </Grid>
+</UserControl>

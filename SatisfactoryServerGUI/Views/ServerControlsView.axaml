@@ -1,0 +1,66 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SatisfactoryServerGUI.ViewModels"
+             xmlns:models="using:SatisfactoryServerGUI.Models"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="450"
+             x:Class="SatisfactoryServerGUI.Views.ServerControlsView"
+             x:DataType="vm:ServerControlsViewModel">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+    <!-- Info Banner -->
+    <Border Grid.Row="0" Background="{DynamicResource SystemControlBackgroundListLowBrush}" CornerRadius="4" Padding="12" Margin="0,0,0,16">
+      <TextBlock Text="Controls are subject to change as dedicated server controls mature" Opacity="0.7" TextWrapping="Wrap"/>
+    </Border>
+
+    <!-- Main Controls -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="16">
+        <!-- Launch Options -->
+        <Border Background="{DynamicResource SystemControlBackgroundListLowBrush}" CornerRadius="4" Padding="16">
+          <StackPanel Spacing="12">
+            <TextBlock Text="Launch Options" FontWeight="SemiBold" FontSize="14"/>
+
+            <CheckBox Content="NoSteam" IsChecked="{Binding IsNoSteam}"/>
+            <CheckBox Content="No Visible Server Console" IsChecked="{Binding IsNoVisibleConsole}"/>
+
+            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+              <TextBlock Text="Server Version:" VerticalAlignment="Center"/>
+              <ComboBox SelectedItem="{Binding SelectedVersion}" Width="140">
+                <ComboBoxItem Content="{x:Static models:ServerVersion.Public}"/>
+                <ComboBoxItem Content="{x:Static models:ServerVersion.Experimental}"/>
+              </ComboBox>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- SteamCMD Status -->
+        <Border Background="{DynamicResource SystemControlBackgroundListLowBrush}" CornerRadius="4" Padding="16"
+                IsVisible="{Binding IsSteamCmdDownloading}">
+          <StackPanel Spacing="8">
+            <TextBlock Text="SteamCMD Status" FontWeight="SemiBold" FontSize="14"/>
+            <ProgressBar IsIndeterminate="True" Maximum="100"/>
+            <TextBlock Text="{Binding SteamCmdStatus}" TextWrapping="Wrap" Opacity="0.7" FontFamily="Consolas, monospace" FontSize="12"/>
+          </StackPanel>
+        </Border>
+
+        <!-- Status Message -->
+        <Border Background="{DynamicResource SystemControlBackgroundListLowBrush}" CornerRadius="4" Padding="12"
+                IsVisible="{Binding !IsSteamCmdDownloading}">
+          <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Opacity="0.8"/>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Control Buttons -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,*,*" Margin="0,16,0,0">
+      <Button Grid.Column="0" Content="Start/Stop Server" HorizontalAlignment="Stretch" Margin="0,0,4,0"
+              Command="{Binding ToggleServerCommand}" IsEnabled="{Binding !IsBusy}"/>
+      <Button Grid.Column="1" Content="Restart Server" HorizontalAlignment="Stretch" Margin="4,0,4,0"
+              Command="{Binding RestartServerCommand}" IsEnabled="{Binding !IsBusy}"/>
+      <Button Grid.Column="2" Content="Install/Update Server" HorizontalAlignment="Stretch" Margin="4,0,0,0"
+              Command="{Binding InstallUpdateServerCommand}" IsEnabled="{Binding !IsBusy}"/>
+    </Grid>
+  </Grid>
+</UserControl>
