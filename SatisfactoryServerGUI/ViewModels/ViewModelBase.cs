@@ -1,7 +1,7 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SatisfactoryServerGUI.ViewModels;
 
-public class ViewModelBase : ObservableObject
+public abstract class ViewModelBase : ObservableObject
 {
 }

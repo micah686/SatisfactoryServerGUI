@@ -1,51 +1,21 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:SatisfactoryServerGUI.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:views="using:SatisfactoryServerGUI.Views"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
-        x:Class="SatisfactoryServerGUI.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Title="Satisfactory Server GUI" Width="800" Height="600"
-        MinWidth="700" MinHeight="500">
+<PleasantWindow xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:vm="using:SatisfactoryServerGUI.ViewModels"
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                x:Class="SatisfactoryServerGUI.Views.MainWindow"
+                x:DataType="vm:MainWindowViewModel"
+                EnableCustomTitleBar="True"
+                Icon="/Assets/avalonia-logo.ico"
+                Title="SatisfactoryServerGUI">
 
-  <Design.DataContext>
-    <vm:MainWindowViewModel />
-  </Design.DataContext>
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
 
-  <Grid RowDefinitions="*,Auto">
-    <!-- Main Content -->
-    <TabControl Grid.Row="0" Padding="12">
-      <TabItem Header="Server Controls">
-        <views:ServerControlsView DataContext="{Binding ServerControlsViewModel}"/>
-      </TabItem>
-      <TabItem Header="Server Details">
-        <views:ServerDetailsView DataContext="{Binding ServerDetailsViewModel}"/>
-      </TabItem>
-      <TabItem Header="Server Folders">
-        <views:ServerFoldersView DataContext="{Binding ServerFoldersViewModel}"/>
-      </TabItem>
-      <TabItem Header="Logs">
-        <views:ConsoleLogsView DataContext="{Binding ConsoleLogsViewModel}"/>
-      </TabItem>
-      <TabItem Header="Settings">
-        <views:ServerSettingsView DataContext="{Binding ServerSettingsViewModel}"/>
-      </TabItem>
-    </TabControl>
+    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-    <!-- Status Bar -->
-    <Border Grid.Row="1" Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" Padding="12,6">
-      <StackPanel Orientation="Horizontal" Spacing="8">
-        <Panel Width="16" Height="16">
-          <Ellipse Fill="{StaticResource ErrorBrush}" IsVisible="{Binding !IsServerRunning}" Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-          <Ellipse Fill="{StaticResource SuccessBrush}" IsVisible="{Binding IsServerRunning}" Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        </Panel>
-        <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center"/>
-        <TextBlock Text="|" IsVisible="{Binding IsServerRunning}" Opacity="0.5"/>
-        <TextBlock Text="Uptime:" IsVisible="{Binding IsServerRunning}" Opacity="0.7"/>
-        <TextBlock Text="{Binding UptimeText}" IsVisible="{Binding IsServerRunning}" FontWeight="SemiBold"/>
-      </StackPanel>
-    </Border>
-  </Grid>
-</Window>
+</PleasantWindow>

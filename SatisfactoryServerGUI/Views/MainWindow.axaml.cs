@@ -1,8 +1,8 @@
-using Avalonia.Controls;
+using PleasantUI.Controls;
 
 namespace SatisfactoryServerGUI.Views;
 
-public partial class MainWindow : Window
+public partial class MainWindow : PleasantWindow
 {
     public MainWindow()
     {

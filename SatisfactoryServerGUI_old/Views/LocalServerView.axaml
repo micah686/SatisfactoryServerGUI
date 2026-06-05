@@ -1,0 +1,89 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SatisfactoryServerGUI.ViewModels"
+             xmlns:models="clr-namespace:SatisfactoryServerGUI.Models"
+             x:Class="SatisfactoryServerGUI.Views.LocalServerView"
+             x:DataType="vm:LocalServerViewModel">
+
+    <Grid ColumnDefinitions="380,*" Margin="10">
+
+        <!-- Left: configuration + controls -->
+        <ScrollViewer Grid.Column="0" Margin="0,0,8,0">
+            <StackPanel Spacing="8">
+                <TextBlock Text="Installation" FontWeight="SemiBold" />
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBox Grid.Column="0" Watermark="Install directory" Text="{Binding InstallDir}" Margin="0,0,6,0" />
+                    <Button Grid.Column="1" Content="..." Command="{Binding PickInstallDirCommand}" />
+                </Grid>
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBox Grid.Column="0" Watermark="SteamCMD path" Text="{Binding SteamCmdPath}" Margin="0,0,6,0" />
+                    <Button Grid.Column="1" Content="..." Command="{Binding PickSteamCmdCommand}" />
+                </Grid>
+                <TextBox Watermark="Beta branch (public / experimental)" Text="{Binding BetaBranch}" />
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Button Content="Install / Update"
+                            Command="{Binding InstallOrUpdateCommand}"
+                            IsEnabled="{Binding IsInstalling, Converter={StaticResource InverseBool}}" />
+                    <Button Content="Cancel" Command="{Binding CancelInstallCommand}"
+                            IsEnabled="{Binding IsInstalling}" />
+                </StackPanel>
+
+                <Separator Margin="0,6" />
+
+                <TextBlock Text="Launch settings" FontWeight="SemiBold" />
+                <Grid ColumnDefinitions="*,*,*">
+                    <TextBox Grid.Column="0" Watermark="Game port" Text="{Binding GamePort}" Margin="0,0,4,0" />
+                    <TextBox Grid.Column="1" Watermark="Query port" Text="{Binding QueryPort}" Margin="0,0,4,0" />
+                    <TextBox Grid.Column="2" Watermark="Beacon port" Text="{Binding BeaconPort}" />
+                </Grid>
+                <TextBox Watermark="Multihome IP (optional)" Text="{Binding MultiHome}" />
+                <TextBox Watermark="Extra launch args" Text="{Binding ExtraArgs}" />
+                <Button Content="Save local settings" Command="{Binding SaveSettingsCommand}" HorizontalAlignment="Left" />
+
+                <Separator Margin="0,6" />
+
+                <TextBlock Text="Process control" FontWeight="SemiBold" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Ellipse Width="14" Height="14" VerticalAlignment="Center"
+                             Fill="{Binding IsRunning, Converter={StaticResource BoolToBrush}}" />
+                    <TextBlock VerticalAlignment="Center"
+                               Text="{Binding Uptime, StringFormat='Uptime: {0}'}" />
+                </StackPanel>
+                <UniformGrid Columns="2">
+                    <Button Content="Start" Command="{Binding StartCommand}"
+                            IsEnabled="{Binding IsRunning, Converter={StaticResource InverseBool}}" Margin="0,0,4,4" />
+                    <Button Content="Stop" Command="{Binding StopCommand}"
+                            IsEnabled="{Binding IsRunning}" Margin="0,0,0,4" />
+                    <Button Content="Restart" Command="{Binding RestartCommand}" Margin="0,0,4,0" />
+                    <Button Content="Kill" Command="{Binding KillCommand}"
+                            IsEnabled="{Binding IsRunning}" />
+                </UniformGrid>
+
+                <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap"
+                           Foreground="{Binding StatusIsError, Converter={StaticResource BoolToBrush}}" />
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Right: combined output -->
+        <Grid Grid.Column="1" RowDefinitions="Auto,*">
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,4">
+                <TextBlock Grid.Column="0" Text="Output" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Clear" Command="{Binding ClearOutputCommand}" />
+            </Grid>
+            <Border Grid.Row="1" Background="#151515" CornerRadius="4" Padding="6">
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding Output}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:ConsoleEntry">
+                                <SelectableTextBlock Text="{Binding Display}"
+                                                     FontFamily="Cascadia Code,Consolas,monospace"
+                                                     FontSize="12" TextWrapping="Wrap"
+                                                     Foreground="{Binding Severity, Converter={StaticResource SeverityToBrush}}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

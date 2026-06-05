@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SatisfactoryServerGUI.ViewModels"
+             xmlns:models="clr-namespace:SatisfactoryServerGUI.Models"
+             x:Class="SatisfactoryServerGUI.Views.ProfilePaneView"
+             x:DataType="vm:ProfilePaneViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto" Margin="8">
+
+        <TextBlock Grid.Row="0" Text="Server Profiles" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
+
+        <ListBox Grid.Row="1" ItemsSource="{Binding Profiles}"
+                 SelectedItem="{Binding SelectedProfile}">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="models:ServerProfile">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding Host}" Foreground="{StaticResource MutedBrush}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Profile actions -->
+        <StackPanel Grid.Row="2" Spacing="6" Margin="0,8,0,0">
+            <UniformGrid Columns="3">
+                <Button Content="Add" Command="{Binding AddProfileCommand}" Margin="0,0,4,0" />
+                <Button Content="Edit" Command="{Binding EditProfileCommand}"
+                        IsEnabled="{Binding HasSelection}" Margin="0,0,4,0" />
+                <Button Content="Delete" Command="{Binding DeleteProfileCommand}"
+                        IsEnabled="{Binding HasSelection}" />
+            </UniformGrid>
+            <UniformGrid Columns="2">
+                <Button Content="Connect" Command="{Binding ConnectCommand}"
+                        IsEnabled="{Binding HasSelection}" Margin="0,0,4,0"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                <Button Content="Disconnect" Command="{Binding DisconnectCommand}"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            </UniformGrid>
+            <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap"
+                       Foreground="{Binding StatusIsError, Converter={StaticResource BoolToBrush}}" />
+        </StackPanel>
+
+        <!-- Inline editor -->
+        <Border Grid.Row="3" IsVisible="{Binding IsEditing}"
+                Background="#252525" CornerRadius="4" Padding="10" Margin="0,8,0,0">
+            <StackPanel Spacing="6" 
+                        x:DataType="models:ServerProfile">
+                <TextBlock Text="Edit profile" FontWeight="SemiBold" />
+                <TextBox Watermark="Name" Text="{Binding Name}" />
+                <TextBox Watermark="Host" Text="{Binding Host}" />
+                <Grid ColumnDefinitions="*,*" >
+                    <TextBox Grid.Column="0" Watermark="HTTPS Port" Margin="0,0,4,0"
+                             Text="{Binding HttpsPort}" />
+                    <TextBox Grid.Column="1" Watermark="Query Port"
+                             Text="{Binding QueryPort}" />
+                </Grid>
+                <TextBox Watermark="Auth token (optional)" Text="{Binding AuthToken}" />
+                <CheckBox Content="Trust self-signed certs" IsChecked="{Binding TrustSelfSignedCerts}" />
+                <CheckBox Content="Locally managed server" IsChecked="{Binding IsLocallyManaged}" />
+                <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Right">
+                    <Button Content="Save"
+                            Command="{Binding $parent[UserControl].((vm:ProfilePaneViewModel)DataContext).SaveProfileCommand}" />
+                    <Button Content="Cancel"
+                            Command="{Binding $parent[UserControl].((vm:ProfilePaneViewModel)DataContext).CancelEditCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

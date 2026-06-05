@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SatisfactoryServerGUI.ViewModels"
+             xmlns:models="clr-namespace:SatisfactoryServerGUI.Models"
+             x:Class="SatisfactoryServerGUI.Views.ConsoleView"
+             x:DataType="vm:ConsoleViewModel">
+
+    <Grid RowDefinitions="*,Auto,Auto" Margin="10">
+
+        <Border Grid.Row="0" Background="#151515" CornerRadius="4" Padding="6">
+            <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding Entries}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:ConsoleEntry">
+                            <SelectableTextBlock Text="{Binding Display}"
+                                                 FontFamily="Cascadia Code,Consolas,monospace"
+                                                 TextWrapping="Wrap"
+                                                 Foreground="{Binding Severity, Converter={StaticResource SeverityToBrush}}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" Margin="0,8,0,0">
+            <TextBox Grid.Column="0" Text="{Binding CurrentCommand}"
+                     Watermark="Type a console command and press Enter">
+                <TextBox.KeyBindings>
+                    <KeyBinding Gesture="Enter" Command="{Binding RunCommandCommand}" />
+                    <KeyBinding Gesture="Up" Command="{Binding HistoryPreviousCommand}" />
+                    <KeyBinding Gesture="Down" Command="{Binding HistoryNextCommand}" />
+                </TextBox.KeyBindings>
+            </TextBox>
+            <Button Grid.Column="1" Content="Run" Margin="6,0,0,0"
+                    Command="{Binding RunCommandCommand}" />
+            <Button Grid.Column="2" Content="Clear" Margin="6,0,0,0"
+                    Command="{Binding ClearCommand}" />
+        </Grid>
+
+        <TextBlock Grid.Row="2" Margin="0,6,0,0" Text="{Binding StatusMessage}"
+                   Foreground="{Binding StatusIsError, Converter={StaticResource BoolToBrush}}" />
+    </Grid>
+</UserControl>

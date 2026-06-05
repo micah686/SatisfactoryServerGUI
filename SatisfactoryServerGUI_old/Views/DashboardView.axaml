@@ -1,0 +1,104 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SatisfactoryServerGUI.ViewModels"
+             x:Class="SatisfactoryServerGUI.Views.DashboardView"
+             x:DataType="vm:DashboardViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#252525" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="14" />
+            <Setter Property="Width" Value="200" />
+            <Setter Property="Margin" Value="0,0,10,10" />
+        </Style>
+        <Style Selector="Border.card > StackPanel > TextBlock.label">
+            <Setter Property="Foreground" Value="#9E9E9E" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+        <Style Selector="Border.card > StackPanel > TextBlock.value">
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,4,0,0" />
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer>
+        <StackPanel Margin="14" Spacing="10">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="{Binding ServerName}" FontSize="24" FontWeight="Bold" />
+                    <TextBlock Text="{Binding UdpState, StringFormat='State: {0}'}"
+                               Foreground="#9E9E9E" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <Button Content="Refresh now" Command="{Binding RefreshCommand}" />
+                    <TextBlock Text="{Binding LastUpdated, StringFormat='Updated: {0}'}"
+                               Foreground="#9E9E9E" FontSize="11" HorizontalAlignment="Right" Margin="0,4,0,0" />
+                </StackPanel>
+            </Grid>
+
+            <WrapPanel>
+                <Border Classes="card">
+                    <StackPanel>
+                        <TextBlock Classes="label" Text="Players" />
+                        <TextBlock Classes="value" Text="{Binding ConnectedPlayers, StringFormat='{}{0}'}" />
+                        <TextBlock Foreground="#9E9E9E"
+                                   Text="{Binding PlayerLimit, StringFormat='of {0} max'}" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="card">
+                    <StackPanel>
+                        <TextBlock Classes="label" Text="Session" />
+                        <TextBlock Classes="value" Text="{Binding ActiveSessionName}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="card">
+                    <StackPanel>
+                        <TextBlock Classes="label" Text="Tech Tier" />
+                        <TextBlock Classes="value" Text="{Binding TechTier}" />
+                        <TextBlock Foreground="#9E9E9E" Text="{Binding GamePhase}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="card">
+                    <StackPanel>
+                        <TextBlock Classes="label" Text="Tick Rate" />
+                        <TextBlock Classes="value" Text="{Binding AverageTickRate, StringFormat='{}{0:F1}'}" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="card">
+                    <StackPanel>
+                        <TextBlock Classes="label" Text="Play Time" />
+                        <TextBlock Classes="value"
+                                   Text="{Binding TotalGameDurationSeconds, Converter={StaticResource SecondsToDuration}}" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="card">
+                    <StackPanel>
+                        <TextBlock Classes="label" Text="Game Running" />
+                        <Ellipse Width="18" Height="18" Margin="0,6,0,0" HorizontalAlignment="Left"
+                                 Fill="{Binding IsGameRunning, Converter={StaticResource BoolToBrush}}" />
+                        <TextBlock Foreground="#9E9E9E" Margin="0,4,0,0"
+                                   Text="{Binding IsPaused, StringFormat='Paused: {0}'}" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="card">
+                    <StackPanel>
+                        <TextBlock Classes="label" Text="Auto-load" />
+                        <TextBlock Classes="value" Text="{Binding AutoLoadSessionName}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="card">
+                    <StackPanel>
+                        <TextBlock Classes="label" Text="Net CL" />
+                        <TextBlock Classes="value" Text="{Binding NetChangelist}" />
+                    </StackPanel>
+                </Border>
+            </WrapPanel>
+
+            <TextBlock Text="{Binding StatusMessage}"
+                       Foreground="{Binding StatusIsError, Converter={StaticResource BoolToBrush}}" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

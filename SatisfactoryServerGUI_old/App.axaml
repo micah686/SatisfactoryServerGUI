@@ -1,0 +1,31 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:SatisfactoryServerGUI"
+             xmlns:conv="clr-namespace:SatisfactoryServerGUI.Converters"
+             x:Class="SatisfactoryServerGUI.App"
+             RequestedThemeVariant="Dark">
+
+    <Application.DataTemplates>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
+    <Application.Resources>
+        <conv:BoolToBrushConverter x:Key="BoolToBrush" />
+        <conv:ConnectionStatusToBrushConverter x:Key="StatusToBrush" />
+        <conv:SeverityToBrushConverter x:Key="SeverityToBrush" />
+        <conv:SecondsToDurationConverter x:Key="SecondsToDuration" />
+        <conv:InverseBoolConverter x:Key="InverseBool" />
+        <conv:NullToBoolConverter x:Key="NullToBool" />
+
+        <SolidColorBrush x:Key="SuccessBrush" Color="#4CAF50" />
+        <SolidColorBrush x:Key="ErrorBrush" Color="#F44336" />
+        <SolidColorBrush x:Key="WarningBrush" Color="#FF9800" />
+        <SolidColorBrush x:Key="InfoBrush" Color="#2196F3" />
+        <SolidColorBrush x:Key="MutedBrush" Color="#9E9E9E" />
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+    </Application.Styles>
+</Application>

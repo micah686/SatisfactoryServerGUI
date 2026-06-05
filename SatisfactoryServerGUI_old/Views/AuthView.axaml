@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SatisfactoryServerGUI.ViewModels"
+             x:Class="SatisfactoryServerGUI.Views.AuthView"
+             x:DataType="vm:AuthViewModel">
+
+    <ScrollViewer>
+        <StackPanel Margin="14" Spacing="14" MaxWidth="520" HorizontalAlignment="Left">
+
+            <TextBlock Text="Authentication" FontSize="18" FontWeight="SemiBold" />
+            <TextBlock Foreground="#9E9E9E" TextWrapping="Wrap"
+                       Text="Connect to a profile first, then authenticate using one of the methods below. The resulting token is saved back to the active profile." />
+
+            <Border Background="#252525" CornerRadius="4" Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="API token" FontWeight="SemiBold" />
+                    <TextBlock Foreground="#9E9E9E" FontSize="12" TextWrapping="Wrap"
+                               Text="Generate with the in-game console command: server.GenerateAPIToken" />
+                    <TextBox Watermark="Paste API token" Text="{Binding TokenInput}" AcceptsReturn="False" />
+                    <Button Content="Apply token" Command="{Binding ApplyTokenCommand}" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+
+            <Border Background="#252525" CornerRadius="4" Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Password login" FontWeight="SemiBold" />
+                    <TextBox Watermark="Password" PasswordChar="•" Text="{Binding Password}" />
+                    <CheckBox Content="Log in as Administrator (uncheck for Client)" IsChecked="{Binding LoginAsAdmin}" />
+                    <Button Content="Log in" Command="{Binding PasswordLoginCommand}" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+
+            <Border Background="#252525" CornerRadius="4" Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Claim unclaimed server" FontWeight="SemiBold" />
+                    <TextBlock Foreground="#9E9E9E" FontSize="12" TextWrapping="Wrap"
+                               Text="For a brand-new server: sets the server name and admin password." />
+                    <TextBox Watermark="Server name" Text="{Binding ClaimServerName}" />
+                    <TextBox Watermark="Admin password" PasswordChar="•" Text="{Binding ClaimAdminPassword}" />
+                    <Button Content="Claim server" Command="{Binding ClaimServerCommand}" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap"
+                       Foreground="{Binding StatusIsError, Converter={StaticResource BoolToBrush}}" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

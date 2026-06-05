@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SatisfactoryServerGUI.ViewModels"
+             x:Class="SatisfactoryServerGUI.Views.SavesView"
+             x:DataType="vm:SavesViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="10">
+
+        <WrapPanel Grid.Row="0" Margin="0,0,0,8">
+            <Button Content="Refresh" Command="{Binding RefreshCommand}" Margin="0,0,6,6" />
+            <Button Content="Save game" Command="{Binding SaveGameCommand}" Margin="0,0,6,6" />
+            <Button Content="Load (auto-load)" Command="{Binding LoadCommand}" Margin="0,0,6,6" />
+            <Button Content="Set auto-load" Command="{Binding SetAutoLoadCommand}" Margin="0,0,6,6" />
+            <Button Content="Upload" Command="{Binding UploadCommand}" Margin="0,0,6,6" />
+            <Button Content="Download" Command="{Binding DownloadCommand}" Margin="0,0,6,6" />
+            <Button Content="Delete save" Command="{Binding DeleteSaveCommand}" Margin="0,0,6,6" />
+            <Button Content="Delete session" Command="{Binding DeleteSessionCommand}" Margin="0,0,6,6" />
+        </WrapPanel>
+
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Saves}"
+                  SelectedItem="{Binding SelectedSave}"
+                  IsReadOnly="True" GridLinesVisibility="Horizontal"
+                  CanUserResizeColumns="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Session" Binding="{Binding SessionName}" Width="*" />
+                <DataGridTextColumn Header="Save" Binding="{Binding SaveName}" Width="*" />
+                <DataGridTextColumn Header="Map" Binding="{Binding MapName}" Width="Auto" />
+                <DataGridTextColumn Header="Play time"
+                                    Binding="{Binding PlayDurationSeconds, Converter={StaticResource SecondsToDuration}}"
+                                    Width="Auto" />
+                <DataGridTextColumn Header="Saved" Binding="{Binding SaveDate}" Width="Auto" />
+                <DataGridCheckBoxColumn Header="Modded" Binding="{Binding IsModded}" Width="Auto" />
+                <DataGridCheckBoxColumn Header="Creative" Binding="{Binding IsCreative}" Width="Auto" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="2" Margin="0,8,0,0" Text="{Binding StatusMessage}"
+                   Foreground="{Binding StatusIsError, Converter={StaticResource BoolToBrush}}" />
+    </Grid>
+</UserControl>
