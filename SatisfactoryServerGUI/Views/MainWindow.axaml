@@ -1,21 +1,88 @@
 <PleasantWindow xmlns="https://github.com/avaloniaui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:vm="using:SatisfactoryServerGUI.ViewModels"
+                xmlns:pages="using:SatisfactoryServerGUI.Views.Pages"
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
                 x:Class="SatisfactoryServerGUI.Views.MainWindow"
                 x:DataType="vm:MainWindowViewModel"
-                EnableCustomTitleBar="True"
+                Width="1000"
+                Height="700"
+                CanResize="True"
+                WindowDecorations="BorderOnly"
                 Icon="/Assets/avalonia-logo.ico"
                 Title="SatisfactoryServerGUI">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Panel>
+
+        <NavigationView x:Name="MainNavigationView"
+                        ShowBackButton="False"
+                        IsOpen="True"
+                        DynamicDisplayMode="True">
+
+            <NavigationViewItem Header="Dashboard"
+                                Icon="{x:Static MaterialIcons.ViewDashboardOutline}">
+                <NavigationViewItem.Content>
+                    <pages:DashboardView/>
+                </NavigationViewItem.Content>
+            </NavigationViewItem>
+
+            <NavigationViewItem Header="Console"
+                                Icon="{x:Static MaterialIcons.ConsoleLine}">
+                <NavigationViewItem.Content>
+                    <pages:ConsoleView/>
+                </NavigationViewItem.Content>
+            </NavigationViewItem>
+
+            <NavigationViewItem Header="Saves"
+                                Icon="{x:Static MaterialIcons.FolderOpenOutline}">
+                <NavigationViewItem.Content>
+                    <pages:SavesView/>
+                </NavigationViewItem.Content>
+            </NavigationViewItem>
+
+            <NavigationViewItem Header="Authentication"
+                                Icon="{x:Static MaterialIcons.ShieldAccountOutline}">
+                <NavigationViewItem.Content>
+                    <pages:AuthenticationView/>
+                </NavigationViewItem.Content>
+            </NavigationViewItem>
+
+            <NavigationViewItem Header="Server Profiles"
+                                Icon="{x:Static MaterialIcons.ServerOutline}"
+                                DockPanel.Dock="Bottom">
+                <NavigationViewItem.Content>
+                    <pages:ServerProfilesView/>
+                </NavigationViewItem.Content>
+            </NavigationViewItem>
+
+            <NavigationViewItem Header="Settings"
+                                Icon="{x:Static MaterialIcons.CogOutline}"
+                                DockPanel.Dock="Bottom"
+                                Margin="0 0 0 5">
+                <NavigationViewItem.Content>
+                    <pages:SettingsView/>
+                </NavigationViewItem.Content>
+            </NavigationViewItem>
+
+        </NavigationView>
+
+        <!-- Server profile selector overlaid in the pane's top margin area.
+             Hidden in compact mode so it does not bleed outside the pane. -->
+        <ComboBox HorizontalAlignment="Left"
+                  VerticalAlignment="Top"
+                  Margin="55,10,0,0"
+                  Width="205"
+                  IsVisible="{Binding #MainNavigationView.IsOpen}"
+                  ItemsSource="{Binding ServerProfiles}"
+                  SelectedItem="{Binding SelectedProfile}"
+                  PlaceholderText="Select profile"/>
+
+    </Panel>
 
 </PleasantWindow>
