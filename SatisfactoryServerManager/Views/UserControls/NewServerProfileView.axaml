@@ -1,0 +1,181 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SatisfactoryServerManager.Views.UserControls.NewServerProfileView">
+    <!-- ── "New server profile" drawer ──────────────────────── -->
+        <Border HorizontalAlignment="Right"
+                Width="440"
+                Background="{DynamicResource BackgroundColor1}"
+                BorderBrush="{DynamicResource ControlBorderColor}"
+                BorderThickness="1 0 0 0">
+            <Grid RowDefinitions="Auto,*,Auto">
+
+                <!-- Drawer header -->
+                <Border Grid.Row="0"
+                        Padding="20 16"
+                        BorderBrush="{DynamicResource ControlBorderColor}"
+                        BorderThickness="0 0 0 1">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Border Grid.Column="0"
+                                Width="42" Height="42" CornerRadius="11"
+                                Background="#2067A3F0"
+                                Margin="0 0 14 0">
+                            <PathIcon Data="{x:Static MaterialIcons.ServerNetworkOutline}"
+                                      Width="22" Height="22"
+                                      Foreground="#67A3F0"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock FontSize="15" FontWeight="SemiBold"
+                                       Text="New server profile"/>
+                            <TextBlock Classes="faint" FontSize="12"
+                                       Text="Add a Satisfactory dedicated server"/>
+                        </StackPanel>
+                        <Button Grid.Column="2"
+                                Theme="{DynamicResource AppBarButtonTheme}"
+                                Padding="6"
+                                VerticalAlignment="Center"
+                                ToolTip.Tip="Close">
+                            <PathIcon Data="{x:Static MaterialIcons.CloseThick}"
+                                      Width="14" Height="14"/>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Drawer body (scrollable fields) -->
+                <SmoothScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="18" Margin="20 20 20 8">
+
+                        <!-- Profile name -->
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="12" FontWeight="SemiBold" Text="Profile name"/>
+                            <TextBlock Classes="faint" FontSize="11"
+                                       Text="A friendly label for this server."/>
+                            <TextBox PlaceholderText="Home Factory"/>
+                        </StackPanel>
+
+                        <Border Classes="row-sep"/>
+                        <TextBlock Classes="section-label" Text="CONNECTION"/>
+
+                        <!-- Host -->
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="12" FontWeight="SemiBold" Text="Host"/>
+                            <TextBlock Classes="faint" FontSize="11"
+                                       Text="IP address or hostname of the dedicated server."/>
+                            <TextBox Classes="mono" PlaceholderText="192.168.1.42"/>
+                        </StackPanel>
+
+                        <!-- Ports row -->
+                        <Grid ColumnDefinitions="*,12,*">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock FontSize="12" FontWeight="SemiBold" Text="HTTPS port"/>
+                                <TextBlock Classes="faint" FontSize="11" Text="Default 7777"/>
+                                <NumericUpDown Value="7777" FormatString="0"
+                                               Minimum="1" Maximum="65535"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="4">
+                                <TextBlock FontSize="12" FontWeight="SemiBold" Text="Query port"/>
+                                <TextBlock Classes="faint" FontSize="11" Text="Default 15777"/>
+                                <NumericUpDown Value="15777" FormatString="0"
+                                               Minimum="1" Maximum="65535"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Classes="row-sep"/>
+                        <TextBlock Classes="section-label" Text="AUTHENTICATION"/>
+
+                        <!-- API token -->
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="12" FontWeight="SemiBold" Text="API token"/>
+                            <TextBlock Classes="faint" FontSize="11"
+                                       Text="Bearer token sent with each request. Leave blank to authenticate later."
+                                       TextWrapping="Wrap"/>
+                            <TextBox PlaceholderText="ApiToken eyJ…" PasswordChar="•"/>
+                        </StackPanel>
+
+                        <Border Classes="row-sep"/>
+                        <TextBlock Classes="section-label" Text="OPTIONS"/>
+
+                        <!-- Trust self-signed certs -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Spacing="2"
+                                        Margin="0 0 12 0">
+                                <TextBlock FontSize="13" FontWeight="SemiBold"
+                                           Text="Trust self-signed certificates"/>
+                                <TextBlock Classes="faint" FontSize="11"
+                                           Text="Dedicated servers ship a self-signed cert by default. Disable only if you've installed a trusted cert."
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1"
+                                          IsChecked="True"
+                                          VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Locally managed -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Spacing="2"
+                                        Margin="0 0 12 0">
+                                <TextBlock FontSize="13" FontWeight="SemiBold"
+                                           Text="Locally managed server"/>
+                                <TextBlock Classes="faint" FontSize="11"
+                                           Text="This server runs on this machine — enables install/update and process controls."
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1"
+                                          IsChecked="False"
+                                          VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <Border Classes="row-sep"/>
+
+                        <!-- Test connection -->
+                        <Button>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{x:Static MaterialIcons.AccessPointCheck}"
+                                          Width="14" Height="14"/>
+                                <TextBlock Text="Test connection"/>
+                            </StackPanel>
+                        </Button>
+
+                    </StackPanel>
+                </SmoothScrollViewer>
+
+                <!-- Drawer footer -->
+                <Border Grid.Row="2"
+                        Padding="16 12"
+                        BorderBrush="{DynamicResource ControlBorderColor}"
+                        BorderThickness="0 1 0 0">
+                    <Grid ColumnDefinitions="*,Auto,8,Auto">
+                        <!-- Test result badge (shown after test) -->
+                        <Border Grid.Column="0" Classes="badge ok" HorizontalAlignment="Left"
+                                VerticalAlignment="Center">
+                            <StackPanel>
+                                <PathIcon Data="{x:Static MaterialIcons.CheckDecagram}"
+                                          Width="11" Height="11"/>
+                                <TextBlock Text="Reachable"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Grid.Column="1">Cancel</Button>
+
+                        <Button Grid.Column="3"
+                                Theme="{DynamicResource AccentButtonTheme}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{x:Static MaterialIcons.ContentSave}"
+                                          Width="13" Height="13"/>
+                                <TextBlock Text="Add server"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </Border>
+    
+    
+</UserControl>
