@@ -11,387 +11,564 @@
         <vm:ServerProfilesViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="Auto,*" Margin="16" RowSpacing="14">
+    <!-- Outer Grid: all children overlap so the drawer can slide over the content -->
+    <Grid>
 
-        <!-- ── Toolbar ──────────────────────────────────────────── -->
-        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
-            <TextBlock Grid.Column="0"
-                       Classes="faint"
-                       FontSize="12"
-                       Text="4 server profiles · stored locally on this machine"
-                       VerticalAlignment="Center"/>
-            <Button Grid.Column="1"
-                    Theme="{DynamicResource AccentButtonTheme}">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <PathIcon Data="{x:Static MaterialIcons.PlusThick}"
-                              Width="14" Height="14"/>
-                    <TextBlock Text="Add server"/>
-                </StackPanel>
-            </Button>
+        <!-- ── Main content ──────────────────────────────────────── -->
+        <Grid RowDefinitions="Auto,*" Margin="16" RowSpacing="14">
+
+            <!-- Toolbar -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0"
+                           Classes="faint"
+                           FontSize="12"
+                           Text="4 server profiles · stored locally on this machine"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="1"
+                        Theme="{DynamicResource AccentButtonTheme}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{x:Static MaterialIcons.PlusThick}"
+                                  Width="14" Height="14"/>
+                        <TextBlock Text="Add server"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <!-- Profile card grid -->
+            <SmoothScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                <WrapPanel>
+                    <WrapPanel.Styles>
+                        <Style Selector="Border.profile-card">
+                            <Setter Property="Width" Value="320"/>
+                            <Setter Property="Margin" Value="0 0 14 14"/>
+                            <Setter Property="Background" Value="{DynamicResource BackgroundColor2}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderColor}"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+                            <Setter Property="ClipToBounds" Value="True"/>
+                        </Style>
+                    </WrapPanel.Styles>
+
+                    <!-- ── Profile: Home Factory (active, running) ── -->
+                    <Border Classes="profile-card active">
+                        <StackPanel>
+                            <Border Padding="15 13"
+                                    BorderBrush="{DynamicResource ControlBorderColor}"
+                                    BorderThickness="0 0 0 1">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <Border Grid.Column="0"
+                                            Width="36" Height="36" CornerRadius="10"
+                                            Background="{DynamicResource BackgroundColor3}"
+                                            BorderBrush="{DynamicResource ControlBorderColor}"
+                                            BorderThickness="1"
+                                            Margin="0 0 10 0">
+                                        <PathIcon Data="{x:Static MaterialIcons.ServerOutline}"
+                                                  Width="18" Height="18"
+                                                  Foreground="#FA9549"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock FontSize="14" FontWeight="SemiBold"
+                                                       Text="Home Factory"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <Border Classes="badge accent">
+                                                <TextBlock Text="active"/>
+                                            </Border>
+                                        </StackPanel>
+                                        <TextBlock Classes="mono faint" FontSize="10"
+                                                   Text="192.168.1.42:7777"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="2" Classes="badge ok">
+                                        <StackPanel>
+                                            <Ellipse Classes="dot ok" Width="6" Height="6"/>
+                                            <TextBlock Text="Running"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                            <StackPanel Margin="14 11" Spacing="7">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Query port"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="15777"/>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Auth token"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="•••• a91c"/>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Self-signed certs"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                        <PathIcon Data="{x:Static MaterialIcons.ShieldAccountOutline}"
+                                                  Width="12" Height="12"
+                                                  Foreground="{DynamicResource TextFillColor3}"/>
+                                        <TextBlock Classes="kv-val" Text="Trusted"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Locally managed"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                        <PathIcon Data="{x:Static MaterialIcons.MonitorDashboard}"
+                                                  Width="12" Height="12"
+                                                  Foreground="{DynamicResource TextFillColor3}"/>
+                                        <TextBlock Classes="kv-val" Text="Yes"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                            <Border Padding="12 10"
+                                    BorderBrush="{DynamicResource ControlBorderColor}"
+                                    BorderThickness="0 1 0 0">
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                                    <Button Grid.Column="0" Padding="10 5" FontSize="12" IsEnabled="False">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <PathIcon Data="{x:Static MaterialIcons.CheckDecagram}"
+                                                      Width="12" Height="12"/>
+                                            <TextBlock Text="Connected"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Rectangle Grid.Column="1"/>
+                                    <Button Grid.Column="2"
+                                            Theme="{DynamicResource AppBarButtonTheme}"
+                                            Padding="6" Margin="0 0 4 0"
+                                            ToolTip.Tip="Edit profile">
+                                        <PathIcon Data="{x:Static MaterialIcons.PencilOutline}"
+                                                  Width="14" Height="14"/>
+                                    </Button>
+                                    <Button Grid.Column="3"
+                                            Theme="{DynamicResource AppBarButtonTheme}"
+                                            Padding="6"
+                                            ToolTip.Tip="Delete profile">
+                                        <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
+                                                  Width="14" Height="14"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ── Profile: Aperture Co-op (running) ── -->
+                    <Border Classes="profile-card">
+                        <StackPanel>
+                            <Border Padding="15 13"
+                                    BorderBrush="{DynamicResource ControlBorderColor}"
+                                    BorderThickness="0 0 0 1">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <Border Grid.Column="0"
+                                            Width="36" Height="36" CornerRadius="10"
+                                            Background="{DynamicResource BackgroundColor3}"
+                                            BorderBrush="{DynamicResource ControlBorderColor}"
+                                            BorderThickness="1"
+                                            Margin="0 0 10 0">
+                                        <PathIcon Data="{x:Static MaterialIcons.ServerOutline}"
+                                                  Width="18" Height="18"
+                                                  Foreground="#67A3F0"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                        <TextBlock FontSize="14" FontWeight="SemiBold"
+                                                   Text="Aperture Co-op"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Classes="mono faint" FontSize="10"
+                                                   Text="coop.ficsit.example.net:7777"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="2" Classes="badge ok">
+                                        <StackPanel>
+                                            <Ellipse Classes="dot ok" Width="6" Height="6"/>
+                                            <TextBlock Text="Running"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                            <StackPanel Margin="14 11" Spacing="7">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Query port"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="15777"/>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Auth token"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="•••• 77be"/>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Self-signed certs"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="Trusted"/>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Locally managed"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="No"/>
+                                </Grid>
+                            </StackPanel>
+                            <Border Padding="12 10"
+                                    BorderBrush="{DynamicResource ControlBorderColor}"
+                                    BorderThickness="0 1 0 0">
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                                    <Button Grid.Column="0"
+                                            Theme="{DynamicResource AccentButtonTheme}"
+                                            Padding="10 5" FontSize="12">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <PathIcon Data="{x:Static MaterialIcons.LanConnect}"
+                                                      Width="12" Height="12"/>
+                                            <TextBlock Text="Connect"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Rectangle Grid.Column="1"/>
+                                    <Button Grid.Column="2"
+                                            Theme="{DynamicResource AppBarButtonTheme}"
+                                            Padding="6" Margin="0 0 4 0">
+                                        <PathIcon Data="{x:Static MaterialIcons.PencilOutline}"
+                                                  Width="14" Height="14"/>
+                                    </Button>
+                                    <Button Grid.Column="3"
+                                            Theme="{DynamicResource AppBarButtonTheme}"
+                                            Padding="6">
+                                        <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
+                                                  Width="14" Height="14"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ── Profile: Dev Sandbox (stopped) ── -->
+                    <Border Classes="profile-card">
+                        <StackPanel>
+                            <Border Padding="15 13"
+                                    BorderBrush="{DynamicResource ControlBorderColor}"
+                                    BorderThickness="0 0 0 1">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <Border Grid.Column="0"
+                                            Width="36" Height="36" CornerRadius="10"
+                                            Background="{DynamicResource BackgroundColor3}"
+                                            BorderBrush="{DynamicResource ControlBorderColor}"
+                                            BorderThickness="1"
+                                            Margin="0 0 10 0">
+                                        <PathIcon Data="{x:Static MaterialIcons.ServerOutline}"
+                                                  Width="18" Height="18"
+                                                  Foreground="#56C98A"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                        <TextBlock FontSize="14" FontWeight="SemiBold"
+                                                   Text="Dev Sandbox"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Classes="mono faint" FontSize="10"
+                                                   Text="localhost:7777"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="2" Classes="badge neutral">
+                                        <StackPanel>
+                                            <Ellipse Classes="dot idle" Width="6" Height="6"/>
+                                            <TextBlock Text="Stopped"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                            <StackPanel Margin="14 11" Spacing="7">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Query port"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="15777"/>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Auth token"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="•••• 0001"/>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Self-signed certs"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="Trusted"/>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Locally managed"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="Yes"/>
+                                </Grid>
+                            </StackPanel>
+                            <Border Padding="12 10"
+                                    BorderBrush="{DynamicResource ControlBorderColor}"
+                                    BorderThickness="0 1 0 0">
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                                    <Button Grid.Column="0"
+                                            Theme="{DynamicResource AccentButtonTheme}"
+                                            Padding="10 5" FontSize="12">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <PathIcon Data="{x:Static MaterialIcons.LanConnect}"
+                                                      Width="12" Height="12"/>
+                                            <TextBlock Text="Connect"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Rectangle Grid.Column="1"/>
+                                    <Button Grid.Column="2"
+                                            Theme="{DynamicResource AppBarButtonTheme}"
+                                            Padding="6" Margin="0 0 4 0">
+                                        <PathIcon Data="{x:Static MaterialIcons.PencilOutline}"
+                                                  Width="14" Height="14"/>
+                                    </Button>
+                                    <Button Grid.Column="3"
+                                            Theme="{DynamicResource AppBarButtonTheme}"
+                                            Padding="6">
+                                        <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
+                                                  Width="14" Height="14"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ── Profile: OVH Box (unclaimed) ── -->
+                    <Border Classes="profile-card">
+                        <StackPanel>
+                            <Border Padding="15 13"
+                                    BorderBrush="{DynamicResource ControlBorderColor}"
+                                    BorderThickness="0 0 0 1">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <Border Grid.Column="0"
+                                            Width="36" Height="36" CornerRadius="10"
+                                            Background="{DynamicResource BackgroundColor3}"
+                                            BorderBrush="{DynamicResource ControlBorderColor}"
+                                            BorderThickness="1"
+                                            Margin="0 0 10 0">
+                                        <PathIcon Data="{x:Static MaterialIcons.ServerOutline}"
+                                                  Width="18" Height="18"
+                                                  Foreground="#A78BFA"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                        <TextBlock FontSize="14" FontWeight="SemiBold"
+                                                   Text="OVH Box (new)"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Classes="mono faint" FontSize="10"
+                                                   Text="51.83.140.12:7777"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="2" Classes="badge warn">
+                                        <StackPanel>
+                                            <PathIcon Data="{x:Static MaterialIcons.ShieldAccountOutline}"
+                                                      Width="10" Height="10"/>
+                                            <TextBlock Text="Unclaimed"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                            <StackPanel Margin="14 11" Spacing="7">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Query port"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="15777"/>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Auth token"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val faint" Text="— none —"/>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Self-signed certs"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="Strict"/>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="kv-key" Text="Locally managed"/>
+                                    <TextBlock Grid.Column="1" Classes="kv-val" Text="No"/>
+                                </Grid>
+                            </StackPanel>
+                            <Border Padding="12 10"
+                                    BorderBrush="{DynamicResource ControlBorderColor}"
+                                    BorderThickness="0 1 0 0">
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                                    <Button Grid.Column="0"
+                                            Theme="{DynamicResource AccentButtonTheme}"
+                                            Padding="10 5" FontSize="12">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <PathIcon Data="{x:Static MaterialIcons.LanConnect}"
+                                                      Width="12" Height="12"/>
+                                            <TextBlock Text="Connect"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Rectangle Grid.Column="1"/>
+                                    <Button Grid.Column="2"
+                                            Theme="{DynamicResource AppBarButtonTheme}"
+                                            Padding="6" Margin="0 0 4 0">
+                                        <PathIcon Data="{x:Static MaterialIcons.PencilOutline}"
+                                                  Width="14" Height="14"/>
+                                    </Button>
+                                    <Button Grid.Column="3"
+                                            Theme="{DynamicResource AppBarButtonTheme}"
+                                            Padding="6">
+                                        <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
+                                                  Width="14" Height="14"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                </WrapPanel>
+            </SmoothScrollViewer>
+
         </Grid>
 
-        <!-- ── Profile card grid ────────────────────────────────── -->
-        <SmoothScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
-            <WrapPanel>
-                <WrapPanel.Styles>
-                    <Style Selector="Border.profile-card">
-                        <Setter Property="Width" Value="320"/>
-                        <Setter Property="Margin" Value="0 0 14 14"/>
-                        <Setter Property="Background" Value="{DynamicResource BackgroundColor2}"/>
-                        <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderColor}"/>
-                        <Setter Property="BorderThickness" Value="1"/>
-                        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-                        <Setter Property="ClipToBounds" Value="True"/>
-                    </Style>
-                </WrapPanel.Styles>
+        <!-- ── Scrim (dims content behind drawer) ───────────────── -->
+        <Border Background="#60000000"/>
 
-                <!-- ── Profile: Home Factory (active, running) ── -->
-                <Border Classes="profile-card active">
-                    <StackPanel>
-                        <!-- Card header -->
-                        <Border Padding="15 13"
-                                BorderBrush="{DynamicResource ControlBorderColor}"
-                                BorderThickness="0 0 0 1">
-                            <Grid ColumnDefinitions="Auto,*,Auto">
-                                <Border Grid.Column="0"
-                                        Width="36" Height="36" CornerRadius="10"
-                                        Background="{DynamicResource BackgroundColor3}"
-                                        BorderBrush="{DynamicResource ControlBorderColor}"
-                                        BorderThickness="1"
-                                        Margin="0 0 10 0">
-                                    <PathIcon Data="{x:Static MaterialIcons.ServerOutline}"
-                                              Width="18" Height="18"
-                                              Foreground="#FA9549"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <TextBlock FontSize="14" FontWeight="SemiBold"
-                                                   Text="Home Factory"
-                                                   TextTrimming="CharacterEllipsis"/>
-                                        <Border Classes="badge accent">
-                                            <TextBlock Text="active"/>
-                                        </Border>
-                                    </StackPanel>
-                                    <TextBlock Classes="mono faint" FontSize="10"
-                                               Text="192.168.1.42:7777"/>
-                                </StackPanel>
-                                <Border Grid.Column="2" Classes="badge ok">
-                                    <StackPanel>
-                                        <Ellipse Classes="dot ok" Width="6" Height="6"/>
-                                        <TextBlock Text="Running"/>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
+        <!-- ── "New server profile" drawer ──────────────────────── -->
+        <Border HorizontalAlignment="Right"
+                Width="440"
+                Background="{DynamicResource BackgroundColor1}"
+                BorderBrush="{DynamicResource ControlBorderColor}"
+                BorderThickness="1 0 0 0">
+            <Grid RowDefinitions="Auto,*,Auto">
+
+                <!-- Drawer header -->
+                <Border Grid.Row="0"
+                        Padding="20 16"
+                        BorderBrush="{DynamicResource ControlBorderColor}"
+                        BorderThickness="0 0 0 1">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Border Grid.Column="0"
+                                Width="42" Height="42" CornerRadius="11"
+                                Background="#2067A3F0"
+                                Margin="0 0 14 0">
+                            <PathIcon Data="{x:Static MaterialIcons.ServerNetworkOutline}"
+                                      Width="22" Height="22"
+                                      Foreground="#67A3F0"/>
                         </Border>
-
-                        <!-- Card body: profile details -->
-                        <StackPanel Margin="14 11" Spacing="7">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Query port"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="15777"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Auth token"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="•••• a91c"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Self-signed certs"/>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                                    <PathIcon Data="{x:Static MaterialIcons.ShieldAccountOutline}"
-                                              Width="12" Height="12"
-                                              Foreground="{DynamicResource TextFillColor3}"/>
-                                    <TextBlock Classes="kv-val" Text="Trusted"/>
-                                </StackPanel>
-                            </Grid>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Locally managed"/>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                                    <PathIcon Data="{x:Static MaterialIcons.MonitorDashboard}"
-                                              Width="12" Height="12"
-                                              Foreground="{DynamicResource TextFillColor3}"/>
-                                    <TextBlock Classes="kv-val" Text="Yes"/>
-                                </StackPanel>
-                            </Grid>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock FontSize="15" FontWeight="SemiBold"
+                                       Text="New server profile"/>
+                            <TextBlock Classes="faint" FontSize="12"
+                                       Text="Add a Satisfactory dedicated server"/>
                         </StackPanel>
-
-                        <!-- Card footer: actions -->
-                        <Border Padding="12 10"
-                                BorderBrush="{DynamicResource ControlBorderColor}"
-                                BorderThickness="0 1 0 0">
-                            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
-                                <Button Grid.Column="0" Padding="10 5" FontSize="12" IsEnabled="False">
-                                    <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <PathIcon Data="{x:Static MaterialIcons.CheckDecagram}"
-                                                  Width="12" Height="12"/>
-                                        <TextBlock Text="Connected"/>
-                                    </StackPanel>
-                                </Button>
-                                <Rectangle Grid.Column="1"/>
-                                <Button Grid.Column="2"
-                                        Theme="{DynamicResource AppBarButtonTheme}"
-                                        Padding="6" Margin="0 0 4 0"
-                                        ToolTip.Tip="Edit profile">
-                                    <PathIcon Data="{x:Static MaterialIcons.PencilOutline}"
-                                              Width="14" Height="14"/>
-                                </Button>
-                                <Button Grid.Column="3"
-                                        Theme="{DynamicResource AppBarButtonTheme}"
-                                        Padding="6"
-                                        ToolTip.Tip="Delete profile">
-                                    <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
-                                              Width="14" Height="14"/>
-                                </Button>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
+                        <Button Grid.Column="2"
+                                Theme="{DynamicResource AppBarButtonTheme}"
+                                Padding="6"
+                                VerticalAlignment="Center"
+                                ToolTip.Tip="Close">
+                            <PathIcon Data="{x:Static MaterialIcons.CloseThick}"
+                                      Width="14" Height="14"/>
+                        </Button>
+                    </Grid>
                 </Border>
 
-                <!-- ── Profile: Aperture Co-op (running) ── -->
-                <Border Classes="profile-card">
-                    <StackPanel>
-                        <Border Padding="15 13"
-                                BorderBrush="{DynamicResource ControlBorderColor}"
-                                BorderThickness="0 0 0 1">
-                            <Grid ColumnDefinitions="Auto,*,Auto">
-                                <Border Grid.Column="0"
-                                        Width="36" Height="36" CornerRadius="10"
-                                        Background="{DynamicResource BackgroundColor3}"
-                                        BorderBrush="{DynamicResource ControlBorderColor}"
-                                        BorderThickness="1"
-                                        Margin="0 0 10 0">
-                                    <PathIcon Data="{x:Static MaterialIcons.ServerOutline}"
-                                              Width="18" Height="18"
-                                              Foreground="#67A3F0"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                    <TextBlock FontSize="14" FontWeight="SemiBold"
-                                               Text="Aperture Co-op"
-                                               TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Classes="mono faint" FontSize="10"
-                                               Text="coop.ficsit.example.net:7777"/>
-                                </StackPanel>
-                                <Border Grid.Column="2" Classes="badge ok">
-                                    <StackPanel>
-                                        <Ellipse Classes="dot ok" Width="6" Height="6"/>
-                                        <TextBlock Text="Running"/>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-                        </Border>
-                        <StackPanel Margin="14 11" Spacing="7">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Query port"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="15777"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Auth token"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="•••• 77be"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Self-signed certs"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="Trusted"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Locally managed"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="No"/>
-                            </Grid>
+                <!-- Drawer body (scrollable fields) -->
+                <SmoothScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="18" Margin="20 20 20 8">
+
+                        <!-- Profile name -->
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="12" FontWeight="SemiBold" Text="Profile name"/>
+                            <TextBlock Classes="faint" FontSize="11"
+                                       Text="A friendly label for this server."/>
+                            <TextBox PlaceholderText="Home Factory"/>
                         </StackPanel>
-                        <Border Padding="12 10"
-                                BorderBrush="{DynamicResource ControlBorderColor}"
-                                BorderThickness="0 1 0 0">
-                            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
-                                <Button Grid.Column="0"
-                                        Theme="{DynamicResource AccentButtonTheme}"
-                                        Padding="10 5" FontSize="12">
-                                    <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <PathIcon Data="{x:Static MaterialIcons.LanConnect}"
-                                                  Width="12" Height="12"/>
-                                        <TextBlock Text="Connect"/>
-                                    </StackPanel>
-                                </Button>
-                                <Rectangle Grid.Column="1"/>
-                                <Button Grid.Column="2"
-                                        Theme="{DynamicResource AppBarButtonTheme}"
-                                        Padding="6" Margin="0 0 4 0">
-                                    <PathIcon Data="{x:Static MaterialIcons.PencilOutline}"
-                                              Width="14" Height="14"/>
-                                </Button>
-                                <Button Grid.Column="3"
-                                        Theme="{DynamicResource AppBarButtonTheme}"
-                                        Padding="6">
-                                    <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
-                                              Width="14" Height="14"/>
-                                </Button>
-                            </Grid>
-                        </Border>
+
+                        <Border Classes="row-sep"/>
+                        <TextBlock Classes="section-label" Text="CONNECTION"/>
+
+                        <!-- Host -->
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="12" FontWeight="SemiBold" Text="Host"/>
+                            <TextBlock Classes="faint" FontSize="11"
+                                       Text="IP address or hostname of the dedicated server."/>
+                            <TextBox Classes="mono" PlaceholderText="192.168.1.42"/>
+                        </StackPanel>
+
+                        <!-- Ports row -->
+                        <Grid ColumnDefinitions="*,12,*">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock FontSize="12" FontWeight="SemiBold" Text="HTTPS port"/>
+                                <TextBlock Classes="faint" FontSize="11" Text="Default 7777"/>
+                                <NumericUpDown Value="7777" FormatString="0"
+                                               Minimum="1" Maximum="65535"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="4">
+                                <TextBlock FontSize="12" FontWeight="SemiBold" Text="Query port"/>
+                                <TextBlock Classes="faint" FontSize="11" Text="Default 15777"/>
+                                <NumericUpDown Value="15777" FormatString="0"
+                                               Minimum="1" Maximum="65535"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Classes="row-sep"/>
+                        <TextBlock Classes="section-label" Text="AUTHENTICATION"/>
+
+                        <!-- API token -->
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="12" FontWeight="SemiBold" Text="API token"/>
+                            <TextBlock Classes="faint" FontSize="11"
+                                       Text="Bearer token sent with each request. Leave blank to authenticate later."
+                                       TextWrapping="Wrap"/>
+                            <TextBox PlaceholderText="ApiToken eyJ…" PasswordChar="•"/>
+                        </StackPanel>
+
+                        <Border Classes="row-sep"/>
+                        <TextBlock Classes="section-label" Text="OPTIONS"/>
+
+                        <!-- Trust self-signed certs -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Spacing="2"
+                                        Margin="0 0 12 0">
+                                <TextBlock FontSize="13" FontWeight="SemiBold"
+                                           Text="Trust self-signed certificates"/>
+                                <TextBlock Classes="faint" FontSize="11"
+                                           Text="Dedicated servers ship a self-signed cert by default. Disable only if you've installed a trusted cert."
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1"
+                                          IsChecked="True"
+                                          VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Locally managed -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Spacing="2"
+                                        Margin="0 0 12 0">
+                                <TextBlock FontSize="13" FontWeight="SemiBold"
+                                           Text="Locally managed server"/>
+                                <TextBlock Classes="faint" FontSize="11"
+                                           Text="This server runs on this machine — enables install/update and process controls."
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1"
+                                          IsChecked="False"
+                                          VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <Border Classes="row-sep"/>
+
+                        <!-- Test connection -->
+                        <Button>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{x:Static MaterialIcons.AccessPointCheck}"
+                                          Width="14" Height="14"/>
+                                <TextBlock Text="Test connection"/>
+                            </StackPanel>
+                        </Button>
+
                     </StackPanel>
+                </SmoothScrollViewer>
+
+                <!-- Drawer footer -->
+                <Border Grid.Row="2"
+                        Padding="16 12"
+                        BorderBrush="{DynamicResource ControlBorderColor}"
+                        BorderThickness="0 1 0 0">
+                    <Grid ColumnDefinitions="*,Auto,8,Auto">
+                        <!-- Test result badge (shown after test) -->
+                        <Border Grid.Column="0" Classes="badge ok" HorizontalAlignment="Left"
+                                VerticalAlignment="Center">
+                            <StackPanel>
+                                <PathIcon Data="{x:Static MaterialIcons.CheckDecagram}"
+                                          Width="11" Height="11"/>
+                                <TextBlock Text="Reachable"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Grid.Column="1">Cancel</Button>
+
+                        <Button Grid.Column="3"
+                                Theme="{DynamicResource AccentButtonTheme}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{x:Static MaterialIcons.ContentSave}"
+                                          Width="13" Height="13"/>
+                                <TextBlock Text="Add server"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
                 </Border>
 
-                <!-- ── Profile: Dev Sandbox (stopped) ── -->
-                <Border Classes="profile-card">
-                    <StackPanel>
-                        <Border Padding="15 13"
-                                BorderBrush="{DynamicResource ControlBorderColor}"
-                                BorderThickness="0 0 0 1">
-                            <Grid ColumnDefinitions="Auto,*,Auto">
-                                <Border Grid.Column="0"
-                                        Width="36" Height="36" CornerRadius="10"
-                                        Background="{DynamicResource BackgroundColor3}"
-                                        BorderBrush="{DynamicResource ControlBorderColor}"
-                                        BorderThickness="1"
-                                        Margin="0 0 10 0">
-                                    <PathIcon Data="{x:Static MaterialIcons.ServerOutline}"
-                                              Width="18" Height="18"
-                                              Foreground="#56C98A"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                    <TextBlock FontSize="14" FontWeight="SemiBold"
-                                               Text="Dev Sandbox"
-                                               TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Classes="mono faint" FontSize="10"
-                                               Text="localhost:7777"/>
-                                </StackPanel>
-                                <Border Grid.Column="2" Classes="badge neutral">
-                                    <StackPanel>
-                                        <Ellipse Classes="dot idle" Width="6" Height="6"/>
-                                        <TextBlock Text="Stopped"/>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-                        </Border>
-                        <StackPanel Margin="14 11" Spacing="7">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Query port"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="15777"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Auth token"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="•••• 0001"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Self-signed certs"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="Trusted"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Locally managed"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="Yes"/>
-                            </Grid>
-                        </StackPanel>
-                        <Border Padding="12 10"
-                                BorderBrush="{DynamicResource ControlBorderColor}"
-                                BorderThickness="0 1 0 0">
-                            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
-                                <Button Grid.Column="0"
-                                        Theme="{DynamicResource AccentButtonTheme}"
-                                        Padding="10 5" FontSize="12">
-                                    <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <PathIcon Data="{x:Static MaterialIcons.LanConnect}"
-                                                  Width="12" Height="12"/>
-                                        <TextBlock Text="Connect"/>
-                                    </StackPanel>
-                                </Button>
-                                <Rectangle Grid.Column="1"/>
-                                <Button Grid.Column="2"
-                                        Theme="{DynamicResource AppBarButtonTheme}"
-                                        Padding="6" Margin="0 0 4 0">
-                                    <PathIcon Data="{x:Static MaterialIcons.PencilOutline}"
-                                              Width="14" Height="14"/>
-                                </Button>
-                                <Button Grid.Column="3"
-                                        Theme="{DynamicResource AppBarButtonTheme}"
-                                        Padding="6">
-                                    <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
-                                              Width="14" Height="14"/>
-                                </Button>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-                </Border>
-
-                <!-- ── Profile: OVH Box (unclaimed) ── -->
-                <Border Classes="profile-card">
-                    <StackPanel>
-                        <Border Padding="15 13"
-                                BorderBrush="{DynamicResource ControlBorderColor}"
-                                BorderThickness="0 0 0 1">
-                            <Grid ColumnDefinitions="Auto,*,Auto">
-                                <Border Grid.Column="0"
-                                        Width="36" Height="36" CornerRadius="10"
-                                        Background="{DynamicResource BackgroundColor3}"
-                                        BorderBrush="{DynamicResource ControlBorderColor}"
-                                        BorderThickness="1"
-                                        Margin="0 0 10 0">
-                                    <PathIcon Data="{x:Static MaterialIcons.ServerOutline}"
-                                              Width="18" Height="18"
-                                              Foreground="#A78BFA"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                    <TextBlock FontSize="14" FontWeight="SemiBold"
-                                               Text="OVH Box (new)"
-                                               TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Classes="mono faint" FontSize="10"
-                                               Text="51.83.140.12:7777"/>
-                                </StackPanel>
-                                <Border Grid.Column="2" Classes="badge warn">
-                                    <StackPanel>
-                                        <PathIcon Data="{x:Static MaterialIcons.ShieldAccountOutline}"
-                                                  Width="10" Height="10"/>
-                                        <TextBlock Text="Unclaimed"/>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-                        </Border>
-                        <StackPanel Margin="14 11" Spacing="7">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Query port"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="15777"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Auth token"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val faint" Text="— none —"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Self-signed certs"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="Strict"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Locally managed"/>
-                                <TextBlock Grid.Column="1" Classes="kv-val" Text="No"/>
-                            </Grid>
-                        </StackPanel>
-                        <Border Padding="12 10"
-                                BorderBrush="{DynamicResource ControlBorderColor}"
-                                BorderThickness="0 1 0 0">
-                            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
-                                <Button Grid.Column="0"
-                                        Theme="{DynamicResource AccentButtonTheme}"
-                                        Padding="10 5" FontSize="12">
-                                    <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <PathIcon Data="{x:Static MaterialIcons.LanConnect}"
-                                                  Width="12" Height="12"/>
-                                        <TextBlock Text="Connect"/>
-                                    </StackPanel>
-                                </Button>
-                                <Rectangle Grid.Column="1"/>
-                                <Button Grid.Column="2"
-                                        Theme="{DynamicResource AppBarButtonTheme}"
-                                        Padding="6" Margin="0 0 4 0">
-                                    <PathIcon Data="{x:Static MaterialIcons.PencilOutline}"
-                                              Width="14" Height="14"/>
-                                </Button>
-                                <Button Grid.Column="3"
-                                        Theme="{DynamicResource AppBarButtonTheme}"
-                                        Padding="6">
-                                    <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
-                                              Width="14" Height="14"/>
-                                </Button>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-                </Border>
-
-            </WrapPanel>
-        </SmoothScrollViewer>
+            </Grid>
+        </Border>
 
     </Grid>
 
