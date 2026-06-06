@@ -2,7 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SatisfactoryServerManager.ViewModels.Pages"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:ServerProfilesViewModel"
              x:Class="SatisfactoryServerManager.Views.UserControls.NewServerProfileView">
     <!-- ── "New server profile" drawer ──────────────────────── -->
         <Border HorizontalAlignment="Right"
@@ -36,7 +38,8 @@
                                 Theme="{DynamicResource AppBarButtonTheme}"
                                 Padding="6"
                                 VerticalAlignment="Center"
-                                ToolTip.Tip="Close">
+                                ToolTip.Tip="Close"
+                                Command="{Binding CloseDrawerCommand}">
                             <PathIcon Data="{x:Static MaterialIcons.CloseThick}"
                                       Width="14" Height="14"/>
                         </Button>
@@ -44,7 +47,9 @@
                 </Border>
 
                 <!-- Drawer body (scrollable fields) -->
-                <SmoothScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                <SmoothScrollViewer Grid.Row="1" 
+                                    HorizontalScrollBarVisibility="Disabled"
+                                    VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="18" Margin="20 20 20 8">
 
                         <!-- Profile name -->

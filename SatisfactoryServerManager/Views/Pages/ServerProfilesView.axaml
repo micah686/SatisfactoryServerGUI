@@ -76,61 +76,14 @@
         <!-- Right-side drawer -->
         <Border
             ZIndex="20"
-            Width="520"
+            Width="440"
             HorizontalAlignment="Right"
             Background="#111111"
             BoxShadow="0 0 24 0 #66000000"
             Classes="right-drawer"
             Classes.open="{Binding IsDrawerOpen}">
-                <ctrl:NewServerProfileView/>
+                <ctrl:NewServerProfileView DataContext="{Binding}"/>
         </Border>
-        <!-- <Border -->
-        <!--     ZIndex="20" -->
-        <!--     Width="420" -->
-        <!--     HorizontalAlignment="Right" -->
-        <!--     Background="#111111" -->
-        <!--     BoxShadow="0 0 24 0 #66000000" -->
-        <!--     Classes="right-drawer" -->
-        <!--     Classes.open="{Binding IsDrawerOpen}"> -->
-        <!-- -->
-        <!--     <Border.Transitions> -->
-        <!--         <Transitions> -->
-        <!--             <TransformOperationsTransition Property="RenderTransform" -->
-        <!--                                            Duration="0:0:0.25"/> -->
-        <!--         </Transitions> -->
-        <!--     </Border.Transitions> -->
-        <!-- -->
-        <!--     <Grid RowDefinitions="Auto,*"> -->
-        <!-- -->
-        <!--         ~1~ Drawer header @1@ -->
-        <!--         <Grid ColumnDefinitions="*,Auto" -->
-        <!--               Margin="16"> -->
-        <!-- -->
-        <!--             <TextBlock Text="Server Profile" -->
-        <!--                        FontSize="18" -->
-        <!--                        FontWeight="SemiBold" -->
-        <!--                        VerticalAlignment="Center"/> -->
-        <!-- -->
-        <!--             <Button Grid.Column="1" -->
-        <!--                     Content="✕" -->
-        <!--                     Width="36" -->
-        <!--                     Height="36" -->
-        <!--                     Command="{Binding CloseDrawerCommand}"/> -->
-        <!--         </Grid> -->
-        <!-- -->
-        <!--         ~1~ Drawer content @1@ -->
-        <!--         <StackPanel Grid.Row="1" -->
-        <!--                     Margin="16" -->
-        <!--                     Spacing="12"> -->
-        <!-- -->
-        <!--             <TextBox PlaceholderText="Profile name"/> -->
-        <!--             <TextBox PlaceholderText="Host"/> -->
-        <!--             <TextBox PlaceholderText="Port"/> -->
-        <!-- -->
-        <!--             <Button Content="Save"/> -->
-        <!--         </StackPanel> -->
-        <!-- -->
-        <!--     </Grid> -->
-        <!-- </Border> -->
+        
     </Grid>
 </UserControl>
