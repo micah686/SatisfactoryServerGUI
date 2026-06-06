@@ -3,7 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:SatisfactoryServerGUI.ViewModels.Pages"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             xmlns:controls="clr-namespace:PleasantUI.Controls;assembly=PleasantUI"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
              x:Class="SatisfactoryServerGUI.Views.Pages.DashboardView"
              x:DataType="vm:DashboardViewModel">
 
@@ -11,11 +12,399 @@
         <vm:DashboardViewModel/>
     </Design.DataContext>
 
-    <Grid>
-        <TextBlock Text="Dashboard"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   Theme="{DynamicResource TitleTextBlockTheme}"/>
-    </Grid>
+    <SmoothScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="14" Margin="16">
+
+            <!-- ── Hero Card ─────────────────────────────────────── -->
+            <Border Classes="card" Padding="0" ClipToBounds="True">
+                <!-- Running gradient tint -->
+                <Border Padding="18 16">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                            <GradientStop Color="#1056C98A" Offset="0"/>
+                            <GradientStop Color="Transparent" Offset="0.6"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+
+                        <!-- Server icon -->
+                        <Border Grid.Column="0" Grid.Row="0"
+                                Width="46" Height="46"
+                                CornerRadius="12"
+                                Background="{DynamicResource BackgroundColor3}"
+                                BorderBrush="{DynamicResource ControlBorderColor}"
+                                BorderThickness="1"
+                                VerticalAlignment="Center"
+                                Margin="0 0 16 0">
+                            <PathIcon Data="{x:Static MaterialIcons.ServerOutline}"
+                                      Width="22" Height="22"
+                                      Foreground="#56C98A"/>
+                        </Border>
+
+                        <!-- Name + status + sub info -->
+                        <StackPanel Grid.Column="1" Grid.Row="0"
+                                    VerticalAlignment="Center"
+                                    Spacing="4">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="Home Factory"
+                                           FontSize="17" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextFillColor1}"/>
+                                <Border Classes="badge ok">
+                                    <StackPanel>
+                                        <Ellipse Classes="dot ok" Width="6" Height="6"/>
+                                        <TextBlock Text="Running"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                            <TextBlock Classes="mono faint"
+                                       FontSize="11"
+                                       Text="192.168.1.42:7777 · session NORTHERN-FORESTS · build 368883"/>
+                        </StackPanel>
+
+                        <!-- Action buttons -->
+                        <StackPanel Grid.Column="2" Grid.Row="0"
+                                    Orientation="Horizontal" Spacing="8"
+                                    VerticalAlignment="Center">
+                            <Button>
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <PathIcon Data="{x:Static MaterialIcons.ContentSaveOutline}"
+                                              Width="14" Height="14"/>
+                                    <TextBlock Text="Save now"/>
+                                </StackPanel>
+                            </Button>
+                            <Button>
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <PathIcon Data="{x:Static MaterialIcons.Reload}"
+                                              Width="14" Height="14"/>
+                                    <TextBlock Text="Restart"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Theme="{DynamicResource DangerButtonTheme}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <PathIcon Data="{x:Static MaterialIcons.PowerOff}"
+                                              Width="14" Height="14"/>
+                                    <TextBlock Text="Shutdown"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                    </Grid>
+                </Border>
+            </Border>
+
+            <!-- ── Pending options banner ────────────────────────── -->
+            <Border Classes="banner warn">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <PathIcon Grid.Column="0"
+                              Data="{x:Static MaterialIcons.AlertCircleOutline}"
+                              Width="16" Height="16"
+                              Foreground="#F59E0B"
+                              VerticalAlignment="Center"
+                              Margin="0 0 10 0"/>
+                    <TextBlock Grid.Column="1"
+                               VerticalAlignment="Center"
+                               FontSize="13"
+                               Foreground="#F59E0B"
+                               TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Text="2 server options pending."/>
+                        <Run Text=" Changes apply after the next session or server restart."/>
+                    </TextBlock>
+                    <Button Grid.Column="2"
+                            Margin="12 0 0 0"
+                            Padding="10 4"
+                            FontSize="12">
+                        Review
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- ── Stat Grid ─────────────────────────────────────── -->
+            <UniformGrid Rows="1" Columns="4" HorizontalAlignment="Stretch">
+                <UniformGrid.Styles>
+                    <Style Selector="controls|DashboardCard">
+                        <Setter Property="Margin" Value="0 0 12 0"/>
+                    </Style>
+                    <Style Selector="controls|DashboardCard:nth-last-child(1)">
+                        <Setter Property="Margin" Value="0"/>
+                    </Style>
+                </UniformGrid.Styles>
+
+                <!-- Players -->
+                <controls:DashboardCard Header="Players" Subtitle="3 online now" Margin="0 0 12 0">
+                    <StackPanel Spacing="4">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <PathIcon Data="{x:Static MaterialIcons.AccountGroupOutline}"
+                                      Width="18" Height="18"
+                                      Foreground="{DynamicResource TextFillColor3}"/>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Spacing="2">
+                                <TextBlock Classes="stat-value" Text="3"/>
+                                <TextBlock Classes="stat-unit" Text="/4"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </controls:DashboardCard>
+
+                <!-- Tick Rate -->
+                <controls:DashboardCard Header="Tick Rate" Subtitle="avg TPS" Margin="0 0 12 0">
+                    <StackPanel Spacing="4">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <PathIcon Data="{x:Static MaterialIcons.Speedometer}"
+                                      Width="18" Height="18"
+                                      Foreground="{DynamicResource TextFillColor3}"/>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Spacing="2">
+                                <TextBlock Classes="stat-value" Text="29.9"/>
+                                <TextBlock Classes="stat-unit" Text="TPS"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </controls:DashboardCard>
+
+                <!-- Tech Tier -->
+                <controls:DashboardCard Header="Tech Tier" Subtitle="Phase 4 · Assembly Director" Margin="0 0 12 0">
+                    <StackPanel Spacing="4">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <PathIcon Data="{x:Static MaterialIcons.Terrain}"
+                                      Width="18" Height="18"
+                                      Foreground="{DynamicResource TextFillColor3}"/>
+                            <TextBlock Classes="stat-value" Text="6"/>
+                        </StackPanel>
+                    </StackPanel>
+                </controls:DashboardCard>
+
+                <!-- Playtime -->
+                <controls:DashboardCard Header="Playtime" Subtitle="4d 19h 10m">
+                    <StackPanel Spacing="4">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <PathIcon Data="{x:Static MaterialIcons.History}"
+                                      Width="18" Height="18"
+                                      Foreground="{DynamicResource TextFillColor3}"/>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Spacing="2">
+                                <TextBlock Classes="stat-value" Text="115"/>
+                                <TextBlock Classes="stat-unit" Text="h"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </controls:DashboardCard>
+
+            </UniformGrid>
+
+            <!-- ── Main content row ──────────────────────────────── -->
+            <Grid ColumnDefinitions="*,12,*" RowDefinitions="*">
+
+                <!-- Left: Connected Players -->
+                <controls:DashboardCard Grid.Column="0"
+                                        Header="Connected Players">
+                    <controls:DashboardCard.HeaderContent>
+                        <Border Classes="badge neutral" Margin="0 0 4 0">
+                            <TextBlock Text="3/4"/>
+                        </Border>
+                    </controls:DashboardCard.HeaderContent>
+
+                    <StackPanel>
+
+                        <!-- Player row -->
+                        <Border Padding="4 9" BorderBrush="{DynamicResource ControlBorderColor}" BorderThickness="0 0 0 1">
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                                <Border Grid.Column="0"
+                                        Width="30" Height="30" CornerRadius="8"
+                                        Background="{DynamicResource BackgroundColor3}"
+                                        Margin="0 0 10 0">
+                                    <TextBlock Text="P" FontSize="12" FontWeight="Bold"
+                                               Foreground="#67A3F0"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Grid.Column="1"
+                                           Text="Pioneer_Ada"
+                                           FontSize="13" FontWeight="Medium"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2"
+                                           Classes="mono faint"
+                                           FontSize="11"
+                                           Text="2h 15m"
+                                           VerticalAlignment="Center"
+                                           Margin="0 0 8 0"/>
+                                <Border Grid.Column="3" Classes="badge ping-good">
+                                    <TextBlock Text="22 ms"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Border Padding="4 9" BorderBrush="{DynamicResource ControlBorderColor}" BorderThickness="0 0 0 1">
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                                <Border Grid.Column="0"
+                                        Width="30" Height="30" CornerRadius="8"
+                                        Background="{DynamicResource BackgroundColor3}"
+                                        Margin="0 0 10 0">
+                                    <TextBlock Text="G" FontSize="12" FontWeight="Bold"
+                                               Foreground="#67A3F0"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Grid.Column="1"
+                                           Text="Greg"
+                                           FontSize="13" FontWeight="Medium"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2"
+                                           Classes="mono faint"
+                                           FontSize="11"
+                                           Text="1h 11m"
+                                           VerticalAlignment="Center"
+                                           Margin="0 0 8 0"/>
+                                <Border Grid.Column="3" Classes="badge ping-mid">
+                                    <TextBlock Text="41 ms"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Border Padding="4 9">
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                                <Border Grid.Column="0"
+                                        Width="30" Height="30" CornerRadius="8"
+                                        Background="{DynamicResource BackgroundColor3}"
+                                        Margin="0 0 10 0">
+                                    <TextBlock Text="M" FontSize="12" FontWeight="Bold"
+                                               Foreground="#67A3F0"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Grid.Column="1"
+                                           Text="molecule"
+                                           FontSize="13" FontWeight="Medium"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2"
+                                           Classes="mono faint"
+                                           FontSize="11"
+                                           Text="16m"
+                                           VerticalAlignment="Center"
+                                           Margin="0 0 8 0"/>
+                                <Border Grid.Column="3" Classes="badge ping-mid">
+                                    <TextBlock Text="64 ms"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                    </StackPanel>
+                </controls:DashboardCard>
+
+                <!-- Spacer column -->
+                <Rectangle Grid.Column="1"/>
+
+                <!-- Right: Recent Saves + Session Info -->
+                <StackPanel Grid.Column="2" Spacing="14">
+
+                    <!-- Recent Saves -->
+                    <controls:DashboardCard Header="Recent Saves">
+                        <controls:DashboardCard.HeaderContent>
+                            <Button Theme="{DynamicResource AppBarButtonTheme}"
+                                    Padding="6 4" Height="26" FontSize="11">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Text="All"/>
+                                    <PathIcon Data="{x:Static MaterialIcons.FolderOpenOutline}"
+                                              Width="12" Height="12"/>
+                                </StackPanel>
+                            </Button>
+                        </controls:DashboardCard.HeaderContent>
+
+                        <StackPanel>
+                            <Border Padding="4 8" BorderBrush="{DynamicResource ControlBorderColor}" BorderThickness="0 0 0 1">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <PathIcon Grid.Column="0"
+                                              Data="{x:Static MaterialIcons.BookmarkCheckOutline}"
+                                              Width="15" Height="15"
+                                              Foreground="#67A3F0"
+                                              Margin="0 0 8 0"
+                                              VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1"
+                                               Classes="mono"
+                                               FontSize="12"
+                                               Text="NORTHERN-FORESTS"
+                                               TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2"
+                                               Classes="faint"
+                                               FontSize="11"
+                                               Text="6m ago"
+                                               VerticalAlignment="Center"
+                                               Margin="8 0 0 0"/>
+                                </Grid>
+                            </Border>
+                            <Border Padding="4 8" BorderBrush="{DynamicResource ControlBorderColor}" BorderThickness="0 0 0 1">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <PathIcon Grid.Column="0"
+                                              Data="{x:Static MaterialIcons.History}"
+                                              Width="15" Height="15"
+                                              Foreground="{DynamicResource TextFillColor3}"
+                                              Margin="0 0 8 0"
+                                              VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1"
+                                               Classes="mono faint"
+                                               FontSize="12"
+                                               Text="NORTHERN-FORESTS_autosave_2"
+                                               TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2"
+                                               Classes="faint"
+                                               FontSize="11"
+                                               Text="16m ago"
+                                               VerticalAlignment="Center"
+                                               Margin="8 0 0 0"/>
+                                </Grid>
+                            </Border>
+                            <Border Padding="4 8">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <PathIcon Grid.Column="0"
+                                              Data="{x:Static MaterialIcons.History}"
+                                              Width="15" Height="15"
+                                              Foreground="{DynamicResource TextFillColor3}"
+                                              Margin="0 0 8 0"
+                                              VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1"
+                                               Classes="mono faint"
+                                               FontSize="12"
+                                               Text="NORTHERN-FORESTS_autosave_1"
+                                               TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2"
+                                               Classes="faint"
+                                               FontSize="11"
+                                               Text="26m ago"
+                                               VerticalAlignment="Center"
+                                               Margin="8 0 0 0"/>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </controls:DashboardCard>
+
+                    <!-- Session Info -->
+                    <controls:DashboardCard Header="Session">
+                        <StackPanel Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Active session"/>
+                                <TextBlock Grid.Column="1" Classes="kv-val" Text="NORTHERN-FORESTS"/>
+                            </Grid>
+                            <Border Classes="row-sep"/>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Auto-load"/>
+                                <TextBlock Grid.Column="1" Classes="kv-val" Text="NORTHERN-FORESTS"/>
+                            </Grid>
+                            <Border Classes="row-sep"/>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Game phase"/>
+                                <TextBlock Grid.Column="1" Classes="kv-val" Text="Phase 4 · Assembly"/>
+                            </Grid>
+                            <Border Classes="row-sep"/>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Classes="kv-key" Text="Avg tick rate"/>
+                                <TextBlock Grid.Column="1" Classes="kv-val" Text="29.97 TPS"/>
+                            </Grid>
+                        </StackPanel>
+                    </controls:DashboardCard>
+
+                </StackPanel>
+            </Grid>
+
+        </StackPanel>
+    </SmoothScrollViewer>
 
 </UserControl>

@@ -3,7 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:SatisfactoryServerGUI.ViewModels.Pages"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             xmlns:toolkit="clr-namespace:PleasantUI.ToolKit.Controls;assembly=PleasantUI.ToolKit"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
              x:Class="SatisfactoryServerGUI.Views.Pages.ConsoleView"
              x:DataType="vm:ConsoleViewModel">
 
@@ -11,11 +12,18 @@
         <vm:ConsoleViewModel/>
     </Design.DataContext>
 
-    <Grid>
-        <TextBlock Text="Console"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   Theme="{DynamicResource TitleTextBlockTheme}"/>
+    <Grid RowDefinitions="*" Margin="16">
+
+        <toolkit:TerminalPanel
+            Title="Server Console"
+            IsRunning="True"
+            StatusText="live"
+            StatusColor="#56C98A"
+            Prompt="›"
+            ShowCloseButton="False"
+            InputPlaceholder="Type a console command…  (↑ history · Ctrl+L clear)"
+            OutputText="[19:40:02]  Connected to 192.168.1.42:7777 · API v0.2.1 · token verified&#x0A;[19:40:02]  Dedicated Server build 368883 · session NORTHERN-FORESTS&#x0A;[19:41:18] › FG.NetworkQuality 2&#x0A;[19:41:18]  Network quality set to 2 (High) — pending session restart&#x0A;[19:43:51] › stat unit&#x0A;[19:43:51]  Frame: 33.4ms  Game: 18.2ms  Draw: 0.0ms  GPU: 0.0ms  RHIT: 0.0ms&#x0A;[19:45:09] › server.ListPlayers&#x0A;[19:45:09]  3 connected — Pioneer_Ada (22ms), Greg (41ms), molecule (64ms)&#x0A;[19:47:33]  WARN: Autosave skipped: previous save still flushing to disk"/>
+
     </Grid>
 
 </UserControl>

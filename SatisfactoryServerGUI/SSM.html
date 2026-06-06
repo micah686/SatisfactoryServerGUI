@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Satisfactory Server Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script>/* ============================================================
+   Mock data + helpers  →  window.SSM
+   Grounded in the Satisfactory Game Server HTTPS API (v0.2.1)
+   ============================================================ */
+(function () {
+  // ---------- profiles ----------
+  const PROFILES = [
+    {
+      id: "home",
+      name: "Home Factory",
+      host: "192.168.1.42",
+      httpsPort: 7777,
+      queryPort: 15777,
+      authToken: "ApiToken eyJwiOiI4M2Rm…a91c",
+      trustSelfSigned: true,
+      locallyManaged: true,
+      color: "#fa9549",
+      status: "running",        // running | stopped | unreachable | unclaimed
+      claimed: true,
+    },
+    {
+      id: "coop",
+      name: "Aperture Co-op",
+      host: "coop.ficsit.example.net",
+      httpsPort: 7777,
+      queryPort: 15777,
+      authToken: "ApiToken eyJ0b2tlbi…77be",
+      trustSelfSigned: true,
+      locallyManaged: false,
+      color: "#67a3f0",
+      status: "running",
+      claimed: true,
+    },
+    {
+      id: "dev",
+      name: "Dev Sandbox",
+      host: "localhost",
+      httpsPort: 7777,
+      queryPort: 15777,
+      authToken: "ApiToken devtoken…0001",
+      trustSelfSigned: true,
+      locallyManaged: true,
+      color: "#56c98a",
+      status: "stopped",
+      claimed: true,
+    },
+    {
+      id: "newbox",
+      name: "OVH Box (new)",
+      host: "51.83.140.12",
+      httpsPort: 7777,
+      queryPort: 15777,
+      authToken: "",
+      trustSelfSigned: false,
+      locallyManaged: false,
+      color: "#a78bfa",
+      status: "unclaimed",
+      claimed: false,
+    },
+  ];
+
+  // ---------- per-server live state (QueryServerState) ----------
+  const STATE = {
+    home: {
+      activeSessionName: "NORTHERN-FORESTS",
+      numConnectedPlayers: 3,
+      playerLimit: 4,
+      techTier: 6,
+      activeSchematic: "Schematic_7-1_C",
+      gamePhase: "Phase 4 · Assembly Director",
+      isGameRunning: true,
+      isGamePaused: false,
+      totalGameDuration: 414622,           // seconds
+      averageTickRate: 29.97,
+      autoLoadSessionName: "NORTHERN-FORESTS",
+      buildVersion: 368883,
+      players: [
+        { name: "Pioneer_Ada", ping: 22, since: 8120 },
+        { name: "Greg", ping: 41, since: 4300 },
+        { name: "molecule", ping: 64, since: 980 },
+      ],
+    },
+    coop: {
+      activeSessionName: "BLUE-CRATER",
+      numConnectedPlayers: 5,
+      playerLimit: 8,
+      techTier: 8,
+      activeSchematic: "Schematic_8-5_C",
+      gamePhase: "Phase 5 · Project Assembly",
+      isGameRunning: true,
+      isGamePaused: false,
+      totalGameDuration: 902145,
+      averageTickRate: 28.4,
+      autoLoadSessionName: "BLUE-CRATER",
+      buildVersion: 368883,
+      players: [
+        { name: "Kira", ping: 31, since: 12400 },
+        { name: "tom_77", ping: 88, since: 9800 },
+        { name: "Vex", ping: 54, since: 7200 },
+        { name: "duck", ping: 120, since: 3100 },
+        { name: "Pioneer_Nova", ping: 44, since: 600 },
+      ],
+    },
+    dev: {
+      activeSessionName: "SANDBOX-TEST",
+      numConnectedPlayers: 0,
+      playerLimit: 4,
+      techTier: 0,
+      activeSchematic: "None",
+      gamePhase: "None",
+      isGameRunning: false,
+      isGamePaused: true,
+      totalGameDuration: 0,
+      averageTickRate: 0,
+      autoLoadSessionName: "SANDBOX-TEST",
+      buildVersion: 368883,
+      players: [],
+    },
+  };
+
+  // ---------- server options (Get/ApplyServerOptions) ----------
+  const SERVER_OPTIONS = [
+    { key: "FG.DSAutoPause", label: "Auto-pause when empty", type: "bool", value: true, pending: null,
+      desc: "Pause the game simulation automatically when no players are connected." },
+    { key: "FG.DSAutoSaveOnDisconnect", label: "Auto-save on disconnect", type: "bool", value: true, pending: null,
+      desc: "Write a save whenever the last player disconnects from the session." },
+    { key: "FG.DisableSeasonalEvents", label: "Disable seasonal events", type: "bool", value: false, pending: null,
+      desc: "Turn off limited-time in-game holiday content (e.g. FICSMAS)." },
+    { key: "FG.AutosaveInterval", label: "Autosave interval", type: "duration", value: 300, pending: 600,
+      desc: "Time between automatic saves, in seconds." },
+    { key: "FG.ServerRestartTimeSlot", label: "Restart time slot", type: "duration", value: 1440, pending: null,
+      desc: "Preferred minute-of-day window for scheduled restarts." },
+    { key: "FG.SendGameplayData", label: "Send gameplay telemetry", type: "bool", value: true, pending: null,
+      desc: "Allow the server to send anonymous gameplay data to Coffee Stain." },
+    { key: "FG.NetworkQuality", label: "Network quality", type: "enum", value: "1", pending: "2",
+      options: [["0","Low"],["1","Medium"],["2","High"],["3","Ultra"]],
+      desc: "Network update frequency. Higher uses more bandwidth and CPU." },
+  ];
+
+  // ---------- advanced game settings (Get/ApplyAdvancedGameSettings) ----------
+  const ADV_SETTINGS = {
+    enabled: false,
+    rules: [
+      { key: "FG.GameRules.NoPower", label: "No power", type: "bool", value: false, desc: "Buildings run without electricity." },
+      { key: "FG.GameRules.StartingTier", label: "Starting tier", type: "number", value: 0, min: 0, max: 9, desc: "Tech tier unlocked at the start." },
+      { key: "FG.GameRules.DisableArachnidCreatures", label: "Arachnophobia mode", type: "bool", value: false, desc: "Replace spiders with a friendlier placeholder." },
+      { key: "FG.GameRules.NoUnlockCost", label: "Free milestone unlocks", type: "bool", value: false, desc: "Milestones cost no resources to complete." },
+      { key: "FG.GameRules.SetGamePhase", label: "Game phase", type: "number", value: 0, min: 0, max: 5, desc: "Force the current project assembly phase." },
+      { key: "FG.GameRules.UnlockAllResearchSchematics", label: "Unlock all research", type: "bool", value: false, desc: "Unlock every MAM research schematic." },
+      { key: "FG.GameRules.UnlockInstantAltRecipes", label: "Instant alt recipes", type: "bool", value: false, desc: "Hard-drive alternate recipes unlock instantly." },
+      { key: "FG.GameRules.UnlockAllResourceSinkSchematics", label: "Unlock all AWESOME shop", type: "bool", value: false, desc: "Unlock every resource-sink schematic." },
+    ],
+    player: [
+      { key: "FG.PlayerRules.NoBuildCost", label: "Free build", type: "bool", value: false, desc: "Construction consumes no materials." },
+      { key: "FG.PlayerRules.GodMode", label: "God mode", type: "bool", value: false, desc: "Players take no damage." },
+      { key: "FG.PlayerRules.FlightMode", label: "Flight mode", type: "bool", value: false, desc: "Players can fly freely." },
+    ],
+  };
+
+  // ---------- saves (EnumerateSessions) ----------
+  const SESSIONS = [
+    {
+      sessionName: "NORTHERN-FORESTS",
+      saves: [
+        { saveName: "NORTHERN-FORESTS", tier: 6, dur: 414622, date: "2026.06.04-19.42.10", location: "SLI_Server", modded: false, edited: false, creative: false, size: 38_412_544, kind: "manual" },
+        { saveName: "NORTHERN-FORESTS_autosave_2", tier: 6, dur: 414020, date: "2026.06.04-19.32.04", location: "SLI_Server", modded: false, edited: false, creative: false, size: 38_390_122, kind: "auto" },
+        { saveName: "NORTHERN-FORESTS_autosave_1", tier: 6, dur: 413410, date: "2026.06.04-19.22.01", location: "SLI_Server", modded: false, edited: false, creative: false, size: 38_366_001, kind: "auto" },
+        { saveName: "NORTHERN-FORESTS_autosave_0", tier: 6, dur: 412800, date: "2026.06.04-19.12.00", location: "SLI_Server", modded: false, edited: false, creative: false, size: 38_344_900, kind: "auto" },
+        { saveName: "before_nuclear", tier: 5, dur: 360122, date: "2026.05.28-21.03.55", location: "SLI_Server", modded: false, edited: false, creative: false, size: 31_002_110, kind: "manual" },
+      ],
+    },
+    {
+      sessionName: "DESERT-OUTPOST",
+      saves: [
+        { saveName: "DESERT-OUTPOST", tier: 3, dur: 92044, date: "2026.05.10-14.20.30", location: "SLI_Server", modded: true, edited: false, creative: false, size: 12_440_900, kind: "manual" },
+        { saveName: "DESERT-OUTPOST_autosave_0", tier: 3, dur: 91500, date: "2026.05.10-14.10.30", location: "SLI_Server", modded: true, edited: false, creative: false, size: 12_410_220, kind: "auto" },
+      ],
+    },
+    {
+      sessionName: "creative-megabase",
+      saves: [
+        { saveName: "creative-megabase", tier: 9, dur: 1_204_880, date: "2026.04.02-09.15.00", location: "SLI_Server", modded: false, edited: true, creative: true, size: 96_700_400, kind: "manual" },
+      ],
+    },
+  ];
+
+  // ---------- console seed (RunCommand history) ----------
+  const CONSOLE_SEED = [
+    { t: "19:40:02", type: "info", text: "Connected to 192.168.1.42:7777 · API v0.2.1 · token verified" },
+    { t: "19:40:02", type: "out", text: "Dedicated Server build 368883 · session NORTHERN-FORESTS" },
+    { t: "19:41:18", type: "cmd", text: "FG.NetworkQuality 2" },
+    { t: "19:41:18", type: "ok", text: "Network quality set to 2 (High) — pending session restart" },
+    { t: "19:43:51", type: "cmd", text: "stat unit" },
+    { t: "19:43:51", type: "out", text: "Frame: 33.4ms  Game: 18.2ms  Draw: 0.0ms  GPU: 0.0ms  RHIT: 0.0ms" },
+    { t: "19:45:09", type: "cmd", text: "server.ListPlayers" },
+    { t: "19:45:09", type: "out", text: "3 connected — Pioneer_Ada (22ms), Greg (41ms), molecule (64ms)" },
+    { t: "19:47:33", type: "warn", text: "Autosave skipped: previous save still flushing to disk" },
+  ];
+
+  // suggested commands for the console chip row
+  const COMMAND_SUGGESTIONS = [
+    "help", "server.ListPlayers", "stat unit", "FG.NetworkQuality 2",
+    "server.Save QuickSave", "pause", "server.SetTickRate 30",
+  ];
+
+  // ---------- helpers ----------
+  function fmtDuration(s) {
+    if (!s) return "0m";
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    if (h >= 100) return `${h}h`;
+    if (h > 0) return `${h}h ${m}m`;
+    return `${m}m`;
+  }
+  function fmtDurationLong(s) {
+    const d = Math.floor(s / 86400);
+    const h = Math.floor((s % 86400) / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const out = [];
+    if (d) out.push(d + "d");
+    if (h) out.push(h + "h");
+    out.push(m + "m");
+    return out.join(" ");
+  }
+  function fmtBytes(b) {
+    if (b > 1e9) return (b / 1e9).toFixed(1) + " GB";
+    if (b > 1e6) return (b / 1e6).toFixed(1) + " MB";
+    if (b > 1e3) return (b / 1e3).toFixed(0) + " KB";
+    return b + " B";
+  }
+  // parse "2026.06.04-19.42.10" → relative
+  function parseSaveDate(str) {
+    const m = str.match(/(\d+)\.(\d+)\.(\d+)-(\d+)\.(\d+)\.(\d+)/);
+    if (!m) return new Date();
+    return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
+  }
+  function timeAgo(date) {
+    const now = new Date("2026-06-04T19:48:00");
+    const s = Math.max(0, (now - date) / 1000);
+    if (s < 60) return "just now";
+    if (s < 3600) return Math.floor(s / 60) + "m ago";
+    if (s < 86400) return Math.floor(s / 3600) + "h ago";
+    return Math.floor(s / 86400) + "d ago";
+  }
+  function prettyDate(date) {
+    return date.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  }
+  function nowClock() {
+    return new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  }
+
+  window.SSM = {
+    PROFILES, STATE, SERVER_OPTIONS, ADV_SETTINGS, SESSIONS, CONSOLE_SEED, COMMAND_SUGGESTIONS,
+    fmtDuration, fmtDurationLong, fmtBytes, parseSaveDate, timeAgo, prettyDate, nowClock,
+  };
+})();
+</script>
+<script type="text/babel">
+/* ============================================================
+   UI primitives  →  exported to window
+   ============================================================ */
+const { useState, useEffect, useRef, useCallback } = React;
+
+function Icon({ name, fill, size, className = "", style }) {
+  return (
+    <span
+      className={"ms" + (fill ? " fill" : "") + (className ? " " + className : "")}
+      style={{ fontSize: size, ...style }}
+    >
+      {name}
+    </span>
+  );
+}
+
+function Btn({ variant = "default", size, icon, iconFill, children, className = "", ...rest }) {
+  const cls = ["btn", variant !== "default" ? variant : "", size === "sm" ? "sm" : "",
+    !children ? "icon" : "", className].filter(Boolean).join(" ");
+  return (
+    <button className={cls} {...rest}>
+      {icon && <Icon name={icon} fill={iconFill} />}
+      {children}
+    </button>
+  );
+}
+
+function Dot({ status = "idle", live, lg }) {
+  return <span className={`dot ${status}${live ? " live" : ""}${lg ? " lg" : ""}`} />;
+}
+
+function Badge({ tone = "neutral", icon, iconFill, children }) {
+  return (
+    <span className={`badge ${tone}`}>
+      {icon && <Icon name={icon} fill={iconFill} />}
+      {children}
+    </span>
+  );
+}
+
+function Switch({ on, onChange, disabled }) {
+  return (
+    <div
+      className={`switch${on ? " on" : ""}${disabled ? " disabled" : ""}`}
+      onClick={() => !disabled && onChange && onChange(!on)}
+      role="switch"
+      aria-checked={on}
+    />
+  );
+}
+
+function Field({ label, hint, htmlFor, children, right }) {
+  return (
+    <div className="field">
+      {label && (
+        <label htmlFor={htmlFor}>
+          <span className="grow">{label}</span>
+          {right}
+        </label>
+      )}
+      {children}
+      {hint && <div className="hint">{hint}</div>}
+    </div>
+  );
+}
+
+function Input(props) {
+  return <input className={"input" + (props.mono ? " mono" : "")} {...stripMono(props)} />;
+}
+function stripMono(p) { const { mono, ...rest } = p; return rest; }
+
+function SecretInput({ value, onChange, placeholder, mono = true }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="input-wrap">
+      <input
+        className={"input" + (mono ? " mono" : "")}
+        type={show ? "text" : "password"}
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange && onChange(e.target.value)}
+      />
+      <button className="in-btn" onClick={() => setShow((s) => !s)} tabIndex={-1} type="button">
+        <Icon name={show ? "visibility_off" : "visibility"} />
+      </button>
+    </div>
+  );
+}
+
+function Select({ value, onChange, children, ...rest }) {
+  return (
+    <select className="select" value={value} onChange={(e) => onChange && onChange(e.target.value)} {...rest}>
+      {children}
+    </select>
+  );
+}
+
+function Segmented({ value, onChange, options }) {
+  return (
+    <div className="segmented">
+      {options.map((o) => (
+        <button key={o.value} className={value === o.value ? "on" : ""} onClick={() => onChange(o.value)}>
+          {o.icon && <Icon name={o.icon} />}
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function Card({ title, icon, actions, children, className = "", tight, ...rest }) {
+  return (
+    <div className={`card${tight ? " tight" : ""} ${className}`} {...rest}>
+      {(title || actions) && (
+        <div className="card-head">
+          {icon && <Icon name={icon} />}
+          {title && <h3>{title}</h3>}
+          {actions && <div className="ch-actions">{actions}</div>}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
+function Stat({ icon, label, value, unit, sub, children }) {
+  return (
+    <div className="stat">
+      <div className="s-top">
+        {icon && <Icon name={icon} />}
+        {label}
+      </div>
+      <div className="s-val">
+        {value}
+        {unit && <span className="unit">{unit}</span>}
+      </div>
+      {children}
+      {sub && <div className="s-sub">{sub}</div>}
+    </div>
+  );
+}
+
+function Empty({ icon = "inbox", title, children, action }) {
+  return (
+    <div className="empty">
+      <Icon name={icon} />
+      <h4>{title}</h4>
+      {children && <p>{children}</p>}
+      {action}
+    </div>
+  );
+}
+
+/* mini sparkline */
+function Sparkline({ data, width = 150, height = 34, color = "var(--accent)" }) {
+  if (!data || !data.length) return null;
+  const max = Math.max(...data, 1);
+  const min = Math.min(...data, 0);
+  const range = max - min || 1;
+  const step = width / (data.length - 1);
+  const pts = data.map((v, i) => [i * step, height - 3 - ((v - min) / range) * (height - 6)]);
+  const line = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+  const fill = `${line} L ${width} ${height} L 0 ${height} Z`;
+  return (
+    <svg className="spark" width={width} height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="sparkgrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={fill} fill="url(#sparkgrad)" />
+      <path d={line} fill="none" stroke={color} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/* modal + drawer */
+function Modal({ title, sub, icon, onClose, children, footer, width }) {
+  useEffect(() => {
+    const h = (e) => e.key === "Escape" && onClose && onClose();
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose]);
+  return (
+    <div className="overlay center" onMouseDown={(e) => e.target === e.currentTarget && onClose && onClose()}>
+      <div className="modal" style={width ? { width } : undefined}>
+        <div className="modal-head">
+          {icon && <Icon name={icon} style={{ color: "var(--faint)", fontSize: 20 }} />}
+          <div className="grow">
+            <h2>{title}</h2>
+            {sub && <div className="sub">{sub}</div>}
+          </div>
+          <Btn variant="ghost" size="sm" icon="close" onClick={onClose} />
+        </div>
+        <div className="modal-body">{children}</div>
+        {footer && <div className="modal-foot">{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
+function Drawer({ title, sub, icon, onClose, children, footer }) {
+  useEffect(() => {
+    const h = (e) => e.key === "Escape" && onClose && onClose();
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose]);
+  return (
+    <div className="overlay right" onMouseDown={(e) => e.target === e.currentTarget && onClose && onClose()}>
+      <div className="drawer">
+        <div className="drawer-head">
+          {icon && <Icon name={icon} style={{ color: "var(--faint)", fontSize: 20 }} />}
+          <div className="grow">
+            <h2>{title}</h2>
+            {sub && <div className="sub">{sub}</div>}
+          </div>
+          <Btn variant="ghost" size="sm" icon="close" onClick={onClose} />
+        </div>
+        <div className="drawer-body">{children}</div>
+        {footer && <div className="drawer-foot">{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* confirm dialog */
+function Confirm({ title, body, confirmLabel = "Confirm", danger, onConfirm, onClose }) {
+  return (
+    <Modal
+      title={title}
+      icon={danger ? "warning" : "help"}
+      onClose={onClose}
+      width={420}
+      footer={
+        <>
+          <Btn variant="ghost" onClick={onClose}>Cancel</Btn>
+          <Btn variant={danger ? "danger" : "primary"} onClick={() => { onConfirm(); onClose(); }}>
+            {confirmLabel}
+          </Btn>
+        </>
+      }
+    >
+      <p style={{ margin: 0, color: "var(--dim)", fontSize: 13, lineHeight: 1.55 }}>{body}</p>
+    </Modal>
+  );
+}
+
+/* toasts */
+function useToasts() {
+  const [toasts, setToasts] = useState([]);
+  const push = useCallback((text, tone = "ok") => {
+    const id = Math.random().toString(36).slice(2);
+    const icon = tone === "ok" ? "check_circle" : tone === "bad" ? "error" : "info";
+    setToasts((t) => [...t, { id, text, tone, icon }]);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 2600);
+  }, []);
+  const node = (
+    <div className="toasts">
+      {toasts.map((t) => (
+        <div key={t.id} className={`toast ${t.tone}`}>
+          <Icon name={t.icon} fill />
+          {t.text}
+        </div>
+      ))}
+    </div>
+  );
+  return [node, push];
+}
+
+Object.assign(window, {
+  Icon, Btn, Dot, Badge, Switch, Field, Input, SecretInput, Select, Segmented,
+  Card, Stat, Empty, Sparkline, Modal, Drawer, Confirm, useToasts,
+});
+</script>
+<script type="text/babel">/* ============================================================
+   Dashboard — live server overview (QueryServerState)
+   ============================================================ */
+function Dashboard({ profile, state, onNavigate, toast, onAction }) {
+  const offline = !profile.claimed || profile.status === "stopped" || profile.status === "unreachable";
+
+  // live tick-rate sparkline
+  const [ticks, setTicks] = useState(() =>
+    Array.from({ length: 40 }, () => (state ? state.averageTickRate : 0) + (Math.random() * 1.2 - 0.6))
+  );
+  const [tick, setTick] = useState(state ? state.averageTickRate : 0);
+  useEffect(() => {
+    if (offline || !state) return;
+    const base = state.averageTickRate;
+    const id = setInterval(() => {
+      const next = Math.max(20, Math.min(30, base + (Math.random() * 1.6 - 0.8)));
+      setTick(next);
+      setTicks((t) => [...t.slice(1), next]);
+    }, 1400);
+    return () => clearInterval(id);
+  }, [offline, state, profile.id]);
+
+  // reset spark on profile switch
+  useEffect(() => {
+    if (!state) return;
+    setTicks(Array.from({ length: 40 }, () => state.averageTickRate + (Math.random() * 1.2 - 0.6)));
+    setTick(state.averageTickRate);
+  }, [profile.id]);
+
+  if (!profile.claimed) {
+    return (
+      <div className="page-body">
+        <Card>
+          <Empty icon="gpp_maybe" title="This server isn't claimed yet"
+            action={<Btn variant="primary" icon="verified_user" onClick={() => onNavigate("auth")}>Go to Authentication</Btn>}>
+            “{profile.name}” has no admin set. Claim it from the Authentication page to take ownership and unlock controls.
+          </Empty>
+        </Card>
+      </div>
+    );
+  }
+
+  const running = state && state.isGameRunning && !offline;
+  const pendingCount = SSM.SERVER_OPTIONS.filter((o) => o.pending != null).length;
+  const recentSaves = SSM.SESSIONS.find((s) => s.sessionName === (state && state.activeSessionName))?.saves.slice(0, 3) || [];
+
+  return (
+    <div className="page-body">
+      {/* hero */}
+      <div className="card" style={{ padding: 0, overflow: "hidden", marginBottom: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 18, padding: "18px 20px",
+          background: running ? "linear-gradient(100deg, rgba(86,201,138,.10), transparent 50%)" : "transparent" }}>
+          <div style={{ width: 46, height: 46, borderRadius: 12, flex: "none", display: "grid", placeItems: "center",
+            background: "var(--panel-2)", border: "1px solid var(--line-2)" }}>
+            <Icon name="dns" fill style={{ fontSize: 24, color: running ? "var(--ok)" : "var(--faint)" }} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 17, fontWeight: 650 }}>{profile.name}</span>
+              {running
+                ? <Badge tone="ok" icon="bolt" iconFill>Running</Badge>
+                : <Badge tone="bad" icon="stop_circle" iconFill>Stopped</Badge>}
+              {state && state.isGamePaused && <Badge tone="warn" icon="pause">Paused</Badge>}
+            </div>
+            <div className="mono" style={{ fontSize: 12, color: "var(--faint)", marginTop: 4 }}>
+              {profile.host}:{profile.httpsPort} · session {state ? state.activeSessionName : "—"} · build {state ? state.buildVersion : "—"}
+            </div>
+          </div>
+          <div className="actions" style={{ display: "flex", gap: 8 }}>
+            <Btn icon="save" onClick={() => { onAction && onAction("save"); toast("Save written to server", "ok"); }}>Save now</Btn>
+            <Btn icon="restart_alt" onClick={() => toast("Restart scheduled — server will reboot", "info")}>Restart</Btn>
+            <Btn variant="danger" icon="power_settings_new" onClick={() => toast("Shutdown command sent", "bad")}>Shutdown</Btn>
+          </div>
+        </div>
+      </div>
+
+      {pendingCount > 0 && (
+        <div className="banner warn" style={{ marginBottom: 14 }}>
+          <Icon name="pending_actions" />
+          <div className="b-text">
+            <b>{pendingCount} server option{pendingCount > 1 ? "s" : ""} pending.</b> Changes apply after the next session or server restart.
+          </div>
+          <Btn size="sm" onClick={() => onNavigate("settings")}>Review</Btn>
+        </div>
+      )}
+
+      {/* stat grid */}
+      <div className="grid stats" style={{ marginBottom: 14 }}>
+        <Stat icon="group" label="Players" value={`${state.numConnectedPlayers}/${state.playerLimit}`}
+          sub={state.numConnectedPlayers ? `${state.players.length} online now` : "Nobody connected"} />
+        <Stat icon="speed" label="Tick rate" value={tick.toFixed(1)} unit="TPS">
+          <Sparkline data={ticks} width={150} height={30} />
+        </Stat>
+        <Stat icon="account_tree" label="Tech tier" value={state.techTier} sub={state.gamePhase} />
+        <Stat icon="schedule" label="Playtime" value={SSM.fmtDuration(state.totalGameDuration).split(" ")[0]}
+          unit={SSM.fmtDuration(state.totalGameDuration).includes("h") ? "" : "m"}
+          sub={SSM.fmtDurationLong(state.totalGameDuration)} />
+      </div>
+
+      <div className="row" style={{ alignItems: "stretch" }}>
+        {/* players */}
+        <div style={{ flex: "1 1 0", minWidth: 0 }}>
+          <Card title="Connected players" icon="group"
+            actions={<Badge tone="neutral">{state.numConnectedPlayers}/{state.playerLimit}</Badge>}>
+            {state.players.length === 0 ? (
+              <Empty icon="person_off" title="No players online">Nobody is connected to this session right now.</Empty>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                {state.players.map((p) => (
+                  <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 4px",
+                    borderBottom: "1px solid var(--line)" }}>
+                    <div style={{ width: 30, height: 30, borderRadius: 8, background: "var(--panel-2)",
+                      display: "grid", placeItems: "center", fontSize: 13, fontWeight: 700, color: "var(--accent-2)" }}>
+                      {p.name[0].toUpperCase()}
+                    </div>
+                    <div className="grow" style={{ fontSize: 13, fontWeight: 500 }}>{p.name}</div>
+                    <span className="mono faint" style={{ fontSize: 11 }}>{SSM.fmtDuration(p.since)}</span>
+                    <Badge tone={p.ping < 50 ? "ok" : p.ping < 100 ? "warn" : "bad"}>{p.ping} ms</Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        </div>
+
+        {/* recent saves + auto */}
+        <div style={{ flex: "1 1 0", minWidth: 0, display: "flex", flexDirection: "column", gap: 14 }}>
+          <Card title="Recent saves" icon="save"
+            actions={<Btn variant="ghost" size="sm" icon="open_in_new" onClick={() => onNavigate("saves")}>All</Btn>}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {recentSaves.map((s) => (
+                <div key={s.saveName} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 4px",
+                  borderBottom: "1px solid var(--line)" }}>
+                  <Icon name={s.kind === "auto" ? "history" : "bookmark"} style={{ fontSize: 17, color: "var(--faint)" }} />
+                  <div className="grow" style={{ minWidth: 0 }}>
+                    <div className="mono" style={{ fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.saveName}</div>
+                  </div>
+                  <span className="faint" style={{ fontSize: 11 }}>{SSM.timeAgo(SSM.parseSaveDate(s.date))}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+          <Card title="Session" icon="terrain">
+            <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+              <KV k="Active session" v={state.activeSessionName} />
+              <KV k="Auto-load" v={state.autoLoadSessionName} />
+              <KV k="Game phase" v={state.gamePhase} />
+              <KV k="Avg tick rate" v={`${state.averageTickRate.toFixed(2)} TPS`} />
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KV({ k, v }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+      <span className="faint" style={{ fontSize: 12 }}>{k}</span>
+      <span className="mono" style={{ fontSize: 12, color: "var(--text)", textAlign: "right" }}>{v}</span>
+    </div>
+  );
+}
+
+Object.assign(window, { Dashboard });
+</script>
+<script type="text/babel">/* ============================================================
+   Console — RunCommand terminal with scrollback + history
+   ============================================================ */
+function Console({ profile, toast }) {
+  const [lines, setLines] = useState(() => SSM.CONSOLE_SEED.map((l) => ({ ...l })));
+  const [input, setInput] = useState("");
+  const [history, setHistory] = useState([]);
+  const [hIdx, setHIdx] = useState(-1);
+  const [autoscroll, setAutoscroll] = useState(true);
+  const bodyRef = useRef(null);
+  const inputRef = useRef(null);
+  const offline = profile.status === "stopped" || !profile.claimed;
+
+  useEffect(() => {
+    if (autoscroll && bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
+  }, [lines, autoscroll]);
+
+  const push = (type, text) => setLines((l) => [...l, { t: SSM.nowClock().slice(0, 8), type, text }]);
+
+  function fakeResponse(cmd) {
+    const c = cmd.trim();
+    const lc = c.toLowerCase();
+    if (lc === "help") {
+      push("out", "Available: help · server.ListPlayers · stat unit · pause · FG.NetworkQuality <0-3>");
+      push("out", "           server.Save <name> · server.SetTickRate <n> · cls / clear");
+      return;
+    }
+    if (lc === "clear" || lc === "cls") { setLines([]); return; }
+    if (lc === "server.listplayers") {
+      const st = SSM.STATE[profile.id];
+      if (st && st.players.length) push("out", `${st.players.length} connected — ` + st.players.map((p) => `${p.name} (${p.ping}ms)`).join(", "));
+      else push("out", "0 connected");
+      return;
+    }
+    if (lc === "stat unit") { push("out", "Frame: 33.4ms  Game: 18.1ms  Draw: 0.0ms  GPU: 0.0ms  RHIT: 0.0ms"); return; }
+    if (lc.startsWith("fg.networkquality")) { push("ok", `Network quality set — pending session restart`); return; }
+    if (lc.startsWith("server.save")) { push("ok", `Save "${c.split(" ")[1] || "QuickSave"}" written to disk`); return; }
+    if (lc === "pause") { push("ok", "Game paused"); return; }
+    if (lc.startsWith("server.settickrate")) { push("ok", `Target tick rate updated`); return; }
+    push("bad", `Unknown command: ${c.split(" ")[0]} — type 'help'`);
+  }
+
+  function run(raw) {
+    const cmd = (raw ?? input).trim();
+    if (!cmd) return;
+    if (offline) { push("bad", "Cannot send: server is offline"); setInput(""); return; }
+    push("cmd", cmd);
+    setHistory((h) => [...h, cmd]);
+    setHIdx(-1);
+    setInput("");
+    setTimeout(() => fakeResponse(cmd), 120);
+  }
+
+  function onKey(e) {
+    if (e.key === "Enter") run();
+    else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (!history.length) return;
+      const ni = hIdx < 0 ? history.length - 1 : Math.max(0, hIdx - 1);
+      setHIdx(ni); setInput(history[ni]);
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (hIdx < 0) return;
+      const ni = hIdx + 1;
+      if (ni >= history.length) { setHIdx(-1); setInput(""); }
+      else { setHIdx(ni); setInput(history[ni]); }
+    } else if ((e.key === "l" || e.key === "k") && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault(); setLines([]);
+    }
+  }
+
+  const cls = { cmd: "tl-cmd", out: "tl-out", ok: "tl-ok", warn: "tl-warn", bad: "tl-bad", info: "tl-info", muted: "tl-muted" };
+
+  return (
+    <div className="term">
+      <div className="term-bar">
+        <div className="t-title"><Icon name="terminal" /> Server console</div>
+        <span className="mono faint" style={{ fontSize: 11 }}>
+          {profile.host}:{profile.httpsPort}
+        </span>
+        <span className={`badge ${offline ? "bad" : "ok"}`} style={{ marginLeft: 4 }}>
+          <Dot status={offline ? "bad" : "ok"} live={!offline} /> {offline ? "offline" : "live"}
+        </span>
+        <div className="t-actions">
+          <Btn variant="ghost" size="sm" icon="vertical_align_bottom"
+            className={autoscroll ? "" : "faint"}
+            title="Toggle autoscroll"
+            onClick={() => setAutoscroll((a) => !a)}>
+            {autoscroll ? "Autoscroll" : "Paused"}
+          </Btn>
+          <Btn variant="ghost" size="sm" icon="delete_sweep" onClick={() => setLines([])}>Clear</Btn>
+        </div>
+      </div>
+
+      <div className="term-body" ref={bodyRef} onClick={() => inputRef.current && inputRef.current.focus()}>
+        {lines.length === 0 && (
+          <div className="tl-muted">Console cleared. Type a command and press <span className="kbd">Enter</span>.</div>
+        )}
+        {lines.map((l, i) => (
+          <div className="term-line" key={i}>
+            <span className="tl-time">{l.t}</span>
+            <span className={"tl-text " + (cls[l.type] || "tl-out")}>
+              {l.type === "cmd" && <span className="prompt">›</span>}
+              {l.text}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ padding: "8px 16px 0", borderTop: "1px solid var(--line)", background: "var(--chrome)" }}>
+        <div className="chip-row">
+          {SSM.COMMAND_SUGGESTIONS.map((c) => (
+            <span key={c} className="chip" onClick={() => { setInput(c); inputRef.current && inputRef.current.focus(); }}>{c}</span>
+          ))}
+        </div>
+      </div>
+      <div className="term-input">
+        <span className="prompt">›</span>
+        <input
+          ref={inputRef}
+          value={input}
+          placeholder={offline ? "Server offline…" : "Type a console command…  (↑ history · Ctrl+L clear)"}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={onKey}
+          spellCheck={false}
+          autoFocus
+        />
+        <Btn variant="primary" size="sm" icon="send" iconFill onClick={() => run()} disabled={!input.trim()}>Run</Btn>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { Console });
+</script>
+<script type="text/babel">/* ============================================================
+   Saves — EnumerateSessions, Save/Load/Upload/Download/Delete
+   ============================================================ */
+function Saves({ profile, state, toast }) {
+  const [view, setView] = useState("sessions"); // sessions | table
+  const [sessions, setSessions] = useState(() => JSON.parse(JSON.stringify(SSM.SESSIONS)));
+  const [open, setOpen] = useState(() => ({ [state ? state.activeSessionName : ""]: true }));
+  const [query, setQuery] = useState("");
+  const [confirm, setConfirm] = useState(null);
+  const [newSave, setNewSave] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const activeSession = state ? state.activeSessionName : null;
+
+  const toggle = (n) => setOpen((o) => ({ ...o, [n]: !o[n] }));
+
+  function loadSave(s) {
+    toast(`Loading “${s.saveName}” — API unavailable during load`, "info");
+  }
+  function downloadSave(s) { toast(`Downloading ${s.saveName}.sav (${SSM.fmtBytes(s.size)})`, "ok"); }
+  function deleteSave(sess, s) {
+    setSessions((prev) => prev.map((x) => x.sessionName === sess.sessionName
+      ? { ...x, saves: x.saves.filter((y) => y.saveName !== s.saveName) } : x).filter((x) => x.saves.length));
+    toast(`Deleted ${s.saveName}`, "bad");
+  }
+  function deleteSession(sess) {
+    setSessions((prev) => prev.filter((x) => x.sessionName !== sess.sessionName));
+    toast(`Deleted session ${sess.sessionName} (${sess.saves.length} saves)`, "bad");
+  }
+  function createSave(name) {
+    const sn = activeSession || "NEW-SESSION";
+    const entry = { saveName: name, tier: state ? state.techTier : 0, dur: state ? state.totalGameDuration : 0,
+      date: "2026.06.04-19.48.00", location: "SLI_Server", modded: false, edited: false, creative: false,
+      size: 38_500_000, kind: "manual" };
+    setSessions((prev) => prev.map((x) => x.sessionName === sn ? { ...x, saves: [entry, ...x.saves] } : x));
+    toast(`Saved “${name}” to ${sn}`, "ok");
+  }
+
+  const allSaves = sessions.flatMap((s) => s.saves.map((sv) => ({ ...sv, session: s.sessionName })));
+  const filteredSessions = sessions
+    .map((s) => ({ ...s, saves: s.saves.filter((sv) => sv.saveName.toLowerCase().includes(query.toLowerCase())) }))
+    .filter((s) => s.saves.length);
+  const filteredFlat = allSaves.filter((s) => s.saveName.toLowerCase().includes(query.toLowerCase()));
+
+  const totalBytes = allSaves.reduce((a, s) => a + s.size, 0);
+
+  return (
+    <div className="page-body">
+      {/* toolbar */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
+        <div className="input-wrap" style={{ width: 260 }}>
+          <Icon name="search" style={{ position: "absolute", left: 10, fontSize: 18, color: "var(--faint)" }} />
+          <input className="input" style={{ paddingLeft: 34 }} placeholder="Search saves…"
+            value={query} onChange={(e) => setQuery(e.target.value)} />
+        </div>
+        <Segmented value={view} onChange={setView} options={[
+          { value: "sessions", label: "Sessions", icon: "folder" },
+          { value: "table", label: "All saves", icon: "table_rows" },
+        ]} />
+        <span className="faint mono" style={{ fontSize: 11.5 }}>
+          {allSaves.length} saves · {sessions.length} sessions · {SSM.fmtBytes(totalBytes)}
+        </span>
+        <div className="grow" />
+        <Btn icon="upload" onClick={() => setUploading(true)}>Upload</Btn>
+        <Btn variant="primary" icon="save" onClick={() => setNewSave(true)}>Save game</Btn>
+      </div>
+
+      {view === "sessions" ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {filteredSessions.map((sess) => {
+            const isOpen = open[sess.sessionName];
+            const isActive = sess.sessionName === activeSession;
+            return (
+              <div key={sess.sessionName} className="card" style={{ padding: 0, overflow: "hidden" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", cursor: "pointer",
+                    background: isActive ? "var(--accent-soft)" : "transparent" }}
+                  onClick={() => toggle(sess.sessionName)}>
+                  <Icon name={isOpen ? "expand_more" : "chevron_right"} style={{ color: "var(--faint)" }} />
+                  <Icon name="folder" fill style={{ fontSize: 19, color: isActive ? "var(--accent)" : "var(--faint)" }} />
+                  <div className="grow" style={{ minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span className="mono" style={{ fontSize: 13, fontWeight: 600 }}>{sess.sessionName}</span>
+                      {isActive && <Badge tone="accent" icon="play_arrow" iconFill>Loaded</Badge>}
+                    </div>
+                    <span className="faint" style={{ fontSize: 11.5 }}>{sess.saves.length} saves · {SSM.fmtBytes(sess.saves.reduce((a, s) => a + s.size, 0))}</span>
+                  </div>
+                  <Btn variant="ghost" size="sm" icon="delete" title="Delete session"
+                    onClick={(e) => { e.stopPropagation(); setConfirm({
+                      title: `Delete session “${sess.sessionName}”?`, danger: true, confirmLabel: "Delete session",
+                      body: `This permanently deletes all ${sess.saves.length} save files in this session. This cannot be undone.`,
+                      onConfirm: () => deleteSession(sess) }); }} />
+                </div>
+                {isOpen && (
+                  <div style={{ borderTop: "1px solid var(--line)" }}>
+                    {sess.saves.map((s) => (
+                      <SaveRow key={s.saveName} s={s} active={isActive && s.saveName === sess.sessionName}
+                        onLoad={() => loadSave(s)} onDownload={() => downloadSave(s)}
+                        onDelete={() => setConfirm({ title: `Delete “${s.saveName}”?`, danger: true, confirmLabel: "Delete",
+                          body: "This permanently removes the save file from the server.", onConfirm: () => deleteSave(sess, s) })} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {filteredSessions.length === 0 && (
+            <Card><Empty icon="search_off" title="No saves match your search" /></Card>
+          )}
+        </div>
+      ) : (
+        <Card style={{ padding: "6px 8px" }}>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Save name</th><th>Session</th><th>Tier</th><th>Playtime</th>
+                <th>Saved</th><th>Size</th><th>Flags</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredFlat.map((s) => (
+                <tr key={s.session + s.saveName}>
+                  <td>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <Icon name={s.kind === "auto" ? "history" : "bookmark"} style={{ fontSize: 16, color: "var(--faint)" }} />
+                      <span className="mono" style={{ fontSize: 12 }}>{s.saveName}</span>
+                    </div>
+                  </td>
+                  <td className="mono faint" style={{ fontSize: 11.5 }}>{s.session}</td>
+                  <td className="num">{s.tier}</td>
+                  <td className="num faint">{SSM.fmtDuration(s.dur)}</td>
+                  <td className="faint" style={{ fontSize: 11.5 }}>{SSM.timeAgo(SSM.parseSaveDate(s.date))}</td>
+                  <td className="num faint">{SSM.fmtBytes(s.size)}</td>
+                  <td>
+                    <div style={{ display: "flex", gap: 4 }}>
+                      {s.modded && <Badge tone="info">mod</Badge>}
+                      {s.creative && <Badge tone="accent">creative</Badge>}
+                      {s.edited && <Badge tone="warn">edited</Badge>}
+                      {!s.modded && !s.creative && !s.edited && <span className="faint">—</span>}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+                      <Btn variant="ghost" size="sm" icon="play_arrow" title="Load" onClick={() => loadSave(s)} />
+                      <Btn variant="ghost" size="sm" icon="download" title="Download" onClick={() => downloadSave(s)} />
+                      <Btn variant="ghost" size="sm" icon="delete" title="Delete"
+                        onClick={() => setConfirm({ title: `Delete “${s.saveName}”?`, danger: true, confirmLabel: "Delete",
+                          body: "This permanently removes the save file from the server.",
+                          onConfirm: () => deleteSave({ sessionName: s.session }, s) })} />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filteredFlat.length === 0 && <Empty icon="search_off" title="No saves match your search" />}
+        </Card>
+      )}
+
+      {confirm && <Confirm {...confirm} onClose={() => setConfirm(null)} />}
+      {newSave && <NewSaveModal session={activeSession} onClose={() => setNewSave(false)} onCreate={createSave} />}
+      {uploading && <UploadModal onClose={() => setUploading(false)} onDone={(name) => { setUploading(false); toast(`Uploaded ${name}`, "ok"); }} />}
+    </div>
+  );
+}
+
+function SaveRow({ s, active, onLoad, onDownload, onDelete }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px 11px 44px", borderBottom: "1px solid var(--line)" }}>
+      <Icon name={s.kind === "auto" ? "history" : "bookmark"} fill={s.kind !== "auto"} style={{ fontSize: 17, color: s.kind === "auto" ? "var(--faint)" : "var(--accent)" }} />
+      <div className="grow" style={{ minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span className="mono" style={{ fontSize: 12.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.saveName}</span>
+          {active && <Badge tone="ok" icon="check">current</Badge>}
+          {s.modded && <Badge tone="info">mod</Badge>}
+          {s.creative && <Badge tone="accent">creative</Badge>}
+        </div>
+        <span className="faint" style={{ fontSize: 11 }}>
+          Tier {s.tier} · {SSM.fmtDuration(s.dur)} played · {SSM.fmtBytes(s.size)} · {SSM.prettyDate(SSM.parseSaveDate(s.date))}
+        </span>
+      </div>
+      <Btn size="sm" icon="play_arrow" onClick={onLoad}>Load</Btn>
+      <Btn variant="ghost" size="sm" icon="download" title="Download" onClick={onDownload} />
+      <Btn variant="ghost" size="sm" icon="delete" title="Delete" onClick={onDelete} />
+    </div>
+  );
+}
+
+function NewSaveModal({ session, onClose, onCreate }) {
+  const [name, setName] = useState("");
+  const valid = name.trim().length > 0;
+  return (
+    <Modal title="Save game" sub={`Writes the current session to a new save file`} icon="save" onClose={onClose} width={440}
+      footer={<>
+        <Btn variant="ghost" onClick={onClose}>Cancel</Btn>
+        <Btn variant="primary" icon="save" disabled={!valid} onClick={() => { onCreate(name.trim()); onClose(); }}>Save game</Btn>
+      </>}>
+      <Field label="Save name" hint="Name may be adjusted to satisfy file-system restrictions.">
+        <input className="input mono" autoFocus placeholder="e.g. before_update_1.1" value={name}
+          onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && valid && (onCreate(name.trim()), onClose())} />
+      </Field>
+      <div className="banner info"><Icon name="folder" /><div className="b-text">Saved into session <b className="mono">{session || "—"}</b></div></div>
+    </Modal>
+  );
+}
+
+function UploadModal({ onClose, onDone }) {
+  const [drag, setDrag] = useState(false);
+  const [file, setFile] = useState(null);
+  return (
+    <Modal title="Upload save game" sub="Send a .sav file to the server" icon="upload" onClose={onClose} width={460}
+      footer={<>
+        <Btn variant="ghost" onClick={onClose}>Cancel</Btn>
+        <Btn variant="primary" icon="upload" disabled={!file} onClick={() => onDone(file)}>Upload</Btn>
+      </>}>
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+        onDragLeave={() => setDrag(false)}
+        onDrop={(e) => { e.preventDefault(); setDrag(false); setFile((e.dataTransfer.files[0] || {}).name || "MY-SESSION.sav"); }}
+        onClick={() => setFile("MY-SESSION.sav")}
+        style={{ border: `1.5px dashed ${drag ? "var(--accent)" : "var(--line-strong)"}`, borderRadius: 10,
+          padding: "32px 20px", textAlign: "center", cursor: "pointer", background: drag ? "var(--accent-soft)" : "var(--inset)" }}>
+        <Icon name={file ? "draft" : "cloud_upload"} style={{ fontSize: 36, color: file ? "var(--accent)" : "var(--faint)" }} />
+        <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600 }}>{file ? file : "Drop a .sav file here"}</div>
+        <div className="faint" style={{ fontSize: 12, marginTop: 4 }}>{file ? "Ready to upload — contents validated server-side" : "or click to browse"}</div>
+      </div>
+    </Modal>
+  );
+}
+
+Object.assign(window, { Saves });
+</script>
+<script type="text/babel">/* ============================================================
+   Settings — Server Options + Advanced Game Settings
+   ============================================================ */
+function Settings({ profile, state, toast }) {
+  const [tab, setTab] = useState("options"); // options | advanced | general
+  const [opts, setOpts] = useState(() => SSM.SERVER_OPTIONS.map((o) => ({ ...o })));
+  const [adv, setAdv] = useState(() => JSON.parse(JSON.stringify(SSM.ADV_SETTINGS)));
+  const [serverName, setServerName] = useState(profile.name);
+  const [autoLoad, setAutoLoad] = useState(state ? state.autoLoadSessionName : "");
+  const [dirty, setDirty] = useState(false);
+
+  const pending = opts.filter((o) => o.pending != null && String(o.pending) !== String(o.value));
+
+  function setOpt(key, value) {
+    setOpts((prev) => prev.map((o) => o.key === key ? { ...o, value } : o));
+    setDirty(true);
+  }
+  function applyOptions() {
+    setOpts((prev) => prev.map((o) => ({ ...o, pending: null })));
+    setDirty(false);
+    toast("Server options applied", "ok");
+  }
+  function setAdvVal(group, key, value) {
+    setAdv((prev) => ({ ...prev, [group]: prev[group].map((r) => r.key === key ? { ...r, value } : r) }));
+  }
+
+  return (
+    <div className="page-body">
+      <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
+        <Segmented value={tab} onChange={setTab} options={[
+          { value: "options", label: "Server options", icon: "tune" },
+          { value: "advanced", label: "Advanced game settings", icon: "science" },
+          { value: "general", label: "General", icon: "settings" },
+        ]} />
+        <div className="grow" />
+        {tab === "options" && (
+          <>
+            {dirty && <span className="faint" style={{ alignSelf: "center", fontSize: 12 }}>Unsaved changes</span>}
+            <Btn icon="refresh" variant="ghost" onClick={() => { setOpts(SSM.SERVER_OPTIONS.map((o) => ({ ...o }))); setDirty(false); }}>Reset</Btn>
+            <Btn variant="primary" icon="check" disabled={!dirty} onClick={applyOptions}>Apply options</Btn>
+          </>
+        )}
+      </div>
+
+      {tab === "options" && (
+        <>
+          {pending.length > 0 && (
+            <div className="banner warn" style={{ marginBottom: 16 }}>
+              <Icon name="pending_actions" />
+              <div className="b-text"><b>{pending.length} option{pending.length > 1 ? "s" : ""} pending restart.</b>{" "}
+                {pending.map((p) => p.label).join(", ")} will change after the next session/server restart.</div>
+            </div>
+          )}
+          <Card title="Server options" icon="tune" tight
+            actions={<span className="faint mono" style={{ fontSize: 11 }}>ApplyServerOptions</span>}>
+            <div>
+              {opts.map((o) => (
+                <OptionRow key={o.key} o={o} onChange={(v) => setOpt(o.key, v)} />
+              ))}
+            </div>
+          </Card>
+        </>
+      )}
+
+      {tab === "advanced" && (
+        <>
+          <div className="banner accent" style={{ marginBottom: 16 }}>
+            <Icon name="science" fill />
+            <div className="b-text">
+              <b>Advanced Game Settings {adv.enabled ? "enabled" : "disabled"}.</b>{" "}
+              Enabling these flags the save as modified and <b>disables achievements</b> for the session.
+            </div>
+            <Switch on={adv.enabled} onChange={(v) => { setAdv((p) => ({ ...p, enabled: v })); toast(v ? "Advanced settings enabled" : "Advanced settings disabled", v ? "info" : "ok"); }} />
+          </div>
+          <div style={{ opacity: adv.enabled ? 1 : 0.5, pointerEvents: adv.enabled ? "auto" : "none" }}>
+            <Card title="Game rules" icon="public" tight style={{ marginBottom: 14 }}>
+              <div>{adv.rules.map((r) => <OptionRow key={r.key} o={r} onChange={(v) => setAdvVal("rules", r.key, v)} />)}</div>
+            </Card>
+            <Card title="Player rules" icon="person" tight>
+              <div>{adv.player.map((r) => <OptionRow key={r.key} o={r} onChange={(v) => setAdvVal("player", r.key, v)} />)}</div>
+            </Card>
+          </div>
+        </>
+      )}
+
+      {tab === "general" && (
+        <div className="row" style={{ alignItems: "flex-start" }}>
+          <div style={{ flex: "1 1 0", display: "flex", flexDirection: "column", gap: 14 }}>
+            <Card title="Server identity" icon="badge">
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <Field label="Server name" hint="Shown in the in-game server browser. Requires admin privileges (RenameServer).">
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input className="input" value={serverName} onChange={(e) => setServerName(e.target.value)} />
+                    <Btn icon="check" onClick={() => toast("Server renamed", "ok")}>Rename</Btn>
+                  </div>
+                </Field>
+                <div className="divider" />
+                <Field label="Auto-load session" hint="Session the server loads automatically on startup (SetAutoLoadSessionName).">
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <Select value={autoLoad} onChange={setAutoLoad}>
+                      {SSM.SESSIONS.map((s) => <option key={s.sessionName} value={s.sessionName}>{s.sessionName}</option>)}
+                    </Select>
+                    <Btn icon="check" onClick={() => toast("Auto-load session updated", "ok")}>Set</Btn>
+                  </div>
+                </Field>
+              </div>
+            </Card>
+          </div>
+          <div style={{ flex: "1 1 0", display: "flex", flexDirection: "column", gap: 14 }}>
+            <Card title="Lifecycle" icon="power_settings_new">
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <ActionLine icon="restart_alt" title="Restart server" desc="Shut down for an automatic restart script to reboot." btn="Restart" onClick={() => toast("Restart scheduled", "info")} />
+                <div className="divider" />
+                <ActionLine icon="power_settings_new" danger title="Shutdown" desc="Stops the dedicated server. Logged with IP + token." btn="Shutdown" onClick={() => toast("Shutdown command sent", "bad")} />
+                <div className="divider" />
+                <ActionLine icon="add_circle" title="Create new game" desc="Start and load a brand-new session on this server." btn="New game…" onClick={() => toast("Create-new-game dialog", "info")} />
+              </div>
+            </Card>
+            <Card title="About this server" icon="info">
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <KV k="API version" v="v0.2.1" />
+                <KV k="Build" v={state ? String(state.buildVersion) : "—"} />
+                <KV k="Endpoint" v={`${profile.host}:${profile.httpsPort}`} />
+                <KV k="Locally managed" v={profile.locallyManaged ? "Yes" : "No"} />
+              </div>
+            </Card>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function OptionRow({ o, onChange }) {
+  const isPending = o.pending != null && String(o.pending) !== String(o.value);
+  return (
+    <div className="opt-row">
+      <div className="opt-meta">
+        <div className="opt-name">
+          {o.label}
+          {isPending && <Badge tone="warn" icon="pending">pending</Badge>}
+        </div>
+        <div className="opt-desc">{o.desc}</div>
+        <div className="opt-key">{o.key}</div>
+      </div>
+      <div className="opt-control">
+        {o.type === "bool" && <Switch on={!!o.value} onChange={onChange} />}
+        {o.type === "enum" && (
+          <Select value={o.value} onChange={onChange} style={{ width: 130 }}>
+            {o.options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </Select>
+        )}
+        {o.type === "number" && (
+          <input className="input mono" type="number" min={o.min} max={o.max} value={o.value}
+            onChange={(e) => onChange(Number(e.target.value))} style={{ width: 90, textAlign: "center" }} />
+        )}
+        {o.type === "duration" && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <input className="input mono" type="number" value={o.value} onChange={(e) => onChange(Number(e.target.value))}
+              style={{ width: 92, textAlign: "right" }} />
+            <span className="faint" style={{ fontSize: 11.5 }}>sec</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ActionLine({ icon, title, desc, btn, onClick, danger }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <Icon name={icon} style={{ fontSize: 20, color: danger ? "var(--bad)" : "var(--faint)" }} />
+      <div className="grow">
+        <div style={{ fontSize: 13, fontWeight: 600 }}>{title}</div>
+        <div className="faint" style={{ fontSize: 11.5, marginTop: 2 }}>{desc}</div>
+      </div>
+      <Btn variant={danger ? "danger" : "default"} size="sm" onClick={onClick}>{btn}</Btn>
+    </div>
+  );
+}
+
+Object.assign(window, { Settings });
+</script>
+<script type="text/babel">/* ============================================================
+   Auth — token verify, password login, claim, set passwords
+   ============================================================ */
+function Auth({ profile, toast, onClaim }) {
+  const unclaimed = !profile.claimed;
+  const [tab, setTab] = useState(unclaimed ? "claim" : "token");
+
+  useEffect(() => { setTab(unclaimed ? "claim" : "token"); }, [profile.id]);
+
+  const tabs = [
+    { value: "token", label: "API token", icon: "key" },
+    { value: "password", label: "Password login", icon: "password" },
+    { value: "claim", label: "Claim server", icon: "verified_user" },
+    { value: "manage", label: "Passwords", icon: "lock", disabled: unclaimed },
+  ];
+
+  return (
+    <div className="page-body">
+      {/* status strip */}
+      <div className="card" style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 14, padding: "14px 18px" }}>
+        <div style={{ width: 40, height: 40, borderRadius: 10, flex: "none", display: "grid", placeItems: "center",
+          background: unclaimed ? "var(--warn-soft)" : "var(--ok-soft)" }}>
+          <Icon name={unclaimed ? "gpp_maybe" : "verified_user"} fill style={{ fontSize: 22, color: unclaimed ? "var(--warn)" : "var(--ok)" }} />
+        </div>
+        <div className="grow">
+          <div style={{ fontSize: 14, fontWeight: 650 }}>
+            {unclaimed ? "Server is unclaimed" : "Authenticated as Admin"}
+          </div>
+          <div className="faint" style={{ fontSize: 12, marginTop: 2 }}>
+            {unclaimed
+              ? "No admin password is set. Anyone can claim it — do this first to take ownership."
+              : `Bearer token verified for ${profile.host}:${profile.httpsPort} · privilege level Administrator`}
+          </div>
+        </div>
+        {!unclaimed && <Badge tone="ok" icon="check_circle" iconFill>Token valid</Badge>}
+      </div>
+
+      <div className="row" style={{ alignItems: "flex-start" }}>
+        {/* method nav */}
+        <div style={{ width: 200, flex: "none", display: "flex", flexDirection: "column", gap: 4 }}>
+          {tabs.map((t) => (
+            <div key={t.value}
+              className={"nav-item" + (tab === t.value ? " active" : "")}
+              style={{ opacity: t.disabled ? 0.4 : 1, pointerEvents: t.disabled ? "none" : "auto" }}
+              onClick={() => setTab(t.value)}>
+              <Icon name={t.icon} /> {t.label}
+            </div>
+          ))}
+        </div>
+
+        {/* panel */}
+        <div className="grow" style={{ minWidth: 0 }}>
+          {tab === "token" && <TokenPanel profile={profile} toast={toast} />}
+          {tab === "password" && <PasswordPanel toast={toast} />}
+          {tab === "claim" && <ClaimPanel profile={profile} unclaimed={unclaimed} toast={toast} onClaim={onClaim} />}
+          {tab === "manage" && <ManagePanel toast={toast} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TokenPanel({ profile, toast }) {
+  const [token, setToken] = useState(profile.authToken || "");
+  const [status, setStatus] = useState(profile.authToken ? "valid" : "idle"); // idle | checking | valid | invalid
+  function verify() {
+    setStatus("checking");
+    setTimeout(() => {
+      const ok = token.trim().length > 8;
+      setStatus(ok ? "valid" : "invalid");
+      toast(ok ? "Authentication token is valid" : "Token rejected (401)", ok ? "ok" : "bad");
+    }, 650);
+  }
+  return (
+    <Card title="API authentication token" icon="key"
+      actions={<span className="faint mono" style={{ fontSize: 11 }}>VerifyAuthenticationToken</span>}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <Field label="Bearer token" hint="Stored with the profile and sent as the Authorization header on every request.">
+          <SecretInput value={token} onChange={(v) => { setToken(v); setStatus("idle"); }} placeholder="ApiToken eyJ…" />
+        </Field>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <Btn variant="primary" icon={status === "checking" ? "progress_activity" : "verified"} onClick={verify} disabled={!token.trim() || status === "checking"}>
+            {status === "checking" ? "Verifying…" : "Verify token"}
+          </Btn>
+          {status === "valid" && <Badge tone="ok" icon="check_circle" iconFill>Valid — 204 No Content</Badge>}
+          {status === "invalid" && <Badge tone="bad" icon="error" iconFill>Invalid — 401 Unauthorized</Badge>}
+        </div>
+        <div className="divider" />
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Icon name="no_encryption" style={{ fontSize: 20, color: "var(--faint)" }} />
+          <div className="grow">
+            <div style={{ fontSize: 13, fontWeight: 600 }}>Passwordless login</div>
+            <div className="faint" style={{ fontSize: 11.5, marginTop: 2 }}>Join as a player when the server has no client protection password.</div>
+          </div>
+          <Btn onClick={() => toast("Passwordless login — token issued", "ok")}>Login</Btn>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function PasswordPanel({ toast }) {
+  const [pw, setPw] = useState("");
+  const [level, setLevel] = useState("Administrator");
+  const [busy, setBusy] = useState(false);
+  function login() {
+    setBusy(true);
+    setTimeout(() => { setBusy(false); toast(`Logged in as ${level} — token issued`, pw ? "ok" : "bad"); }, 650);
+  }
+  return (
+    <Card title="Password login" icon="password"
+      actions={<span className="faint mono" style={{ fontSize: 11 }}>PasswordLogin</span>}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <Field label="Privilege level" hint="Use the Admin password for Administrator, or the client protection password to join as a player.">
+          <Select value={level} onChange={setLevel}>
+            <option>Administrator</option>
+            <option>Client</option>
+          </Select>
+        </Field>
+        <Field label="Password">
+          <SecretInput value={pw} onChange={setPw} mono={false} placeholder="super-secret-password" />
+        </Field>
+        <div>
+          <Btn variant="primary" icon={busy ? "progress_activity" : "login"} onClick={login} disabled={!pw || busy}>
+            {busy ? "Authenticating…" : "Log in & save token"}
+          </Btn>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function ClaimPanel({ profile, unclaimed, toast, onClaim }) {
+  const [name, setName] = useState(profile.name);
+  const [pw, setPw] = useState("");
+  const [pw2, setPw2] = useState("");
+  const match = pw.length >= 4 && pw === pw2;
+  if (!unclaimed) {
+    return (
+      <Card title="Claim server" icon="verified_user">
+        <Empty icon="verified" title="Already claimed"
+          action={<Badge tone="ok" icon="check">Owned by you</Badge>}>
+          “{profile.name}” already has an admin and is owned by your token. There's nothing to claim.
+        </Empty>
+      </Card>
+    );
+  }
+  return (
+    <Card title="Claim this server" icon="verified_user"
+      actions={<span className="faint mono" style={{ fontSize: 11 }}>ClaimServer</span>}>
+      <div className="banner info" style={{ marginBottom: 16 }}>
+        <Icon name="info" fill />
+        <div className="b-text">Claiming requires <b>InitialAdmin</b> privilege — granted by a passwordless login while no admin password is set. Setting an admin password here takes ownership.</div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <Field label="Server name" hint="The public name shown in the server browser.">
+          <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
+        </Field>
+        <div className="row">
+          <Field label="Admin password"><SecretInput value={pw} onChange={setPw} mono={false} placeholder="Choose a strong password" /></Field>
+          <Field label="Confirm password"><SecretInput value={pw2} onChange={setPw2} mono={false} placeholder="Repeat password" /></Field>
+        </div>
+        {pw && pw2 && !match && <div className="faint" style={{ fontSize: 12, color: "var(--bad)" }}>Passwords must match and be at least 4 characters.</div>}
+        <div>
+          <Btn variant="primary" icon="verified_user" disabled={!name.trim() || !match}
+            onClick={() => { onClaim(name.trim()); toast("Server claimed — you are now Admin", "ok"); }}>
+            Claim server
+          </Btn>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function ManagePanel({ toast }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <PasswordSetter title="Admin password" icon="admin_panel_settings" api="SetAdminPassword"
+        desc="Invalidates all existing admin & client tokens. Required to administer the server."
+        toast={toast} />
+      <PasswordSetter title="Client protection password" icon="group" api="SetClientPassword"
+        desc="Players must enter this to join. Leave empty to let anyone join as a client."
+        allowEmpty toast={toast} />
+    </div>
+  );
+}
+
+function PasswordSetter({ title, icon, api, desc, allowEmpty, toast }) {
+  const [pw, setPw] = useState("");
+  return (
+    <Card title={title} icon={icon} actions={<span className="faint mono" style={{ fontSize: 11 }}>{api}</span>}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <div className="faint" style={{ fontSize: 12, lineHeight: 1.5 }}>{desc}</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+          <div className="grow"><Field label="New password"><SecretInput value={pw} onChange={setPw} mono={false} placeholder={allowEmpty ? "Leave empty to remove" : "New password"} /></Field></div>
+          <Btn variant="primary" icon="check" disabled={!allowEmpty && !pw}
+            onClick={() => { toast(pw ? `${title} updated` : `${title} removed`, "ok"); setPw(""); }}>Update</Btn>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+Object.assign(window, { Auth });
+</script>
+<script type="text/babel">/* ============================================================
+   Profiles — manage server connection profiles
+   ============================================================ */
+function Profiles({ profiles, activeId, onSelect, onSave, onDelete, toast }) {
+  const [edit, setEdit] = useState(null); // profile being edited, or {} for new
+
+  const statusMeta = {
+    running: { tone: "ok", dot: "ok", label: "Running", icon: "bolt" },
+    stopped: { tone: "neutral", dot: "idle", label: "Stopped", icon: "stop_circle" },
+    unreachable: { tone: "bad", dot: "bad", label: "Unreachable", icon: "wifi_off" },
+    unclaimed: { tone: "warn", dot: "warn", label: "Unclaimed", icon: "gpp_maybe" },
+  };
+
+  return (
+    <div className="page-body">
+      <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
+        <span className="faint" style={{ fontSize: 12.5 }}>{profiles.length} server profiles · stored locally on this machine</span>
+        <div className="grow" />
+        <Btn variant="primary" icon="add" onClick={() => setEdit({
+          id: null, name: "", host: "", httpsPort: 7777, queryPort: 15777, authToken: "",
+          trustSelfSigned: true, locallyManaged: false, status: "stopped", claimed: true, color: "#fa9549" })}>
+          Add server
+        </Btn>
+      </div>
+
+      <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))" }}>
+        {profiles.map((p) => {
+          const m = statusMeta[p.status] || statusMeta.stopped;
+          const active = p.id === activeId;
+          return (
+            <div key={p.id} className="card" style={{ padding: 0, overflow: "hidden",
+              borderColor: active ? "var(--accent-line)" : "var(--line)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "15px 16px",
+                borderBottom: "1px solid var(--line)" }}>
+                <div style={{ width: 38, height: 38, borderRadius: 10, flex: "none", display: "grid", placeItems: "center",
+                  background: "var(--panel-2)", border: "1px solid var(--line-2)" }}>
+                  <Icon name="dns" fill style={{ fontSize: 20, color: p.color }} />
+                </div>
+                <div className="grow" style={{ minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 14, fontWeight: 650, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</span>
+                    {active && <Badge tone="accent">active</Badge>}
+                  </div>
+                  <span className="mono faint" style={{ fontSize: 11 }}>{p.host}:{p.httpsPort}</span>
+                </div>
+                <Badge tone={m.tone} icon={m.icon} iconFill><Dot status={m.dot} live={p.status === "running"} /> {m.label}</Badge>
+              </div>
+
+              <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+                <PRow k="Query port" v={p.queryPort} />
+                <PRow k="Auth token" v={p.authToken ? "•••• " + p.authToken.slice(-4) : "— none —"} />
+                <PRow k="Self-signed certs" v={p.trustSelfSigned ? "Trusted" : "Strict"} icon={p.trustSelfSigned ? "gpp_good" : "gpp_bad"} />
+                <PRow k="Locally managed" v={p.locallyManaged ? "Yes" : "No"} icon={p.locallyManaged ? "computer" : "cloud"} />
+              </div>
+
+              <div style={{ display: "flex", gap: 8, padding: "12px 16px", borderTop: "1px solid var(--line)" }}>
+                <Btn size="sm" variant={active ? "default" : "primary"} icon={active ? "check" : "login"} disabled={active}
+                  onClick={() => { onSelect(p.id); toast(`Connected to ${p.name}`, "ok"); }}>
+                  {active ? "Connected" : "Connect"}
+                </Btn>
+                <div className="grow" />
+                <Btn size="sm" variant="ghost" icon="edit" onClick={() => setEdit({ ...p })}>Edit</Btn>
+                <Btn size="sm" variant="ghost" icon="delete" title="Delete profile"
+                  disabled={profiles.length <= 1}
+                  onClick={() => onDelete(p.id)} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {edit && <ProfileDrawer profile={edit} onClose={() => setEdit(null)}
+        onSave={(p) => { onSave(p); setEdit(null); toast(p.id ? "Profile updated" : "Profile added", "ok"); }} toast={toast} />}
+    </div>
+  );
+}
+
+function PRow({ k, v, icon }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, fontSize: 12 }}>
+      <span className="faint">{k}</span>
+      <span className="mono" style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--text)" }}>
+        {icon && <Icon name={icon} style={{ fontSize: 15, color: "var(--faint)" }} />}{v}
+      </span>
+    </div>
+  );
+}
+
+function ProfileDrawer({ profile, onClose, onSave, toast }) {
+  const [p, setP] = useState(profile);
+  const [test, setTest] = useState("idle"); // idle | testing | ok | fail
+  const set = (k, v) => setP((prev) => ({ ...prev, [k]: v }));
+  const valid = p.name.trim() && p.host.trim() && p.httpsPort;
+
+  function runTest() {
+    setTest("testing");
+    setTimeout(() => {
+      const ok = p.host.trim().length > 0;
+      setTest(ok ? "ok" : "fail");
+      toast(ok ? "Connection succeeded — API reachable" : "Connection failed", ok ? "ok" : "bad");
+    }, 800);
+  }
+
+  return (
+    <Drawer title={profile.id ? "Edit server profile" : "New server profile"}
+      sub={profile.id ? profile.name : "Add a Satisfactory dedicated server"} icon="dns" onClose={onClose}
+      footer={<>
+        <div className="grow" style={{ display: "flex", alignItems: "center" }}>
+          {test === "ok" && <Badge tone="ok" icon="check_circle" iconFill>Reachable</Badge>}
+          {test === "fail" && <Badge tone="bad" icon="error" iconFill>Failed</Badge>}
+        </div>
+        <Btn variant="ghost" onClick={onClose}>Cancel</Btn>
+        <Btn variant="primary" icon="save" disabled={!valid} onClick={() => onSave(p)}>{profile.id ? "Save changes" : "Add server"}</Btn>
+      </>}>
+      <Field label="Profile name" hint="A friendly label for this server.">
+        <input className="input" autoFocus value={p.name} onChange={(e) => set("name", e.target.value)} placeholder="Home Factory" />
+      </Field>
+
+      <div className="divider" />
+      <div className="section-title">Connection</div>
+      <Field label="Host" hint="IP address or hostname of the dedicated server.">
+        <input className="input mono" value={p.host} onChange={(e) => set("host", e.target.value)} placeholder="192.168.1.42" />
+      </Field>
+      <div className="row">
+        <Field label="HTTPS port" hint="Default 7777">
+          <input className="input mono" type="number" value={p.httpsPort} onChange={(e) => set("httpsPort", Number(e.target.value))} />
+        </Field>
+        <Field label="Query port" hint="Default 15777">
+          <input className="input mono" type="number" value={p.queryPort} onChange={(e) => set("queryPort", Number(e.target.value))} />
+        </Field>
+      </div>
+
+      <div className="divider" />
+      <div className="section-title">Authentication</div>
+      <Field label="API token" hint="Bearer token sent with each request. Leave blank to authenticate later.">
+        <SecretInput value={p.authToken} onChange={(v) => set("authToken", v)} placeholder="ApiToken eyJ…" />
+      </Field>
+
+      <div className="divider" />
+      <div className="section-title">Options</div>
+      <ToggleRow label="Trust self-signed certificates"
+        desc="Dedicated servers ship a self-signed cert by default. Disable only if you've installed a trusted cert."
+        on={p.trustSelfSigned} onChange={(v) => set("trustSelfSigned", v)} />
+      <ToggleRow label="Locally managed server"
+        desc="This server runs on this machine — enables install/update and process controls."
+        on={p.locallyManaged} onChange={(v) => set("locallyManaged", v)} />
+
+      <div className="divider" />
+      <Btn variant="default" icon={test === "testing" ? "progress_activity" : "wifi_tethering"} onClick={runTest} disabled={!p.host.trim() || test === "testing"}>
+        {test === "testing" ? "Testing connection…" : "Test connection"}
+      </Btn>
+    </Drawer>
+  );
+}
+
+function ToggleRow({ label, desc, on, onChange }) {
+  return (
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+      <div className="grow">
+        <div style={{ fontSize: 13, fontWeight: 600 }}>{label}</div>
+        <div className="faint" style={{ fontSize: 11.5, marginTop: 3, lineHeight: 1.45, maxWidth: "44ch" }}>{desc}</div>
+      </div>
+      <Switch on={on} onChange={onChange} />
+    </div>
+  );
+}
+
+Object.assign(window, { Profiles });
+</script>
+<script type="text/babel">/* ============================================================
+   App shell — window chrome, sidebar, switcher, routing
+   ============================================================ */
+const NAV = [
+  { id: "dashboard", label: "Dashboard", icon: "monitoring" },
+  { id: "console", label: "Console", icon: "terminal" },
+  { id: "saves", label: "Saves", icon: "save" },
+  { id: "settings", label: "Settings", icon: "tune" },
+  { id: "auth", label: "Authentication", icon: "key" },
+];
+
+function ServerSwitcher({ profiles, active, onSelect, onManage }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const h = (e) => ref.current && !ref.current.contains(e.target) && setOpen(false);
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, []);
+  const statusDot = { running: "ok", stopped: "idle", unreachable: "bad", unclaimed: "warn" };
+  return (
+    <div className="switcher" ref={ref}>
+      <button className="switcher-btn" onClick={() => setOpen((o) => !o)}>
+        <Dot status={statusDot[active.status]} live={active.status === "running"} lg />
+        <div className="sw-meta">
+          <div className="sw-name">{active.name}</div>
+          <div className="sw-sub">{active.host}:{active.httpsPort}</div>
+        </div>
+        <Icon name="unfold_more" className="chev" />
+      </button>
+      {open && (
+        <div className="dropdown">
+          <div className="dd-label">Servers</div>
+          {profiles.map((p) => (
+            <div key={p.id} className={"dd-item" + (p.id === active.id ? " active" : "")}
+              onClick={() => { onSelect(p.id); setOpen(false); }}>
+              <Dot status={statusDot[p.status]} live={p.status === "running"} />
+              <span className="dd-name">{p.name}</span>
+              {p.id === active.id
+                ? <Icon name="check" style={{ fontSize: 17, color: "var(--accent)" }} />
+                : <span className="dd-host">{p.host}</span>}
+            </div>
+          ))}
+          <div className="dd-sep" />
+          <div className="dd-action" onClick={() => { onManage(); setOpen(false); }}>
+            <Icon name="settings_ethernet" /> Manage servers
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function App() {
+  const [profiles, setProfiles] = useState(() => SSM.PROFILES.map((p) => ({ ...p })));
+  const [activeId, setActiveId] = useState("home");
+  const [page, setPage] = useState("dashboard");
+  const [toastNode, toast] = useToasts();
+
+  const active = profiles.find((p) => p.id === activeId) || profiles[0];
+  const state = SSM.STATE[active.id] || null;
+
+  const pageMeta = {
+    dashboard: { title: "Dashboard", sub: "Live state of the selected server" },
+    console: { title: "Console", sub: "Run console commands on the dedicated server" },
+    saves: { title: "Saves", sub: "Sessions and save files on this server" },
+    settings: { title: "Settings", sub: "Server options and advanced game settings" },
+    auth: { title: "Authentication", sub: "Tokens, password login and server ownership" },
+    profiles: { title: "Server profiles", sub: "Manage connections to your dedicated servers" },
+  };
+  const meta = pageMeta[page];
+
+  function saveProfile(p) {
+    if (p.id) setProfiles((prev) => prev.map((x) => x.id === p.id ? p : x));
+    else { const np = { ...p, id: "srv_" + Math.random().toString(36).slice(2, 7) }; setProfiles((prev) => [...prev, np]); }
+  }
+  function deleteProfile(id) {
+    setProfiles((prev) => prev.filter((x) => x.id !== id));
+    if (activeId === id) setActiveId(profiles.find((x) => x.id !== id).id);
+    toast("Profile deleted", "bad");
+  }
+  function claimServer(name) {
+    setProfiles((prev) => prev.map((x) => x.id === active.id ? { ...x, claimed: true, status: "stopped", name } : x));
+  }
+
+  const statusBadge = {
+    running: <Badge tone="ok" icon="bolt" iconFill>Running</Badge>,
+    stopped: <Badge tone="neutral" icon="stop_circle">Stopped</Badge>,
+    unreachable: <Badge tone="bad" icon="wifi_off">Unreachable</Badge>,
+    unclaimed: <Badge tone="warn" icon="gpp_maybe">Unclaimed</Badge>,
+  };
+
+  return (
+    <div className="win">
+      {/* title bar */}
+      <div className="titlebar">
+        <div className="brand">
+          <div className="logo"><Icon name="precision_manufacturing" fill /></div>
+          <div className="title">Satisfactory Server Manager <span className="muted">· {active.name}</span></div>
+        </div>
+        <div className="drag" />
+        <div className="caption">
+          <button className="cap-btn"><Icon name="remove" /></button>
+          <button className="cap-btn"><Icon name="crop_square" style={{ fontSize: 14 }} /></button>
+          <button className="cap-btn close"><Icon name="close" /></button>
+        </div>
+      </div>
+
+      <div className="body">
+        {/* sidebar */}
+        <div className="sidebar">
+          <ServerSwitcher profiles={profiles} active={active} onSelect={setActiveId} onManage={() => setPage("profiles")} />
+          <div className="nav">
+            <div className="nav-label">Manage</div>
+            {NAV.map((n) => (
+              <div key={n.id} className={"nav-item" + (page === n.id ? " active" : "")} onClick={() => setPage(n.id)}>
+                <Icon name={n.icon} fill={page === n.id} /> {n.label}
+                {n.id === "console" && active.status === "running" && <span className="nav-badge">live</span>}
+                {n.id === "saves" && <span className="nav-badge">{SSM.SESSIONS.reduce((a, s) => a + s.saves.length, 0)}</span>}
+              </div>
+            ))}
+          </div>
+          <div className="spacer" />
+          <div className="nav">
+            <div className={"nav-item" + (page === "profiles" ? " active" : "")} onClick={() => setPage("profiles")}>
+              <Icon name="lan" fill={page === "profiles"} /> Server profiles
+            </div>
+          </div>
+          <div className="conn-card">
+            <div className="conn-row"><span className="k">Status</span>{statusBadge[active.status]}</div>
+            <div className="conn-row"><span className="k">Endpoint</span><span className="v">{active.host}:{active.httpsPort}</span></div>
+            <div className="conn-row"><span className="k">Certs</span><span className="v">{active.trustSelfSigned ? "self-signed OK" : "strict"}</span></div>
+          </div>
+        </div>
+
+        {/* content */}
+        <div className="content">
+          <div className="page-head">
+            <div className="ph-text">
+              <h1>{meta.title}</h1>
+              <div className="sub">{meta.sub}</div>
+            </div>
+            <div className="actions">
+              {page !== "profiles" && page !== "console" && statusBadge[active.status]}
+            </div>
+          </div>
+
+          {page === "console"
+            ? <div style={{ flex: 1, minHeight: 0 }}><Console profile={active} toast={toast} /></div>
+            : (
+              <>
+                {page === "dashboard" && <Dashboard profile={active} state={state} onNavigate={setPage} toast={toast} onAction={() => {}} />}
+                {page === "saves" && <Saves profile={active} state={state} toast={toast} />}
+                {page === "settings" && <Settings profile={active} state={state} toast={toast} />}
+                {page === "auth" && <Auth profile={active} toast={toast} onClaim={claimServer} />}
+                {page === "profiles" && <Profiles profiles={profiles} activeId={activeId} onSelect={setActiveId} onSave={saveProfile} onDelete={deleteProfile} toast={toast} />}
+              </>
+            )}
+        </div>
+      </div>
+
+      {toastNode}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

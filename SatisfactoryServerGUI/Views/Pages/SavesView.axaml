@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:SatisfactoryServerGUI.ViewModels.Pages"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
              x:Class="SatisfactoryServerGUI.Views.Pages.SavesView"
              x:DataType="vm:SavesViewModel">
 
@@ -11,11 +11,408 @@
         <vm:SavesViewModel/>
     </Design.DataContext>
 
-    <Grid>
-        <TextBlock Text="Saves"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   Theme="{DynamicResource TitleTextBlockTheme}"/>
+    <Grid RowDefinitions="Auto,*" Margin="16" RowSpacing="14">
+
+        <!-- ── Toolbar ────────────────────────────────────────────── -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,12,Auto,*,Auto,8,Auto">
+
+            <!-- Search box -->
+            <Grid Grid.Column="0" Width="240">
+                <TextBox PlaceholderText="Search saves…"
+                         Padding="32 0 8 0"/>
+                <PathIcon Data="{x:Static MaterialIcons.Magnify}"
+                          Width="14" Height="14"
+                          Foreground="{DynamicResource TextFillColor3}"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Center"
+                          Margin="10 0 0 0"
+                          IsHitTestVisible="False"/>
+            </Grid>
+
+            <!-- View mode toggle (Sessions / Table) -->
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal"
+                        Spacing="2">
+                <RadioButton GroupName="SavesView" IsChecked="True"
+                             Content="Sessions"
+                             Theme="{DynamicResource ToggleButtonTheme}"
+                             Padding="10 6"/>
+                <RadioButton GroupName="SavesView"
+                             Content="All Saves"
+                             Theme="{DynamicResource ToggleButtonTheme}"
+                             Padding="10 6"/>
+            </StackPanel>
+
+            <!-- Stats summary -->
+            <TextBlock Grid.Column="3"
+                       Classes="mono faint"
+                       FontSize="11"
+                       Text="8 saves · 3 sessions · 176.5 MB"
+                       VerticalAlignment="Center"
+                       Margin="12 0 0 0"/>
+
+            <!-- Upload button -->
+            <Button Grid.Column="4">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <PathIcon Data="{x:Static MaterialIcons.CloudUpload}"
+                              Width="14" Height="14"/>
+                    <TextBlock Text="Upload"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Save game button -->
+            <Button Grid.Column="6"
+                    Theme="{DynamicResource AccentButtonTheme}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <PathIcon Data="{x:Static MaterialIcons.ContentSavePlus}"
+                              Width="14" Height="14"/>
+                    <TextBlock Text="Save game"/>
+                </StackPanel>
+            </Button>
+
+        </Grid>
+
+        <!-- ── Sessions list ─────────────────────────────────────── -->
+        <SmoothScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Spacing="10">
+
+                <!-- ── Session: NORTHERN-FORESTS (active) ── -->
+                <Border Classes="card" Padding="0" ClipToBounds="True">
+                    <StackPanel>
+                        <!-- Session header row -->
+                        <Border Background="#1056C98A"
+                                Padding="14 12">
+                            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                                <PathIcon Grid.Column="0"
+                                          Data="{x:Static MaterialIcons.FolderOpenOutline}"
+                                          Width="16" Height="16"
+                                          Foreground="#56C98A"
+                                          Margin="0 0 10 0"
+                                          VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Classes="mono"
+                                                   FontSize="13" FontWeight="SemiBold"
+                                                   Text="NORTHERN-FORESTS"/>
+                                        <Border Classes="badge ok">
+                                            <StackPanel>
+                                                <PathIcon Data="{x:Static MaterialIcons.PlayCircleOutline}"
+                                                          Width="10" Height="10"/>
+                                                <TextBlock Text="Loaded"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Classes="faint"
+                                               FontSize="11"
+                                               Text="5 saves · 146.5 MB"/>
+                                </StackPanel>
+                                <Button Grid.Column="3"
+                                        Theme="{DynamicResource AppBarButtonTheme}"
+                                        ToolTip.Tip="Delete session"
+                                        Padding="6">
+                                    <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
+                                              Width="14" Height="14"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <Border BorderBrush="{DynamicResource ControlBorderColor}" BorderThickness="0 1 0 0">
+                            <StackPanel>
+                                <!-- Manual save (current) -->
+                                <Border Padding="44 10 16 10" BorderBrush="{DynamicResource ControlBorderColor}" BorderThickness="0 0 0 1">
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                                        <PathIcon Grid.Column="0"
+                                                  Data="{x:Static MaterialIcons.BookmarkCheckOutline}"
+                                                  Width="15" Height="15"
+                                                  Foreground="#67A3F0"
+                                                  Margin="0 0 10 0"
+                                                  VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <TextBlock Classes="mono"
+                                                           FontSize="12" FontWeight="SemiBold"
+                                                           Text="NORTHERN-FORESTS"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <Border Classes="badge ok">
+                                                    <TextBlock Text="current"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <TextBlock Classes="faint"
+                                                       FontSize="11"
+                                                       Text="Tier 6 · 115h 10m played · 36.7 MB · Jun 4, 7:42 PM"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Margin="6 0 0 0" Padding="8 4" FontSize="12">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <PathIcon Data="{x:Static MaterialIcons.PlayCircleOutline}"
+                                                          Width="12" Height="12"/>
+                                                <TextBlock Text="Load"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Grid.Column="3"
+                                                Theme="{DynamicResource AppBarButtonTheme}"
+                                                Padding="6" Margin="4 0 0 0"
+                                                ToolTip.Tip="Download">
+                                            <PathIcon Data="{x:Static MaterialIcons.CloudDownload}"
+                                                      Width="13" Height="13"/>
+                                        </Button>
+                                        <Button Grid.Column="4"
+                                                Theme="{DynamicResource AppBarButtonTheme}"
+                                                Padding="6" Margin="4 0 0 0"
+                                                ToolTip.Tip="Delete">
+                                            <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
+                                                      Width="13" Height="13"/>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Autosave 2 -->
+                                <Border Padding="44 10 16 10" BorderBrush="{DynamicResource ControlBorderColor}" BorderThickness="0 0 0 1">
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                                        <PathIcon Grid.Column="0"
+                                                  Data="{x:Static MaterialIcons.History}"
+                                                  Width="15" Height="15"
+                                                  Foreground="{DynamicResource TextFillColor3}"
+                                                  Margin="0 0 10 0"
+                                                  VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Classes="mono faint"
+                                                       FontSize="12"
+                                                       Text="NORTHERN-FORESTS_autosave_2"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Classes="faint"
+                                                       FontSize="11"
+                                                       Text="Tier 6 · 115h 0m played · 36.6 MB · Jun 4, 7:32 PM"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Margin="6 0 0 0" Padding="8 4" FontSize="12">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <PathIcon Data="{x:Static MaterialIcons.PlayCircleOutline}"
+                                                          Width="12" Height="12"/>
+                                                <TextBlock Text="Load"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Grid.Column="3"
+                                                Theme="{DynamicResource AppBarButtonTheme}"
+                                                Padding="6" Margin="4 0 0 0">
+                                            <PathIcon Data="{x:Static MaterialIcons.CloudDownload}"
+                                                      Width="13" Height="13"/>
+                                        </Button>
+                                        <Button Grid.Column="4"
+                                                Theme="{DynamicResource AppBarButtonTheme}"
+                                                Padding="6" Margin="4 0 0 0">
+                                            <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
+                                                      Width="13" Height="13"/>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Autosave 1 -->
+                                <Border Padding="44 10 16 10" BorderBrush="{DynamicResource ControlBorderColor}" BorderThickness="0 0 0 1">
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                                        <PathIcon Grid.Column="0"
+                                                  Data="{x:Static MaterialIcons.History}"
+                                                  Width="15" Height="15"
+                                                  Foreground="{DynamicResource TextFillColor3}"
+                                                  Margin="0 0 10 0"
+                                                  VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Classes="mono faint"
+                                                       FontSize="12"
+                                                       Text="NORTHERN-FORESTS_autosave_1"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Classes="faint"
+                                                       FontSize="11"
+                                                       Text="Tier 6 · 114h 50m played · 36.6 MB · Jun 4, 7:22 PM"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Margin="6 0 0 0" Padding="8 4" FontSize="12">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <PathIcon Data="{x:Static MaterialIcons.PlayCircleOutline}"
+                                                          Width="12" Height="12"/>
+                                                <TextBlock Text="Load"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Grid.Column="3"
+                                                Theme="{DynamicResource AppBarButtonTheme}"
+                                                Padding="6" Margin="4 0 0 0">
+                                            <PathIcon Data="{x:Static MaterialIcons.CloudDownload}"
+                                                      Width="13" Height="13"/>
+                                        </Button>
+                                        <Button Grid.Column="4"
+                                                Theme="{DynamicResource AppBarButtonTheme}"
+                                                Padding="6" Margin="4 0 0 0">
+                                            <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
+                                                      Width="13" Height="13"/>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+
+                                <!-- before_nuclear -->
+                                <Border Padding="44 10 16 10">
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                                        <PathIcon Grid.Column="0"
+                                                  Data="{x:Static MaterialIcons.BookmarkCheckOutline}"
+                                                  Width="15" Height="15"
+                                                  Foreground="#67A3F0"
+                                                  Margin="0 0 10 0"
+                                                  VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Classes="mono"
+                                                       FontSize="12"
+                                                       Text="before_nuclear"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Classes="faint"
+                                                       FontSize="11"
+                                                       Text="Tier 5 · 100h 1m played · 29.6 MB · May 28, 9:03 PM"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Margin="6 0 0 0" Padding="8 4" FontSize="12">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <PathIcon Data="{x:Static MaterialIcons.PlayCircleOutline}"
+                                                          Width="12" Height="12"/>
+                                                <TextBlock Text="Load"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Grid.Column="3"
+                                                Theme="{DynamicResource AppBarButtonTheme}"
+                                                Padding="6" Margin="4 0 0 0">
+                                            <PathIcon Data="{x:Static MaterialIcons.CloudDownload}"
+                                                      Width="13" Height="13"/>
+                                        </Button>
+                                        <Button Grid.Column="4"
+                                                Theme="{DynamicResource AppBarButtonTheme}"
+                                                Padding="6" Margin="4 0 0 0">
+                                            <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
+                                                      Width="13" Height="13"/>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </Border>
+
+                <!-- ── Session: DESERT-OUTPOST ── -->
+                <Border Classes="card" Padding="0" ClipToBounds="True">
+                    <StackPanel>
+                        <Border Padding="14 12">
+                            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                                <PathIcon Grid.Column="0"
+                                          Data="{x:Static MaterialIcons.FolderOpenOutline}"
+                                          Width="16" Height="16"
+                                          Foreground="{DynamicResource TextFillColor3}"
+                                          Margin="0 0 10 0"
+                                          VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Classes="mono"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Text="DESERT-OUTPOST"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Classes="faint"
+                                                   FontSize="11"
+                                                   Text="2 saves · 23.7 MB"/>
+                                        <Border Classes="badge warn">
+                                            <TextBlock Text="mod"/>
+                                        </Border>
+                                    </StackPanel>
+                                </StackPanel>
+                                <Button Grid.Column="3"
+                                        Theme="{DynamicResource AppBarButtonTheme}"
+                                        ToolTip.Tip="Delete session"
+                                        Padding="6">
+                                    <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
+                                              Width="14" Height="14"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <Border BorderBrush="{DynamicResource ControlBorderColor}" BorderThickness="0 1 0 0">
+                            <StackPanel>
+                                <Border Padding="44 10 16 10" BorderBrush="{DynamicResource ControlBorderColor}" BorderThickness="0 0 0 1">
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                                        <PathIcon Grid.Column="0"
+                                                  Data="{x:Static MaterialIcons.BookmarkCheckOutline}"
+                                                  Width="15" Height="15"
+                                                  Foreground="#67A3F0"
+                                                  Margin="0 0 10 0"
+                                                  VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <TextBlock Classes="mono"
+                                                           FontSize="12"
+                                                           Text="DESERT-OUTPOST"/>
+                                                <Border Classes="badge warn">
+                                                    <TextBlock Text="mod"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <TextBlock Classes="faint"
+                                                       FontSize="11"
+                                                       Text="Tier 3 · 25h 34m played · 11.9 MB · May 10, 2:20 PM"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Margin="6 0 0 0" Padding="8 4" FontSize="12">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <PathIcon Data="{x:Static MaterialIcons.PlayCircleOutline}"
+                                                          Width="12" Height="12"/>
+                                                <TextBlock Text="Load"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Grid.Column="3"
+                                                Theme="{DynamicResource AppBarButtonTheme}"
+                                                Padding="6" Margin="4 0 0 0">
+                                            <PathIcon Data="{x:Static MaterialIcons.CloudDownload}"
+                                                      Width="13" Height="13"/>
+                                        </Button>
+                                        <Button Grid.Column="4"
+                                                Theme="{DynamicResource AppBarButtonTheme}"
+                                                Padding="6" Margin="4 0 0 0">
+                                            <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
+                                                      Width="13" Height="13"/>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                                <Border Padding="44 10 16 10">
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                                        <PathIcon Grid.Column="0"
+                                                  Data="{x:Static MaterialIcons.History}"
+                                                  Width="15" Height="15"
+                                                  Foreground="{DynamicResource TextFillColor3}"
+                                                  Margin="0 0 10 0"
+                                                  VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Classes="mono faint"
+                                                       FontSize="12"
+                                                       Text="DESERT-OUTPOST_autosave_0"/>
+                                            <TextBlock Classes="faint"
+                                                       FontSize="11"
+                                                       Text="Tier 3 · 25h 25m played · 11.8 MB · May 10, 2:10 PM"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Margin="6 0 0 0" Padding="8 4" FontSize="12">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <PathIcon Data="{x:Static MaterialIcons.PlayCircleOutline}"
+                                                          Width="12" Height="12"/>
+                                                <TextBlock Text="Load"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Grid.Column="3"
+                                                Theme="{DynamicResource AppBarButtonTheme}"
+                                                Padding="6" Margin="4 0 0 0">
+                                            <PathIcon Data="{x:Static MaterialIcons.CloudDownload}"
+                                                      Width="13" Height="13"/>
+                                        </Button>
+                                        <Button Grid.Column="4"
+                                                Theme="{DynamicResource AppBarButtonTheme}"
+                                                Padding="6" Margin="4 0 0 0">
+                                            <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"
+                                                      Width="13" Height="13"/>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </SmoothScrollViewer>
+
     </Grid>
 
 </UserControl>

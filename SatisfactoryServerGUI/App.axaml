@@ -11,5 +11,6 @@
   
     <Application.Styles>
         <PleasantTheme />
+        <StyleInclude Source="avares://SatisfactoryServerGUI/Assets/AppStyles.axaml"/>
     </Application.Styles>
 </Application>

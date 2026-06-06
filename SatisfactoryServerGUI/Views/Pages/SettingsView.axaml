@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:SatisfactoryServerGUI.ViewModels.Pages"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
              x:Class="SatisfactoryServerGUI.Views.Pages.SettingsView"
              x:DataType="vm:SettingsViewModel">
 
@@ -11,11 +11,476 @@
         <vm:SettingsViewModel/>
     </Design.DataContext>
 
-    <Grid>
-        <TextBlock Text="Settings"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   Theme="{DynamicResource TitleTextBlockTheme}"/>
+    <Grid RowDefinitions="*" Margin="16">
+
+        <TabControl>
+
+            <!-- ── Tab 1: Server Options ────────────────────────── -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{x:Static MaterialIcons.Tune}"
+                                  Width="14" Height="14"/>
+                        <TextBlock Text="Server Options"/>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <Grid RowDefinitions="Auto,*">
+
+                    <!-- Toolbar -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0 0 0 12">
+                        <!-- Pending banner -->
+                        <Border Grid.Column="0"
+                                Classes="banner warn"
+                                Padding="10 7">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{x:Static MaterialIcons.AlertCircleOutline}"
+                                          Width="14" Height="14"
+                                          Foreground="#F59E0B"
+                                          VerticalAlignment="Center"/>
+                                <TextBlock FontSize="12"
+                                           Foreground="#F59E0B"
+                                           VerticalAlignment="Center">
+                                    <Run FontWeight="SemiBold" Text="2 options pending restart."/>
+                                    <Run Text=" FG.AutosaveInterval, FG.NetworkQuality will change on next restart."/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Button Grid.Column="1"
+                                Margin="8 0 0 0">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{x:Static MaterialIcons.Reload}"
+                                          Width="13" Height="13"/>
+                                <TextBlock Text="Reset"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="2"
+                                Margin="6 0 0 0"
+                                Theme="{DynamicResource AccentButtonTheme}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{x:Static MaterialIcons.CheckDecagram}"
+                                          Width="13" Height="13"/>
+                                <TextBlock Text="Apply options"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <!-- Options list -->
+                    <SmoothScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Spacing="4">
+
+                            <OptionsDisplayItem Header="Auto-pause when empty"
+                                                Description="Pause the game simulation automatically when no players are connected."
+                                                Icon="{x:Static MaterialIcons.PauseCircleOutline}">
+                                <OptionsDisplayItem.ActionButton>
+                                    <ToggleSwitch IsChecked="True"/>
+                                </OptionsDisplayItem.ActionButton>
+                            </OptionsDisplayItem>
+
+                            <OptionsDisplayItem Header="Auto-save on disconnect"
+                                                Description="Write a save whenever the last player disconnects from the session."
+                                                Icon="{x:Static MaterialIcons.ContentSaveOutline}">
+                                <OptionsDisplayItem.ActionButton>
+                                    <ToggleSwitch IsChecked="True"/>
+                                </OptionsDisplayItem.ActionButton>
+                            </OptionsDisplayItem>
+
+                            <OptionsDisplayItem Header="Disable seasonal events"
+                                                Description="Turn off limited-time in-game holiday content (e.g. FICSMAS)."
+                                                Icon="{x:Static MaterialIcons.CalendarRemoveOutline}">
+                                <OptionsDisplayItem.ActionButton>
+                                    <ToggleSwitch IsChecked="False"/>
+                                </OptionsDisplayItem.ActionButton>
+                            </OptionsDisplayItem>
+
+                            <OptionsDisplayItem Header="Autosave interval"
+                                                Description="Time between automatic saves, in seconds."
+                                                Icon="{x:Static MaterialIcons.History}">
+                                <OptionsDisplayItem.ActionButton>
+                                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                        <NumericUpDown Value="300" Width="110" Minimum="30" Maximum="3600"/>
+                                        <TextBlock Text="sec" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextFillColor3}"
+                                                   FontSize="12"/>
+                                        <Border Classes="badge warn">
+                                            <TextBlock Text="pending"/>
+                                        </Border>
+                                    </StackPanel>
+                                </OptionsDisplayItem.ActionButton>
+                            </OptionsDisplayItem>
+
+                            <OptionsDisplayItem Header="Restart time slot"
+                                                Description="Preferred minute-of-day window for scheduled restarts."
+                                                Icon="{x:Static MaterialIcons.ClockTimeThreeOutline}">
+                                <OptionsDisplayItem.ActionButton>
+                                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                        <NumericUpDown Value="1440" Width="110" Minimum="0" Maximum="1440"/>
+                                        <TextBlock Text="min" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextFillColor3}"
+                                                   FontSize="12"/>
+                                    </StackPanel>
+                                </OptionsDisplayItem.ActionButton>
+                            </OptionsDisplayItem>
+
+                            <OptionsDisplayItem Header="Send gameplay telemetry"
+                                                Description="Allow the server to send anonymous gameplay data to Coffee Stain."
+                                                Icon="{x:Static MaterialIcons.ChartLineVariant}">
+                                <OptionsDisplayItem.ActionButton>
+                                    <ToggleSwitch IsChecked="True"/>
+                                </OptionsDisplayItem.ActionButton>
+                            </OptionsDisplayItem>
+
+                            <OptionsDisplayItem Header="Network quality"
+                                                Description="Network update frequency. Higher uses more bandwidth and CPU."
+                                                Icon="{x:Static MaterialIcons.Speedometer}">
+                                <OptionsDisplayItem.ActionButton>
+                                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                        <ComboBox SelectedIndex="1" MinWidth="120">
+                                            <ComboBoxItem Content="Low"/>
+                                            <ComboBoxItem Content="Medium"/>
+                                            <ComboBoxItem Content="High"/>
+                                            <ComboBoxItem Content="Ultra"/>
+                                        </ComboBox>
+                                        <Border Classes="badge warn">
+                                            <TextBlock Text="pending"/>
+                                        </Border>
+                                    </StackPanel>
+                                </OptionsDisplayItem.ActionButton>
+                            </OptionsDisplayItem>
+
+                        </StackPanel>
+                    </SmoothScrollViewer>
+
+                </Grid>
+            </TabItem>
+
+            <!-- ── Tab 2: Advanced Game Settings ────────────────── -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{x:Static MaterialIcons.BeakerOutline}"
+                                  Width="14" Height="14"/>
+                        <TextBlock Text="Advanced Game Settings"/>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <SmoothScrollViewer HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="12">
+
+                        <!-- Enable banner -->
+                        <Border Classes="banner warn">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <PathIcon Grid.Column="0"
+                                          Data="{x:Static MaterialIcons.BeakerOutline}"
+                                          Width="16" Height="16"
+                                          Foreground="#F59E0B"
+                                          VerticalAlignment="Center"
+                                          Margin="0 0 10 0"/>
+                                <TextBlock Grid.Column="1" FontSize="13" Foreground="#F59E0B" VerticalAlignment="Center">
+                                    <Run FontWeight="SemiBold" Text="Advanced Game Settings disabled."/>
+                                    <Run Text=" Enabling these flags the save as modified and "/>
+                                    <Run FontWeight="SemiBold" Text="disables achievements"/>
+                                    <Run Text=" for the session."/>
+                                </TextBlock>
+                                <ToggleSwitch Grid.Column="2" IsChecked="False" Margin="12 0 0 0"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Content (dimmed when disabled) -->
+                        <StackPanel Spacing="12" Opacity="0.45">
+
+                            <!-- Game Rules card -->
+                            <Border Classes="card" Padding="0" ClipToBounds="True">
+                                <StackPanel>
+                                    <Border Padding="16 12"
+                                            BorderBrush="{DynamicResource ControlBorderColor}"
+                                            BorderThickness="0 0 0 1">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <PathIcon Data="{x:Static MaterialIcons.EarthBox}"
+                                                      Width="16" Height="16"
+                                                      Foreground="{DynamicResource TextFillColor2}"/>
+                                            <TextBlock Classes="card-title" Text="Game rules"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <StackPanel Margin="16 8">
+                                        <OptionsDisplayItem Header="No power"
+                                                            Description="Buildings run without electricity.">
+                                            <OptionsDisplayItem.ActionButton>
+                                                <ToggleSwitch IsChecked="False"/>
+                                            </OptionsDisplayItem.ActionButton>
+                                        </OptionsDisplayItem>
+                                        <OptionsDisplayItem Header="Starting tier"
+                                                            Description="Tech tier unlocked at the start.">
+                                            <OptionsDisplayItem.ActionButton>
+                                                <NumericUpDown Value="0" Width="90" Minimum="0" Maximum="9"/>
+                                            </OptionsDisplayItem.ActionButton>
+                                        </OptionsDisplayItem>
+                                        <OptionsDisplayItem Header="Arachnophobia mode"
+                                                            Description="Replace spiders with a friendlier placeholder.">
+                                            <OptionsDisplayItem.ActionButton>
+                                                <ToggleSwitch IsChecked="False"/>
+                                            </OptionsDisplayItem.ActionButton>
+                                        </OptionsDisplayItem>
+                                        <OptionsDisplayItem Header="Free milestone unlocks"
+                                                            Description="Milestones cost no resources to complete.">
+                                            <OptionsDisplayItem.ActionButton>
+                                                <ToggleSwitch IsChecked="False"/>
+                                            </OptionsDisplayItem.ActionButton>
+                                        </OptionsDisplayItem>
+                                        <OptionsDisplayItem Header="Unlock all research"
+                                                            Description="Unlock every MAM research schematic.">
+                                            <OptionsDisplayItem.ActionButton>
+                                                <ToggleSwitch IsChecked="False"/>
+                                            </OptionsDisplayItem.ActionButton>
+                                        </OptionsDisplayItem>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Player Rules card -->
+                            <Border Classes="card" Padding="0" ClipToBounds="True">
+                                <StackPanel>
+                                    <Border Padding="16 12"
+                                            BorderBrush="{DynamicResource ControlBorderColor}"
+                                            BorderThickness="0 0 0 1">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <PathIcon Data="{x:Static MaterialIcons.AccountCircleOutline}"
+                                                      Width="16" Height="16"
+                                                      Foreground="{DynamicResource TextFillColor2}"/>
+                                            <TextBlock Classes="card-title" Text="Player rules"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <StackPanel Margin="16 8">
+                                        <OptionsDisplayItem Header="Free build"
+                                                            Description="Construction consumes no materials.">
+                                            <OptionsDisplayItem.ActionButton>
+                                                <ToggleSwitch IsChecked="False"/>
+                                            </OptionsDisplayItem.ActionButton>
+                                        </OptionsDisplayItem>
+                                        <OptionsDisplayItem Header="God mode"
+                                                            Description="Players take no damage.">
+                                            <OptionsDisplayItem.ActionButton>
+                                                <ToggleSwitch IsChecked="False"/>
+                                            </OptionsDisplayItem.ActionButton>
+                                        </OptionsDisplayItem>
+                                        <OptionsDisplayItem Header="Flight mode"
+                                                            Description="Players can fly freely.">
+                                            <OptionsDisplayItem.ActionButton>
+                                                <ToggleSwitch IsChecked="False"/>
+                                            </OptionsDisplayItem.ActionButton>
+                                        </OptionsDisplayItem>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </StackPanel>
+                </SmoothScrollViewer>
+            </TabItem>
+
+            <!-- ── Tab 3: General ────────────────────────────────── -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{x:Static MaterialIcons.CogOutline}"
+                                  Width="14" Height="14"/>
+                        <TextBlock Text="General"/>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <SmoothScrollViewer HorizontalScrollBarVisibility="Disabled">
+                    <Grid ColumnDefinitions="*,16,*" Margin="0 8 0 0">
+
+                        <!-- Left column -->
+                        <StackPanel Grid.Column="0" Spacing="14">
+
+                            <!-- Server Identity -->
+                            <Border Classes="card" Padding="0" ClipToBounds="True">
+                                <StackPanel>
+                                    <Border Padding="16 12"
+                                            BorderBrush="{DynamicResource ControlBorderColor}"
+                                            BorderThickness="0 0 0 1">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <PathIcon Data="{x:Static MaterialIcons.BadgeAccountOutline}"
+                                                      Width="16" Height="16"
+                                                      Foreground="{DynamicResource TextFillColor2}"/>
+                                            <TextBlock Classes="card-title" Text="Server identity"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <StackPanel Margin="16" Spacing="14">
+                                        <!-- Server name -->
+                                        <StackPanel Spacing="4">
+                                            <TextBlock FontSize="12" FontWeight="SemiBold"
+                                                       Text="Server name"/>
+                                            <Grid ColumnDefinitions="*,8,Auto">
+                                                <TextBox Grid.Column="0"
+                                                         Text="Home Factory"
+                                                         PlaceholderText="Server name…"/>
+                                                <Button Grid.Column="2">
+                                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                                        <PathIcon Data="{x:Static MaterialIcons.CheckDecagram}"
+                                                                  Width="13" Height="13"/>
+                                                        <TextBlock Text="Rename"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </Grid>
+                                            <TextBlock Classes="faint" FontSize="11"
+                                                       Text="Shown in the in-game server browser."/>
+                                        </StackPanel>
+
+                                        <Border Classes="row-sep"/>
+
+                                        <!-- Auto-load session -->
+                                        <StackPanel Spacing="4">
+                                            <TextBlock FontSize="12" FontWeight="SemiBold"
+                                                       Text="Auto-load session"/>
+                                            <Grid ColumnDefinitions="*,8,Auto">
+                                                <ComboBox Grid.Column="0" SelectedIndex="0">
+                                                    <ComboBoxItem Content="NORTHERN-FORESTS"/>
+                                                    <ComboBoxItem Content="DESERT-OUTPOST"/>
+                                                    <ComboBoxItem Content="creative-megabase"/>
+                                                </ComboBox>
+                                                <Button Grid.Column="2">
+                                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                                        <PathIcon Data="{x:Static MaterialIcons.CheckDecagram}"
+                                                                  Width="13" Height="13"/>
+                                                        <TextBlock Text="Set"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </Grid>
+                                            <TextBlock Classes="faint" FontSize="11"
+                                                       Text="Session loaded automatically on startup."/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+
+                        <!-- Right column -->
+                        <StackPanel Grid.Column="2" Spacing="14">
+
+                            <!-- Lifecycle -->
+                            <Border Classes="card" Padding="0" ClipToBounds="True">
+                                <StackPanel>
+                                    <Border Padding="16 12"
+                                            BorderBrush="{DynamicResource ControlBorderColor}"
+                                            BorderThickness="0 0 0 1">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <PathIcon Data="{x:Static MaterialIcons.PowerPlugOutline}"
+                                                      Width="16" Height="16"
+                                                      Foreground="{DynamicResource TextFillColor2}"/>
+                                            <TextBlock Classes="card-title" Text="Lifecycle"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <StackPanel Margin="16" Spacing="0">
+                                        <!-- Restart -->
+                                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0 8">
+                                            <PathIcon Grid.Column="0"
+                                                      Data="{x:Static MaterialIcons.Reload}"
+                                                      Width="18" Height="18"
+                                                      Foreground="{DynamicResource TextFillColor2}"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0 0 12 0"/>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock FontSize="13" FontWeight="SemiBold"
+                                                           Text="Restart server"/>
+                                                <TextBlock Classes="faint" FontSize="11"
+                                                           Text="Shut down for an automatic restart script to reboot."/>
+                                            </StackPanel>
+                                            <Button Grid.Column="2" FontSize="12" Padding="10 5">Restart</Button>
+                                        </Grid>
+
+                                        <Border Classes="row-sep"/>
+
+                                        <!-- Shutdown -->
+                                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0 8">
+                                            <PathIcon Grid.Column="0"
+                                                      Data="{x:Static MaterialIcons.PowerOff}"
+                                                      Width="18" Height="18"
+                                                      Foreground="#FF6B6B"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0 0 12 0"/>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock FontSize="13" FontWeight="SemiBold"
+                                                           Text="Shutdown"/>
+                                                <TextBlock Classes="faint" FontSize="11"
+                                                           Text="Stops the dedicated server. Logged with IP + token."/>
+                                            </StackPanel>
+                                            <Button Grid.Column="2"
+                                                    Theme="{DynamicResource DangerButtonTheme}"
+                                                    FontSize="12" Padding="10 5">Shutdown</Button>
+                                        </Grid>
+
+                                        <Border Classes="row-sep"/>
+
+                                        <!-- New game -->
+                                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0 8">
+                                            <PathIcon Grid.Column="0"
+                                                      Data="{x:Static MaterialIcons.PlusThick}"
+                                                      Width="18" Height="18"
+                                                      Foreground="{DynamicResource TextFillColor2}"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0 0 12 0"/>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock FontSize="13" FontWeight="SemiBold"
+                                                           Text="Create new game"/>
+                                                <TextBlock Classes="faint" FontSize="11"
+                                                           Text="Start and load a brand-new session on this server."/>
+                                            </StackPanel>
+                                            <Button Grid.Column="2" FontSize="12" Padding="10 5">New game…</Button>
+                                        </Grid>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- About this server -->
+                            <Border Classes="card" Padding="0" ClipToBounds="True">
+                                <StackPanel>
+                                    <Border Padding="16 12"
+                                            BorderBrush="{DynamicResource ControlBorderColor}"
+                                            BorderThickness="0 0 0 1">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <PathIcon Data="{x:Static MaterialIcons.InformationVariantCircle}"
+                                                      Width="16" Height="16"
+                                                      Foreground="{DynamicResource TextFillColor2}"/>
+                                            <TextBlock Classes="card-title" Text="About this server"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <StackPanel Margin="16" Spacing="10">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Classes="kv-key" Text="API version"/>
+                                            <TextBlock Grid.Column="1" Classes="kv-val" Text="v0.2.1"/>
+                                        </Grid>
+                                        <Border Classes="row-sep"/>
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Classes="kv-key" Text="Build"/>
+                                            <TextBlock Grid.Column="1" Classes="kv-val" Text="368883"/>
+                                        </Grid>
+                                        <Border Classes="row-sep"/>
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Classes="kv-key" Text="Endpoint"/>
+                                            <TextBlock Grid.Column="1" Classes="kv-val" Text="192.168.1.42:7777"/>
+                                        </Grid>
+                                        <Border Classes="row-sep"/>
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Classes="kv-key" Text="Locally managed"/>
+                                            <TextBlock Grid.Column="1" Classes="kv-val" Text="Yes"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </Grid>
+                </SmoothScrollViewer>
+            </TabItem>
+
+        </TabControl>
+
     </Grid>
 
 </UserControl>
