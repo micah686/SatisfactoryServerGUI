@@ -61,6 +61,14 @@
                                               VerticalAlignment="Stretch"/>
                 </NavigationViewItem.Content>
             </NavigationViewItem>
+            
+            <NavigationViewItem Header="Install/Update"
+                                Icon="{x:Static MaterialIcons.DownloadCircleOutline}">
+                <NavigationViewItem.Content>
+                    <pages:ServerInstallView HorizontalAlignment="Stretch"
+                                         VerticalAlignment="Stretch"/>
+                </NavigationViewItem.Content>
+            </NavigationViewItem>
 
         </NavigationView>
 
