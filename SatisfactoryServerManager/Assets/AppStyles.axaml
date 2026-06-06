@@ -1,0 +1,251 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ── Badges ─────────────────────────────────────────────────── -->
+    <!-- Usage: <Border Classes="badge ok"> <TextBlock Text="Running"/> </Border> -->
+    <Style Selector="Border.badge">
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="6 2"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Border.badge StackPanel">
+        <Setter Property="Orientation" Value="Horizontal"/>
+        <Setter Property="Spacing" Value="4"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Border.badge TextBlock">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Border.badge PathIcon">
+        <Setter Property="Width" Value="11"/>
+        <Setter Property="Height" Value="11"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Border.badge.ok">
+        <Setter Property="Background" Value="#2056C98A"/>
+        <Setter Property="BorderBrush" Value="#5056C98A"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Border.badge.ok TextBlock">
+        <Setter Property="Foreground" Value="#56C98A"/>
+    </Style>
+    <Style Selector="Border.badge.ok PathIcon">
+        <Setter Property="Foreground" Value="#56C98A"/>
+    </Style>
+
+    <Style Selector="Border.badge.bad">
+        <Setter Property="Background" Value="#20FF6B6B"/>
+        <Setter Property="BorderBrush" Value="#50FF6B6B"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Border.badge.bad TextBlock">
+        <Setter Property="Foreground" Value="#FF6B6B"/>
+    </Style>
+    <Style Selector="Border.badge.bad PathIcon">
+        <Setter Property="Foreground" Value="#FF6B6B"/>
+    </Style>
+
+    <Style Selector="Border.badge.warn">
+        <Setter Property="Background" Value="#20F59E0B"/>
+        <Setter Property="BorderBrush" Value="#50F59E0B"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Border.badge.warn TextBlock">
+        <Setter Property="Foreground" Value="#F59E0B"/>
+    </Style>
+    <Style Selector="Border.badge.warn PathIcon">
+        <Setter Property="Foreground" Value="#F59E0B"/>
+    </Style>
+
+    <Style Selector="Border.badge.neutral">
+        <Setter Property="Background" Value="{DynamicResource ControlFillColor2}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderColor}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Border.badge.neutral TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColor2}"/>
+    </Style>
+    <Style Selector="Border.badge.neutral PathIcon">
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColor2}"/>
+    </Style>
+
+    <Style Selector="Border.badge.accent">
+        <Setter Property="Background" Value="#2067A3F0"/>
+        <Setter Property="BorderBrush" Value="#5067A3F0"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Border.badge.accent TextBlock">
+        <Setter Property="Foreground" Value="#67A3F0"/>
+    </Style>
+    <Style Selector="Border.badge.accent PathIcon">
+        <Setter Property="Foreground" Value="#67A3F0"/>
+    </Style>
+
+    <!-- ping quality tones (used in player list) -->
+    <Style Selector="Border.badge.ping-good">
+        <Setter Property="Background" Value="#2056C98A"/>
+        <Setter Property="BorderBrush" Value="#5056C98A"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Border.badge.ping-good TextBlock">
+        <Setter Property="Foreground" Value="#56C98A"/>
+    </Style>
+    <Style Selector="Border.badge.ping-mid">
+        <Setter Property="Background" Value="#20F59E0B"/>
+        <Setter Property="BorderBrush" Value="#50F59E0B"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Border.badge.ping-mid TextBlock">
+        <Setter Property="Foreground" Value="#F59E0B"/>
+    </Style>
+    <Style Selector="Border.badge.ping-bad">
+        <Setter Property="Background" Value="#20FF6B6B"/>
+        <Setter Property="BorderBrush" Value="#50FF6B6B"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Border.badge.ping-bad TextBlock">
+        <Setter Property="Foreground" Value="#FF6B6B"/>
+    </Style>
+
+    <!-- ── Status Dots ─────────────────────────────────────────────── -->
+    <Style Selector="Ellipse.dot">
+        <Setter Property="Width" Value="7"/>
+        <Setter Property="Height" Value="7"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Ellipse.dot.ok">
+        <Setter Property="Fill" Value="#56C98A"/>
+    </Style>
+    <Style Selector="Ellipse.dot.bad">
+        <Setter Property="Fill" Value="#FF6B6B"/>
+    </Style>
+    <Style Selector="Ellipse.dot.warn">
+        <Setter Property="Fill" Value="#F59E0B"/>
+    </Style>
+    <Style Selector="Ellipse.dot.idle">
+        <Setter Property="Fill" Value="{DynamicResource TextFillColor3}"/>
+    </Style>
+
+    <!-- ── Banners ─────────────────────────────────────────────────── -->
+    <Style Selector="Border.banner">
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="Padding" Value="14 10"/>
+    </Style>
+    <Style Selector="Border.banner.warn">
+        <Setter Property="Background" Value="#20F59E0B"/>
+        <Setter Property="BorderBrush" Value="#50F59E0B"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Border.banner.info">
+        <Setter Property="Background" Value="#2067A3F0"/>
+        <Setter Property="BorderBrush" Value="#5067A3F0"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Border.banner.accent">
+        <Setter Property="Background" Value="#2056C98A"/>
+        <Setter Property="BorderBrush" Value="#5056C98A"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Border.banner.danger">
+        <Setter Property="Background" Value="#20FF6B6B"/>
+        <Setter Property="BorderBrush" Value="#50FF6B6B"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Border.banner PathIcon">
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Width" Value="16"/>
+        <Setter Property="Height" Value="16"/>
+        <Setter Property="Margin" Value="0 1 10 0"/>
+    </Style>
+
+    <!-- ── Card base ───────────────────────────────────────────────── -->
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource BackgroundColor2}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderColor}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="Padding" Value="16"/>
+    </Style>
+
+    <!-- ── Card header ─────────────────────────────────────────────── -->
+    <Style Selector="TextBlock.card-title">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColor1}"/>
+    </Style>
+    <Style Selector="TextBlock.section-label">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColor3}"/>
+        <Setter Property="Margin" Value="0 8 0 4"/>
+    </Style>
+
+    <!-- ── Stat value ──────────────────────────────────────────────── -->
+    <Style Selector="TextBlock.stat-value">
+        <Setter Property="FontSize" Value="28"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColor1}"/>
+    </Style>
+    <Style Selector="TextBlock.stat-unit">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColor2}"/>
+        <Setter Property="VerticalAlignment" Value="Bottom"/>
+        <Setter Property="Margin" Value="3 0 0 4"/>
+    </Style>
+
+    <!-- ── KV row ──────────────────────────────────────────────────── -->
+    <Style Selector="TextBlock.kv-key">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColor3}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="TextBlock.kv-val">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColor1}"/>
+        <Setter Property="FontFamily" Value="Cascadia Code, Consolas, Courier New, monospace"/>
+        <Setter Property="TextAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- ── Row separator ───────────────────────────────────────────── -->
+    <Style Selector="Border.row-sep">
+        <Setter Property="Height" Value="1"/>
+        <Setter Property="Background" Value="{DynamicResource ControlBorderColor}"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="Margin" Value="0"/>
+    </Style>
+
+    <!-- ── Faint helper text ───────────────────────────────────────── -->
+    <Style Selector="TextBlock.faint">
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColor3}"/>
+    </Style>
+    <Style Selector="TextBlock.mono">
+        <Setter Property="FontFamily" Value="Cascadia Code, Consolas, Courier New, monospace"/>
+    </Style>
+
+    <!-- ── Profile card active state ──────────────────────────────── -->
+    <Style Selector="Border.profile-card.active">
+        <Setter Property="BorderBrush" Value="#5067A3F0"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <!-- ── Auth nav item ──────────────────────────────────────────── -->
+    <Style Selector="Button.auth-nav">
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Padding" Value="10 8"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    <Style Selector="Button.auth-nav:pointerover">
+        <Setter Property="Background" Value="{DynamicResource ControlFillColor2}"/>
+    </Style>
+    <Style Selector="Button.auth-nav.active">
+        <Setter Property="Background" Value="{DynamicResource ControlFillColor3}"/>
+    </Style>
+
+</Styles>
