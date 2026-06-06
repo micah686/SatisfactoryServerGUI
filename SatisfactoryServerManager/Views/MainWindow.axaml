@@ -1,0 +1,69 @@
+<Window xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:vm="using:SatisfactoryServerManager.ViewModels"
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                xmlns:pages="clr-namespace:SatisfactoryServerManager.Views.Pages"
+                mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="768"
+                x:Class="SatisfactoryServerManager.Views.MainWindow"
+                x:DataType="vm:MainWindowViewModel"
+                Icon="/Assets/avalonia-logo.ico"
+                Title="SatisfactoryServerManager"
+                Width="1024" Height="768"
+                >
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header / profile selector -->
+        <Grid Grid.Row="0" Height="50">
+            <ComboBox HorizontalAlignment="Left"
+                      VerticalAlignment="Top"
+                      Margin="55,10,0,0"
+                      Width="205"
+                      PlaceholderText="Select profile"/>
+        </Grid>
+
+        <!-- Main layout -->
+        <NavigationView Grid.Row="1"
+                        x:Name="MainNavigationView"
+                        ShowBackButton="False"
+                        IsOpen="True"
+                        DynamicDisplayMode="False"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+
+            <!-- Hide internal NavigationView scrollbar -->
+            <NavigationView.Styles>
+                <Style Selector="NavigationView#MainNavigationView SmoothScrollViewer">
+                    <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
+                    <Setter Property="HorizontalScrollBarVisibility" Value="Hidden"/>
+                </Style>
+            </NavigationView.Styles>
+
+            <NavigationViewItem Header="Dashboard"
+                                Icon="{x:Static MaterialIcons.ViewDashboardOutline}">
+                <NavigationViewItem.Content>
+                    <pages:DashboardView HorizontalAlignment="Stretch"
+                                         VerticalAlignment="Stretch"/>
+                </NavigationViewItem.Content>
+            </NavigationViewItem>
+
+            <NavigationViewItem Header="Server Profiles"
+                                Icon="{x:Static MaterialIcons.ServerOutline}">
+                <NavigationViewItem.Content>
+                    <pages:ServerProfilesView HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"/>
+                </NavigationViewItem.Content>
+            </NavigationViewItem>
+
+        </NavigationView>
+
+    </Grid>
+
+</Window>

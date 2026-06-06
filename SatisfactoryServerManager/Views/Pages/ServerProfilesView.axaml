@@ -1,0 +1,125 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SatisfactoryServerManager.ViewModels.Pages"
+             x:DataType="vm:ServerProfilesViewModel"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SatisfactoryServerManager.Views.Pages.ServerProfilesView">
+    <UserControl.Styles>
+
+        <!-- Dim background -->
+        <Style Selector="Button.scrim">
+            <Setter Property="Opacity" Value="0"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="Background" Value="#80000000"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+
+            <!-- Removes normal Button visuals -->
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}"/>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="Button.scrim.open">
+            <Setter Property="Opacity" Value="1"/>
+            <Setter Property="IsHitTestVisible" Value="True"/>
+        </Style>
+
+        <!-- Drawer closed state -->
+        <Style Selector="Border.right-drawer">
+            <Setter Property="RenderTransform" Value="translateX(440px)"/>
+        </Style>
+
+        <!-- Drawer open state -->
+        <Style Selector="Border.right-drawer.open">
+            <Setter Property="RenderTransform" Value="translateX(0px)"/>
+        </Style>
+
+    </UserControl.Styles>
+
+    <Grid ClipToBounds="True">
+
+        <!-- Main page content -->
+        <Grid>
+            <StackPanel Margin="24" Spacing="12">
+                <TextBlock Text="Server Profiles"
+                           FontSize="24"
+                           FontWeight="SemiBold"/>
+
+                <Button Content="Add / Edit Profile"
+                        Command="{Binding OpenDrawerCommand}"/>
+
+                <!-- Your existing page content here -->
+            </StackPanel>
+        </Grid>
+
+        <!-- Dim overlay -->
+        <Button
+            ZIndex="10"
+            Classes="scrim"
+            Classes.open="{Binding IsDrawerOpen}"
+            Command="{Binding CloseDrawerCommand}">
+
+            <Button.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity"
+                                      Duration="0:0:0.20"/>
+                </Transitions>
+            </Button.Transitions>
+        </Button>
+
+        <!-- Right-side drawer -->
+        <Border
+            ZIndex="20"
+            Width="420"
+            HorizontalAlignment="Right"
+            Background="#111111"
+            BoxShadow="0 0 24 0 #66000000"
+            Classes="right-drawer"
+            Classes.open="{Binding IsDrawerOpen}">
+
+            <Border.Transitions>
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform"
+                                                   Duration="0:0:0.25"/>
+                </Transitions>
+            </Border.Transitions>
+
+            <Grid RowDefinitions="Auto,*">
+
+                <!-- Drawer header -->
+                <Grid ColumnDefinitions="*,Auto"
+                      Margin="16">
+
+                    <TextBlock Text="Server Profile"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+
+                    <Button Grid.Column="1"
+                            Content="✕"
+                            Width="36"
+                            Height="36"
+                            Command="{Binding CloseDrawerCommand}"/>
+                </Grid>
+
+                <!-- Drawer content -->
+                <StackPanel Grid.Row="1"
+                            Margin="16"
+                            Spacing="12">
+
+                    <TextBox PlaceholderText="Profile name"/>
+                    <TextBox PlaceholderText="Host"/>
+                    <TextBox PlaceholderText="Port"/>
+
+                    <Button Content="Save"/>
+                </StackPanel>
+
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
