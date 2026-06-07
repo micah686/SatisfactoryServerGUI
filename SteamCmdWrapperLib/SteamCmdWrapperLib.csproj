@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <!-- Define the WINDOWS compilation symbol on Windows platforms so that
+       WindowsSteamCmdSession.cs is included.  The default value of
+       $(OS) is 'Windows_NT' on Windows and not defined otherwise. -->
+    <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+        <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Always reference the cross‑platform sch.pty.net package for PTY support -->
+        <PackageReference Include="sch.pty.net" Version="0.3.36-pre" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(OS)' == 'Windows_NT' ">
+        <!-- Reference the native SteamCMD.ConPTY package only on Windows -->
+        <PackageReference Include="SteamCMD.ConPTY" Version="1.0.0" />
+    </ItemGroup>
+
+</Project>

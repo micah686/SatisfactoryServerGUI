@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using SatisfactoryServerManager.ViewModels.Pages;
 
 namespace SatisfactoryServerManager.Views.Pages;
 
@@ -8,6 +9,7 @@ public partial class ServerInstallView : UserControl
     public ServerInstallView()
     {
         InitializeComponent();
+        DataContext = new ServerInstallViewModel();
         AddBuildContent.CloseRequested += (_, _) => SetDrawerOpen(false);
     }
 

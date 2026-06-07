@@ -3,6 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ctrl="clr-namespace:SatisfactoryServerManager.Views.UserControls"
+             xmlns:vm="clr-namespace:SatisfactoryServerManager.ViewModels.Pages"
+             x:DataType="vm:ServerInstallViewModel"
              mc:Ignorable="d"
              d:DesignWidth="1048"
              d:DesignHeight="803"
@@ -183,7 +185,8 @@
                                         </Button>
                                         <Button 
                                                 Classes="flat-action"
-                                                ToolTip.Tip="Update SteamCMD">
+                                                ToolTip.Tip="Update SteamCMD"
+                                                Command="{Binding InstallSteamCmdCommandCommand}">
                                             <StackPanel Orientation="Horizontal" Spacing="6">
                                                 <PathIcon Data="{x:Static MaterialIcons.Refresh}"/>
                                                 <TextBlock FontSize="12" Text="Update client"/>

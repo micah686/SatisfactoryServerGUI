@@ -27,4 +27,8 @@
     <PackageReference Include="PleasantUI.MaterialIcons" Version="5.2.2" />
     <PackageReference Include="PleasantUI.ToolKit" Version="5.2.2" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SteamCmdWrapperLib\SteamCmdWrapperLib.csproj" />
+  </ItemGroup>
 </Project>

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SatisfactoryServerManager.Helpers;
 
-public class SteamCmdHelper
+public static class SteamCmdHelper
 {
     private static readonly HttpClient HttpClientInstance = new();
     private const string WindowsUrl = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip";

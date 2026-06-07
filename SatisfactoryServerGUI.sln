@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SatisfactoryServerGUI", "Sa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SatisfactoryServerManager", "SatisfactoryServerManager\SatisfactoryServerManager.csproj", "{6814D0D8-BCAE-42E4-8009-93CCDFC19DBB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamCmdWrapperLib", "SteamCmdWrapperLib\SteamCmdWrapperLib.csproj", "{D68B69F7-8AF5-4E6E-8AE9-E71B42B3D65B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{6814D0D8-BCAE-42E4-8009-93CCDFC19DBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6814D0D8-BCAE-42E4-8009-93CCDFC19DBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6814D0D8-BCAE-42E4-8009-93CCDFC19DBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D68B69F7-8AF5-4E6E-8AE9-E71B42B3D65B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D68B69F7-8AF5-4E6E-8AE9-E71B42B3D65B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D68B69F7-8AF5-4E6E-8AE9-E71B42B3D65B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D68B69F7-8AF5-4E6E-8AE9-E71B42B3D65B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
