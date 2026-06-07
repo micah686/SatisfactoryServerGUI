@@ -1,0 +1,209 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="560"
+             d:DesignHeight="780"
+             x:Class="SatisfactoryServerManager.Views.UserControls.AddBuildView">
+
+    <UserControl.Styles>
+        <Style Selector="Border.source-card">
+            <Setter Property="MinHeight" Value="92"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="CornerRadius" Value="9"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundColor2}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Opacity" Value="0.45"/>
+        </Style>
+
+        <Style Selector="Border.source-card.selected">
+            <Setter Property="Opacity" Value="1"/>
+            <Setter Property="Background" Value="#2E211B"/>
+            <Setter Property="BorderBrush" Value="#9A5B2D"/>
+        </Style>
+
+        <Style Selector="Border.source-card PathIcon">
+            <Setter Property="Width" Value="21"/>
+            <Setter Property="Height" Value="21"/>
+        </Style>
+
+        <Style Selector="TextBlock.field-label">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColor2}"/>
+        </Style>
+
+        <Style Selector="TextBlock.field-help">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColor3}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style Selector="TextBox.mono-field">
+            <Setter Property="FontFamily" Value="Cascadia Code, Consolas, Courier New, monospace"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Border Grid.Row="0"
+                Padding="20 16"
+                BorderBrush="{DynamicResource ControlBorderColor}"
+                BorderThickness="0 0 0 1">
+            <Grid ColumnDefinitions="Auto,12,*,Auto">
+                <PathIcon Data="{x:Static MaterialIcons.PackageVariantClosed}"
+                          Width="19"
+                          Height="19"
+                          VerticalAlignment="Top"
+                          Margin="0 2 0 0"
+                          Foreground="{DynamicResource TextFillColor2}"/>
+                <StackPanel Grid.Column="2" Spacing="2">
+                    <TextBlock FontSize="16"
+                               FontWeight="SemiBold"
+                               Text="Add a build"/>
+                    <TextBlock Classes="faint"
+                               FontSize="12"
+                               Text="Download another Satisfactory server build into the library"/>
+                </StackPanel>
+                <Button Grid.Column="3"
+                        Theme="{DynamicResource AppBarButtonTheme}"
+                        Padding="7"
+                        VerticalAlignment="Top"
+                        ToolTip.Tip="Close"
+                        Click="Close_Click">
+                    <PathIcon Data="{x:Static MaterialIcons.CloseThick}"
+                              Width="13"
+                              Height="13"/>
+                </Button>
+            </Grid>
+        </Border>
+
+        <SmoothScrollViewer Grid.Row="1"
+                            HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="18 18 18 12" Spacing="16">
+                <StackPanel Spacing="7">
+                    <TextBlock Classes="field-label" Text="Source"/>
+                    <Grid ColumnDefinitions="*,8,*,8,*">
+                        <Border Grid.Column="0" Classes="source-card">
+                            <StackPanel Spacing="7">
+                                <PathIcon Data="{x:Static MaterialIcons.CheckDecagram}"
+                                          Foreground="#56C98A"/>
+                                <TextBlock FontSize="13"
+                                           FontWeight="SemiBold"
+                                           Text="Public"/>
+                                <TextBlock Classes="field-help" Text="Already in library"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Classes="source-card">
+                            <StackPanel Spacing="7">
+                                <PathIcon Data="{x:Static MaterialIcons.FlaskOutline}"
+                                          Foreground="#67A3F0"/>
+                                <TextBlock FontSize="13"
+                                           FontWeight="SemiBold"
+                                           Text="Experimental"/>
+                                <TextBlock Classes="field-help" Text="Already in library"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="4" Classes="source-card selected">
+                            <StackPanel Spacing="7">
+                                <PathIcon Data="{x:Static MaterialIcons.Lock}"
+                                          Foreground="#FF9148"/>
+                                <TextBlock FontSize="13"
+                                           FontWeight="SemiBold"
+                                           Text="Pinned"/>
+                                <TextBlock Classes="field-help" Text="Specific manifest"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <TextBlock Classes="field-help"
+                               Text="Frozen to a specific depot manifest — ideal for mod compatibility."/>
+                </StackPanel>
+
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="field-label" Text="Label"/>
+                    <TextBox x:Name="LabelTextBox"
+                             PlaceholderText="e.g. 1.0 — mod profile"/>
+                    <TextBlock Classes="field-help"
+                               Text="A name to recognise this pinned build by."/>
+                </StackPanel>
+
+                <Grid ColumnDefinitions="*,12,*">
+                    <StackPanel Grid.Column="0" Spacing="6">
+                        <TextBlock Classes="field-label" Text="Depot ID"/>
+                        <TextBox Classes="mono-field" Text="1690803"/>
+                        <TextBlock Classes="field-help" Text="Server depot for Linux."/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Spacing="6">
+                        <TextBlock Classes="field-label" Text="Build number"/>
+                        <TextBox Classes="mono-field" Text="363861"/>
+                        <TextBlock Classes="field-help" Text="Shown in-game / changelog."/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="field-label" Text="Manifest ID"/>
+                    <TextBox Classes="mono-field" Text="5061049766315023872"/>
+                    <TextBlock Classes="field-help"
+                               Text="The exact depot manifest to download. Find it in SteamDB → Depots → Manifests."/>
+                </StackPanel>
+
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="field-label" Text="Install folder"/>
+                    <Grid ColumnDefinitions="*,8,Auto">
+                        <TextBox Grid.Column="0"
+                                 Classes="mono-field"
+                                 Text="/opt/satisfactory/pinned/build"/>
+                        <Button Grid.Column="2">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{x:Static MaterialIcons.FolderOpenOutline}"
+                                          Width="15"
+                                          Height="15"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                    <TextBlock Classes="field-help"
+                               Text="Each build lives in its own folder so they never overwrite each other."/>
+                </StackPanel>
+
+                <StackPanel Spacing="7">
+                    <TextBlock Classes="section-label" Text="COMMAND PREVIEW"/>
+                    <Border Padding="12"
+                            CornerRadius="8"
+                            Background="#141416"
+                            BorderBrush="{DynamicResource ControlBorderColor}"
+                            BorderThickness="1">
+                        <TextBlock Classes="mono faint"
+                                   FontSize="11"
+                                   TextWrapping="Wrap"
+                                   Text="steamcmd +force_install_dir &quot;/opt/satisfactory/pinned/build&quot; +login anonymous +download_depot 1690800 1690803 &lt;manifest&gt; +quit"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </SmoothScrollViewer>
+
+        <Border Grid.Row="2"
+                Padding="16 12"
+                Background="{DynamicResource BackgroundColor2}"
+                BorderBrush="{DynamicResource ControlBorderColor}"
+                BorderThickness="0 1 0 0">
+            <StackPanel HorizontalAlignment="Right"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                <Button Click="Close_Click" Content="Cancel"/>
+                <Button Theme="{DynamicResource AccentButtonTheme}"
+                        Click="Install_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="7">
+                        <PathIcon Data="{x:Static MaterialIcons.DownloadOutline}"
+                                  Width="14"
+                                  Height="14"/>
+                        <TextBlock Text="Add &amp; install"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

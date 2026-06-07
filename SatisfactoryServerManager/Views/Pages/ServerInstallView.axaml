@@ -2,7 +2,556 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:ctrl="clr-namespace:SatisfactoryServerManager.Views.UserControls"
+             mc:Ignorable="d"
+             d:DesignWidth="1048"
+             d:DesignHeight="803"
              x:Class="SatisfactoryServerManager.Views.Pages.ServerInstallView">
-    Server Install
+
+    <UserControl.Styles>
+        <Style Selector="TextBlock.page-title">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColor1}"/>
+        </Style>
+
+        <Style Selector="TextBlock.build-title">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColor1}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Border.install-card">
+            <Setter Property="Background" Value="{DynamicResource BackgroundColor2}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="11"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+
+        <Style Selector="Border.build-card">
+            <Setter Property="Background" Value="{DynamicResource BackgroundColor2}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="11"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+
+        <Style Selector="Border.build-card.active">
+            <Setter Property="BorderBrush" Value="#A5652F"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Padding" Value="15"/>
+        </Style>
+
+        <Style Selector="Border.icon-tile">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="CornerRadius" Value="11"/>
+        </Style>
+
+        <Style Selector="Border.icon-tile PathIcon">
+            <Setter Property="Width" Value="21"/>
+            <Setter Property="Height" Value="21"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Button.flat-action">
+            <Setter Property="Theme" Value="{DynamicResource AppBarButtonTheme}"/>
+            <Setter Property="Padding" Value="7"/>
+            <Setter Property="MinWidth" Value="30"/>
+            <Setter Property="MinHeight" Value="30"/>
+        </Style>
+
+        <Style Selector="Button.flat-action PathIcon">
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Height" Value="16"/>
+        </Style>
+
+        <Style Selector="Button.drawer-scrim">
+            <Setter Property="Opacity" Value="0"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="Background" Value="#90000000"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}"/>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="Button.drawer-scrim.open">
+            <Setter Property="Opacity" Value="1"/>
+            <Setter Property="IsHitTestVisible" Value="True"/>
+        </Style>
+
+        <Style Selector="Border.add-build-drawer">
+            <Setter Property="Opacity" Value="0"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="RenderTransform" Value="translateX(580px)"/>
+        </Style>
+
+        <Style Selector="Border.add-build-drawer.open">
+            <Setter Property="Opacity" Value="1"/>
+            <Setter Property="IsHitTestVisible" Value="True"/>
+            <Setter Property="RenderTransform" Value="translateX(0px)"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid ClipToBounds="True">
+        <SmoothScrollViewer HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="14 20 18 24" Spacing="16">
+
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Spacing="3">
+                        <TextBlock Classes="page-title" Text="Install / Update"/>
+                        <TextBlock Classes="faint"
+                                   FontSize="12"
+                                   Text="Install or update the dedicated server with SteamCMD"/>
+                    </StackPanel>
+                    <Border Grid.Column="1"
+                            Classes="badge ok"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top">
+                        <StackPanel>
+                            <PathIcon Data="{x:Static MaterialIcons.LightningBolt}"
+                                      Width="11"
+                                      Height="11"/>
+                            <TextBlock Text="Running"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Grid ColumnDefinitions="2.15*,14,*" MinHeight="154">
+                    <Border Grid.Column="0" Classes="install-card">
+                        <Grid RowDefinitions="Auto,*">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <PathIcon Data="{x:Static MaterialIcons.ConsoleLine}"
+                                              Width="18"
+                                              Height="18"
+                                              Foreground="{DynamicResource TextFillColor2}"/>
+                                    <TextBlock Classes="card-title"
+                                               VerticalAlignment="Center"
+                                               Text="SteamCMD"/>
+                                </StackPanel>
+                                <Border Grid.Column="1" Classes="badge ok">
+                                    <StackPanel>
+                                        <PathIcon Data="{x:Static MaterialIcons.CheckCircleOutline}"/>
+                                        <TextBlock Text="Installed"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <Grid Grid.Row="1"
+                                  Margin="0 22 0 0"
+                                  ColumnDefinitions="Auto,*,1,18,Auto,*,Auto,22,Auto">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock
+                                                   Classes="kv-key"
+                                                   Text="Executable"/>
+                                        <TextBlock 
+                                                   Margin="12 0 20 0"
+                                                   Classes="kv-val"
+                                                   TextAlignment="Left"
+                                                   Text="/usr/games/steamcmd"/>
+                                        <Border
+                                                Width="1"
+                                                Margin="0 -3"
+                                                Background="{DynamicResource ControlBorderColor}"/>
+                                        <TextBlock
+                                                   Classes="kv-key"
+                                                   Text="Client"/>
+                                        <TextBlock
+                                                   Margin="12 0 20 0"
+                                                   Classes="kv-val"
+                                                   TextAlignment="Left"
+                                                   Text="1718653906"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,20,0,0" >
+                                        <Button 
+                                                Classes="flat-action"
+                                                ToolTip.Tip="Open SteamCMD folder">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <PathIcon Data="{x:Static MaterialIcons.FolderOutline}"/>
+                                                <TextBlock FontSize="12" Text="Folder"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button 
+                                                Classes="flat-action"
+                                                ToolTip.Tip="Update SteamCMD">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <PathIcon Data="{x:Static MaterialIcons.Refresh}"/>
+                                                <TextBlock FontSize="12" Text="Update client"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                                
+                                
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Classes="install-card">
+                        <Grid RowDefinitions="Auto,12,Auto,8,Auto,8,*">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <PathIcon Data="{x:Static MaterialIcons.PackageVariantClosed}"
+                                          Width="18"
+                                          Height="18"
+                                          Foreground="{DynamicResource TextFillColor2}"/>
+                                <TextBlock Classes="card-title"
+                                           VerticalAlignment="Center"
+                                           Text="Library"/>
+                            </StackPanel>
+                            <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+                                <TextBlock Classes="kv-key" Text="Root"/>
+                                <TextBlock Grid.Column="1"
+                                           Classes="kv-val"
+                                           Text="/opt/satisfactory"/>
+                            </Grid>
+                            <Grid Grid.Row="4" ColumnDefinitions="*,Auto">
+                                <TextBlock Classes="kv-key" Text="Builds"/>
+                                <TextBlock Grid.Column="1"
+                                           Classes="kv-val"
+                                           Text="3 installed"/>
+                            </Grid>
+                            <Grid Grid.Row="6" RowDefinitions="Auto,8,6">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Classes="kv-key" Text="Disk used by builds"/>
+                                    <TextBlock Grid.Column="1"
+                                               Classes="kv-val"
+                                               Text="336 GB free"/>
+                                </Grid>
+                                <Border Grid.Row="2"
+                                        Height="6"
+                                        CornerRadius="3"
+                                        Background="#141416"
+                                        ClipToBounds="True">
+                                    <Grid ColumnDefinitions="26*,8*,66*">
+                                        <Border Background="#5D6070"/>
+                                        <Border Grid.Column="1" Background="#F7923D"/>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Border Classes="banner warn">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <PathIcon Data="{x:Static MaterialIcons.LightningBolt}"
+                                  Foreground="#FF9C4B"/>
+                        <TextBlock Grid.Column="1"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   Foreground="#FFAA62"
+                                   TextWrapping="Wrap">
+                            <Run Text="Serving "/>
+                            <Run FontWeight="Bold" Text="Latest — Public"/>
+                            <Run Text=" · build 368883 to "/>
+                            <Run FontWeight="Bold" Text="Home Factory"/>
+                            <Run Text=". Switch the active build below, then restart the server to apply."/>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+
+                <Grid Margin="0 0 0 -2" ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="section-label"
+                               VerticalAlignment="Center"
+                               Text="INSTALLED BUILDS"/>
+                    <Button Grid.Column="1"
+                            Theme="{DynamicResource AccentButtonTheme}"
+                            Click="OpenAddBuild_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="7">
+                            <PathIcon Data="{x:Static MaterialIcons.Plus}"
+                                      Width="14"
+                                      Height="14"/>
+                            <TextBlock Text="Add a build"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <Border Classes="build-card active">
+                    <Grid ColumnDefinitions="44,14,*,Auto">
+                        <Border Classes="icon-tile" Background="#203E8664">
+                            <PathIcon Data="{x:Static MaterialIcons.CheckDecagram}"
+                                      Foreground="#56D49B"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="2" Spacing="7">
+                            <StackPanel Orientation="Horizontal" Spacing="9">
+                                <TextBlock Classes="build-title" Text="Latest — Public"/>
+                                <Border Classes="badge neutral">
+                                    <TextBlock Classes="mono"
+                                               FontWeight="Normal"
+                                               Text="build 368883"/>
+                                </Border>
+                                <Border Classes="badge warn">
+                                    <StackPanel>
+                                        <PathIcon Data="{x:Static MaterialIcons.LightningBolt}"/>
+                                        <TextBlock Text="Active"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Classes="badge ok">
+                                    <StackPanel>
+                                        <PathIcon Data="{x:Static MaterialIcons.CheckDecagram}"/>
+                                        <TextBlock Text="Public"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="7">
+                                <PathIcon Data="{x:Static MaterialIcons.FolderOutline}"
+                                          Width="13"
+                                          Height="13"
+                                          Foreground="{DynamicResource TextFillColor3}"/>
+                                <TextBlock Classes="faint mono"
+                                           FontSize="11"
+                                           Text="/opt/satisfactory/latest_public"/>
+                            </StackPanel>
+                            <TextBlock Classes="faint mono"
+                                       FontSize="11"
+                                       Text="latest-public · depot 1690803  ·  14.8 GB  ·  installed Jun 2, 2026"/>
+                        </StackPanel>
+
+                        <Grid Grid.Column="3" RowDefinitions="Auto,7,Auto,*,Auto">
+                            <Border Classes="badge ok" HorizontalAlignment="Right">
+                                <StackPanel>
+                                    <PathIcon Data="{x:Static MaterialIcons.CheckCircleOutline}"/>
+                                    <TextBlock Text="Up to date"/>
+                                </StackPanel>
+                            </Border>
+                            <StackPanel Grid.Row="2"
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        Spacing="6">
+                                <PathIcon Data="{x:Static MaterialIcons.CircleOutline}"
+                                          Width="14"
+                                          Height="14"
+                                          Foreground="#F59E42"/>
+                                <TextBlock FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="#F59E42"
+                                           Text="Active"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="4"
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        Spacing="2">
+                                <Button Classes="flat-action" ToolTip.Tip="Open console">
+                                    <PathIcon Data="{x:Static MaterialIcons.ConsoleLine}"/>
+                                </Button>
+                                <Button Classes="flat-action" ToolTip.Tip="Open folder">
+                                    <PathIcon Data="{x:Static MaterialIcons.FolderOutline}"/>
+                                </Button>
+                                <Button Classes="flat-action" ToolTip.Tip="Delete build">
+                                    <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border Classes="build-card">
+                    <Grid ColumnDefinitions="44,14,*,Auto">
+                        <Border Classes="icon-tile" Background="#203D6DAA">
+                            <PathIcon Data="{x:Static MaterialIcons.FlaskOutline}"
+                                      Foreground="#73A9F3"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="2" Spacing="7">
+                            <StackPanel Orientation="Horizontal" Spacing="9">
+                                <TextBlock Classes="build-title" Text="Latest — Experimental"/>
+                                <Border Classes="badge neutral">
+                                    <TextBlock Classes="mono"
+                                               FontWeight="Normal"
+                                               Text="build 369100"/>
+                                </Border>
+                                <Border Classes="badge accent">
+                                    <StackPanel>
+                                        <PathIcon Data="{x:Static MaterialIcons.FlaskOutline}"/>
+                                        <TextBlock Text="Experimental"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="7">
+                                <PathIcon Data="{x:Static MaterialIcons.FolderOutline}"
+                                          Width="13"
+                                          Height="13"
+                                          Foreground="{DynamicResource TextFillColor3}"/>
+                                <TextBlock Classes="faint mono"
+                                           FontSize="11"
+                                           Text="/opt/satisfactory/latest_experimental"/>
+                            </StackPanel>
+                            <TextBlock Classes="faint mono"
+                                       FontSize="11"
+                                       Text="latest-experimental · depot 1690803  ·  15.1 GB  ·  installed Jun 4, 2026"/>
+                            <Border Classes="banner info" Margin="0 4 0 0" Padding="12 8">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <PathIcon Data="{x:Static MaterialIcons.ArrowUpCircleOutline}"
+                                              Width="14"
+                                              Height="14"
+                                              Foreground="#67A3F0"/>
+                                    <TextBlock Grid.Column="1"
+                                               VerticalAlignment="Center"
+                                               FontSize="12"
+                                               Foreground="#8AB6F2"
+                                               Text="Update available — build 369140"/>
+                                    <Button Grid.Column="2">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <PathIcon Data="{x:Static MaterialIcons.DownloadOutline}"
+                                                      Width="14"
+                                                      Height="14"/>
+                                            <TextBlock Text="Update"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+
+                        <Grid Grid.Column="3" Margin="16 0 0 0" RowDefinitions="Auto,12,Auto,*,Auto">
+                            <Border Classes="badge accent" HorizontalAlignment="Right">
+                                <StackPanel>
+                                    <PathIcon Data="{x:Static MaterialIcons.ArrowUpCircleOutline}"/>
+                                    <TextBlock Text="Outdated"/>
+                                </StackPanel>
+                            </Border>
+                            <StackPanel Grid.Row="2"
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        Spacing="6">
+                                <PathIcon Data="{x:Static MaterialIcons.CircleOutline}"
+                                          Width="14"
+                                          Height="14"
+                                          Foreground="{DynamicResource TextFillColor2}"/>
+                                <TextBlock Classes="faint"
+                                           FontSize="12"
+                                           Text="Set active"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="4"
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        Spacing="2">
+                                <Button Classes="flat-action" ToolTip.Tip="Open console">
+                                    <PathIcon Data="{x:Static MaterialIcons.ConsoleLine}"/>
+                                </Button>
+                                <Button Classes="flat-action" ToolTip.Tip="Open folder">
+                                    <PathIcon Data="{x:Static MaterialIcons.FolderOutline}"/>
+                                </Button>
+                                <Button Classes="flat-action" ToolTip.Tip="Delete build">
+                                    <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border Classes="build-card">
+                    <Grid ColumnDefinitions="44,14,*,Auto">
+                        <Border Classes="icon-tile" Background="#204E3424">
+                            <PathIcon Data="{x:Static MaterialIcons.Lock}"
+                                      Foreground="#FF9148"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="2" Spacing="7">
+                            <StackPanel Orientation="Horizontal" Spacing="9">
+                                <TextBlock Classes="build-title" Text="1.0 — mod profile"/>
+                                <Border Classes="badge neutral">
+                                    <TextBlock Classes="mono"
+                                               FontWeight="Normal"
+                                               Text="build 363861"/>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="7">
+                                <PathIcon Data="{x:Static MaterialIcons.FolderOutline}"
+                                          Width="13"
+                                          Height="13"
+                                          Foreground="{DynamicResource TextFillColor3}"/>
+                                <TextBlock Classes="faint mono"
+                                           FontSize="11"
+                                           Text="/opt/satisfactory/pinned/1.0_modpack"/>
+                            </StackPanel>
+                            <TextBlock Classes="faint mono"
+                                       FontSize="11"
+                                       Text="depot 1690803 · manifest 5061049766315023872  ·  13.9 GB  ·  installed May 12, 2026"/>
+                        </StackPanel>
+
+                        <Grid Grid.Column="3" Margin="16 0 0 0" RowDefinitions="Auto,12,Auto,*,Auto">
+                            <Border Classes="badge neutral" HorizontalAlignment="Right">
+                                <StackPanel>
+                                    <PathIcon Data="{x:Static MaterialIcons.LockOutline}"/>
+                                    <TextBlock Text="Pinned"/>
+                                </StackPanel>
+                            </Border>
+                            <StackPanel Grid.Row="2"
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        Spacing="6">
+                                <PathIcon Data="{x:Static MaterialIcons.CircleOutline}"
+                                          Width="14"
+                                          Height="14"
+                                          Foreground="{DynamicResource TextFillColor2}"/>
+                                <TextBlock Classes="faint"
+                                           FontSize="12"
+                                           Text="Set active"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="4"
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        Spacing="2">
+                                <Button Classes="flat-action" ToolTip.Tip="Open console">
+                                    <PathIcon Data="{x:Static MaterialIcons.ConsoleLine}"/>
+                                </Button>
+                                <Button Classes="flat-action" ToolTip.Tip="Open folder">
+                                    <PathIcon Data="{x:Static MaterialIcons.FolderOutline}"/>
+                                </Button>
+                                <Button Classes="flat-action" ToolTip.Tip="Delete build">
+                                    <PathIcon Data="{x:Static MaterialIcons.DeleteOutline}"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </SmoothScrollViewer>
+
+        <Button x:Name="DrawerScrim"
+                ZIndex="10"
+                Classes="drawer-scrim"
+                Click="CloseAddBuild_Click">
+            <Button.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.20"/>
+                </Transitions>
+            </Button.Transitions>
+        </Button>
+
+        <Border x:Name="AddBuildDrawer"
+                ZIndex="20"
+                Classes="add-build-drawer"
+                Width="560"
+                Margin="12"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Stretch"
+                Background="{DynamicResource BackgroundColor1}"
+                BorderBrush="{DynamicResource ControlBorderColor}"
+                BorderThickness="1"
+                CornerRadius="11"
+                BoxShadow="0 0 28 2 #90000000"
+                ClipToBounds="True">
+            <Border.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.22"/>
+                    <TransformOperationsTransition Property="RenderTransform"
+                                                   Duration="0:0:0.25"
+                                                   Easing="CubicEaseOut"/>
+                </Transitions>
+            </Border.Transitions>
+            <ctrl:AddBuildView x:Name="AddBuildContent"/>
+        </Border>
+    </Grid>
 </UserControl>
