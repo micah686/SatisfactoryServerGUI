@@ -129,6 +129,11 @@ namespace SteamCmdWrapperLib
                 case '\a':
                     // ignore NUL and BEL
                     break;
+                case '\u001b':
+                case '\u009b':
+                    // Preserve ANSI sequence introducers for the sanitizer.
+                    _buffer.Append(ch);
+                    break;
                 default:
                     if (!char.IsControl(ch) || ch == '\t')
                     {

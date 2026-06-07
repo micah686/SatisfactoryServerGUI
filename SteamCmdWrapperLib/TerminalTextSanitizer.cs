@@ -9,8 +9,8 @@ namespace SteamCmdWrapperLib
     /// </summary>
     internal static class TerminalTextSanitizer
     {
-        private static readonly Regex AnsiRegex = new(
-            @"[\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[a-zA-Z\d]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PRZcf-ntqry=><~]))",
+        private static readonly Regex AnsiControlSequenceRegex = new(
+            @"(?:\u001B\[|\u009B)[0-?]*[ -/]*[@-~]",
             RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         /// <summary>
@@ -20,7 +20,7 @@ namespace SteamCmdWrapperLib
         public static string Clean(string? text)
         {
             if (string.IsNullOrEmpty(text)) return string.Empty;
-            return AnsiRegex.Replace(text, string.Empty);
+            return AnsiControlSequenceRegex.Replace(text, string.Empty);
         }
     }
 }
